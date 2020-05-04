@@ -13,8 +13,6 @@ mypy:
   script:
   - pwd
   - ls -l
-  - python -m mypy bild/file.py
-  - python -m mypy bild/directory.py
 
 flake8:
   stage: Static Analysis
@@ -25,7 +23,7 @@ pylint:
   stage: Static Analysis
   allow_failure: true
   script:
-  - pylint -d C0301 bild/*.py
+  - pylint -d C0301 src/server/*.py
 
 unit_test:
   stage: Test
