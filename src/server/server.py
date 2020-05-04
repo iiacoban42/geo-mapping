@@ -4,13 +4,14 @@ from io import BytesIO
 
 PORT = 8000
 
-"""Basic server class"""
-
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+    """Basic server class"""
 
-    """GET method"""
+
     def do_GET(self):
+        # pylint: disable=C0103
+        """GET method"""
         try:
             file = open("../index.html", "rb")
 
@@ -24,8 +25,9 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         except IOError:
             self.send_error(404, "File Not Found: % s" % self.path)
 
-    """POST method"""
     def do_POST(self):
+        # pylint: disable=C0103
+        """POST method"""
         content_length = int(self.headers["Content-Length"])
         body = self.rfile.read(content_length)
         self.send_response(200)
