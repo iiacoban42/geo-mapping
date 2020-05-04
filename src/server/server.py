@@ -8,7 +8,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
-            f = open("index.html", "rb")
+            f = open("../index.html", "rb")
 
             self.send_response(200)
             self.send_header("Content - type", "text / html")
