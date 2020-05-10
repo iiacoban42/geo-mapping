@@ -1,3 +1,4 @@
+"""Module for the server"""
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from io import BytesIO
 import mimetypes
@@ -7,8 +8,11 @@ PORT = 8000
 
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+    """Basic server class"""
 
     def do_GET(self):
+        # pylint: disable=C0103
+        """GET method"""
         try:
             if self.path == "/":
                 self.path = "../index.html"
@@ -27,6 +31,8 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_error(404, "File Not Found: % s" % self.path)
 
     def do_POST(self):
+        # pylint: disable=C0103
+        """POST method"""
         content_length = int(self.headers["Content-Length"])
         body = self.rfile.read(content_length)
         self.send_response(200)
