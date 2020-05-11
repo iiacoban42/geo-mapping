@@ -1,37 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Tiled ArcGIS MapServer</title>
-    <link rel="stylesheet" href="../ol.css" type="text/css" />
-
-    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.2.0/build/ol.js"></script>
-    <script
-      type="text/javascript"
-      src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.15/proj4.js"
-    ></script>
-    <script src="https://unpkg.com/ol-layerswitcher@3.4.0"></script>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/ol-layerswitcher@3.4.0/src/ol-layerswitcher.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.rawgit.com/Viglino/ol-ext/master/dist/ol-ext.min.css"
-      type="text/css"
-    />
-    <script
-      type="text/javascript"
-      src="https://cdn.rawgit.com/Viglino/ol-ext/master/dist/ol-ext.min.js"
-    ></script>
-    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL,Object.assign"></script>
-  </head>
-
-  <body>
-    blabla
-    <div id="map" class="map" />
-    <script type="text/javascript">
-      // import {transform} from 'ol/proj';
+ // import {transform} from 'ol/proj';
       // assuming that OpenLayers knows about EPSG:21781, see above
 
       var parser = new ol.format.WMTSCapabilities();
@@ -79,18 +46,18 @@
           projection: 'EPSG:28992',
           url: '../data/data.json'
         });
-    
+
         countriesSource.once('change', function(evt) {
           if (this.getState() == 'ready') {
             console.log(this.getFeatures()[0].getGeometry().getCoordinates());
             console.log(this.getFeatures()[0].getGeometry().clone().transform('EPSG:28992','EPSG:4326').getCoordinates());
           }
         });
-    
+
     var vectorLayer = new ol.layer.Vector({
           title: "data",
         source: countriesSource
-        
+
     });
     */
 
@@ -100,20 +67,20 @@
             attributions: 'Flight data by ' +
                   '<a href="http://openflights.org/data.html">OpenFlights</a>,',
             loader: function() {
-                
+
               var url = '../data/data.json';
               fetch(url).then(function(response) {
-                       
+
                           return response.json();
                   }).then(function(json){
-                      
-                      
+
+
                        var geom = [];
                         json.forEachFeature( function(feature) { console.log("hi"); geom.push(new ol.Feature(feature.getGeometry().clone().transform('EPSG:4326', 'EPSG:28992'))); } );
                           var writer = new ol.format.GeoJSON();
                           var geoJsonStr = writer.writeFeatures(geom);
                           console.log(geoJsonStr);
-                      
+
                   });
             }
      });
@@ -130,9 +97,9 @@
                      console.log(this.getFeatures()[8].getGeometry().getCoordinates());
                      var geometry = this.getFeatures()[8].getGeometry();
                      geometry.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:28992'));
-            console.log(geometry.getCoordinates());  
+            console.log(geometry.getCoordinates());
                // }
-           
+
           }
         });
     */
@@ -201,6 +168,3 @@
       map.getLayerGroup().on("change", function () {
         console.log("change", arguments);
       });
-    </script>
-  </body>
-</html>
