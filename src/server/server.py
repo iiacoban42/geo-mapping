@@ -2,6 +2,8 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from io import BytesIO
 
+#from src.server.db_controller import DatabaseController
+
 PORT = 8000
 
 
@@ -21,6 +23,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(file.read())
 
             file.close()
+            #DatabaseController.quiry()
             return
         except IOError:
             self.send_error(404, "File Not Found: % s" % self.path)
