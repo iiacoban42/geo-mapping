@@ -2,14 +2,15 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from io import BytesIO
 
-#from src.server.db_controller import DatabaseController
+from src.server.db_controller import DatabaseController
 
 PORT = 8000
+
+QUERY = "select * from tiles"
 
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     """Basic server class"""
-
 
     def do_GET(self):
         # pylint: disable=C0103
@@ -23,7 +24,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(file.read())
 
             file.close()
-            #DatabaseController.quiry()
+            DatabaseController.query_tiles(QUERY)
             return
         except IOError:
             self.send_error(404, "File Not Found: % s" % self.path)

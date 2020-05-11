@@ -6,7 +6,7 @@ class DatabaseController:
 
     # connect to the db
     @staticmethod
-    def quiry():
+    def query_tiles(query):
         con = psycopg2.connect(
             user="postgres",
             password="timetravel",
@@ -16,7 +16,7 @@ class DatabaseController:
 
         # cursor
         curs = con.cursor()
-        curs.execute("select * from tiles")
+        curs.execute(query)
         rows = curs.fetchall()
 
         for i in rows:
