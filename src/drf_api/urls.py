@@ -21,5 +21,5 @@ import core.views as cv
 urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('admin/', admin.site.urls),
-    path('', cv.ViewIndex.as_view(), name='test')
+    path('', cv.view_index, name='test')
 ]

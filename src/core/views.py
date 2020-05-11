@@ -1,16 +1,13 @@
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
+import urllib
 
 
-class ViewIndex(APIView):
-    def get(self, request, *args, **kwargs):
-        data = {
-            'name': 'john',
-            'message': 'hi'
-        }
-        return Response(data)
+def view_index(request):
+    index = open('templates/index.html').read()
+    return HttpResponse(index)
 
 # def view_index(request):
 #     data = {
