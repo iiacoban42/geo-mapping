@@ -29,14 +29,12 @@ html {
     background-color: #6d655c;
     opacity: 70%;
 }
-#open {
-
-}
+li,a, span { cursor: pointer; }
 /* The navigation links inside the overlay */
 .overlay a {
     padding: 8px;
     text-decoration: none;
-    font-size: 36px;
+    font-size: 25px;
     color: #818181;
     display: block; /* Display block instead of inline */
     transition: 0.3s; /* Transition effects on hover (color) */
@@ -52,7 +50,7 @@ html {
     position: absolute;
     top: 20px;
     right: 45px;
-    font-size: 60px;
+    font-size: 40px;
 }
 
 /* When the height of the screen is less than 450 pixels, change the font-size of the links and position the close button again, so they don't overlap */

@@ -18,7 +18,7 @@ function changeYear(year) {
 
 /* Open when someone clicks on the span element */
 function openNav() {
-    document.getElementById("myNav").style.width = "25%";
+    document.getElementById("myNav").style.width = "20%";
 }
 
 /* Close when someone clicks on the "x" symbol inside the overlay */
