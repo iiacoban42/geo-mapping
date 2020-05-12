@@ -813,3 +813,5 @@ venv/Lib/site-packages/pip/_vendor/pep517/wrappers.py
 venv/Lib/site-packages/pip/_vendor/pep517/envbuild.py
 venv/Lib/site-packages/pip/_vendor/pep517/compat.py
 venv/Lib/site-packages/pip/_vendor/pep517/colorlog.py
+__pycache__
+.vscode

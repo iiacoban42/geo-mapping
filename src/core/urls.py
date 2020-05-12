@@ -5,6 +5,6 @@ from . import views
 # pylint: disable=all
 
 urlpatterns = [
-    path('', views.home),
-
+    path('captcha/', views.captcha),
+    path('', views.home)
 ]
