@@ -1,8 +1,9 @@
 from unittest import TestCase
-from nose.tools import assert_true, assert_false
+from nose.tools import assert_true
 from mock import Mock
-import requests
 
+
+# pylint: disable=all
 
 class TestSimpleHTTPRequestHandler(TestCase):
     def test_get_request_response(self):
@@ -12,4 +13,3 @@ class TestSimpleHTTPRequestHandler(TestCase):
         response = mock_server.get(url)
         # Confirm that the request-response cycle completed successfully.
         assert_true(response.ok)
-

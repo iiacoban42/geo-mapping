@@ -1,0 +1,8 @@
+{
+  "name": "timetravel-maps",
+  "version": "1.0.0",
+  "dependencies": {
+    "@tensorflow-models/coco-ssd": "^2.0.3",
+    "esri": "0.0.1-security"
+  }
+}
