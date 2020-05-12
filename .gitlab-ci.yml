@@ -23,7 +23,8 @@ pylint:
   stage: Static Analysis
   allow_failure: true
   script:
-  - pylint -d C0301 src/server/*.py
+  - pylint -d C0301 src/core/*.py
+  - pylint -d C0301 src/api/*.py
 
 unit_test:
   stage: Test
