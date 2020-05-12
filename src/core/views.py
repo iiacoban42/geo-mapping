@@ -1,8 +1,9 @@
+"""Views module"""
 from django.shortcuts import render
-from django.http import HttpResponse
 
 
 # Create your views here.
 
 def home(request):
+    """render index.html page"""
     return render(request, 'maps/main.html')

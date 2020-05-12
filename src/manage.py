@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+"""Manager module"""
+# !/usr/bin/env python
 import os
 import sys
 

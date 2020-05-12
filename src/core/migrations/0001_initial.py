@@ -4,8 +4,11 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
-class Migration(migrations.Migration):
+# pylint: disable=all
+# generated file
 
+class Migration(migrations.Migration):
+    """Migration file"""
     initial = True
 
     dependencies = [
