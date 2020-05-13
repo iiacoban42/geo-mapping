@@ -33,4 +33,4 @@ unit_test:
   - ls -l
   - export PYTHONPATH="$PYTHONPATH:."
   - python -c "import sys;print(sys.path)"
-  - pytest
+  - python manage.py test
