@@ -29,4 +29,4 @@ pylint:
 unit_test:
   stage: Test
   script:
-  - python manage.py test
+  - python src/manage.py test
