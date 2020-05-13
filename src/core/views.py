@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 
 
-# Create your views here.
+# responses to HTTP requests
 
 def home(request):
     """render index.html page"""

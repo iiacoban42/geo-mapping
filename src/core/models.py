@@ -2,7 +2,8 @@
 from django.db import models
 
 
-# Create your models here.
+# Mapping to the database tables
+
 class Tiles(models.Model):
     """Tiles Table"""
     id = models.AutoField(primary_key=True)
