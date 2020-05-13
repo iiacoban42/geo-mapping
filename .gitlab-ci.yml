@@ -29,8 +29,4 @@ pylint:
 unit_test:
   stage: Test
   script:
-  - pwd
-  - ls -l
-  - export PYTHONPATH="$PYTHONPATH:."
-  - python -c "import sys;print(sys.path)"
   - python manage.py test
