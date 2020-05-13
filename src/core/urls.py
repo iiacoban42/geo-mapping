@@ -6,5 +6,6 @@ from . import views
 
 urlpatterns = [
     path('captcha/', views.captcha),
+    path('get_tile/', views.get_tile),
     path('', views.home)
 ]
