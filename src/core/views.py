@@ -4,20 +4,23 @@ import random
 from django.shortcuts import render
 from django.http import JsonResponse
 
-# Create your views here.
+
+# responses to HTTP requests
 
 def home(request):
     """render index.html page"""
     return render(request, 'maps/main.html')
 
+
 def captcha(request):
     """render captcha.html page"""
     return render(request, 'captcha/captcha.html')
 
+
 # pylint: disable=[unused-argument, fixme]
 def get_tile(request):
     """Return object containing: year, x, y"""
-    year = 2010 # TODO: Support other years
+    year = 2010  # TODO: Support other years
     x_coord = -1
     y_coord = -1
 
