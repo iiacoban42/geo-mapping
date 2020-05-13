@@ -1,11 +1,11 @@
 """Test views"""
-from django.test import TestCase, Client
+from django.test import SimpleTestCase, Client
 from django.urls import reverse
 # pylint: disable=all
 
 
 # Create your tests here.
-class TestViews(TestCase):
+class TestViews(SimpleTestCase):
 
     def test_index(self):
         self.client = Client()

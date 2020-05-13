@@ -1,11 +1,13 @@
 """Test urls"""
-from django.test import TestCase
+from django.test import SimpleTestCase
 from django.urls import resolve, reverse
 from core.views import home, captcha
+
+
 # pylint: disable=all
 
 # Create your tests here.
-class TestUrls(TestCase):
+class TestUrls(SimpleTestCase):
     def test_index(self):
         url = reverse('index')
         print(resolve(url))
