@@ -23,6 +23,6 @@ def get_tile(request):
 
     if year == 2010:
         x_coord = random.choice(range(75079, 75804))
-        x_coord = random.choice(range(74990, 76586))
+        y_coord = random.choice(range(74990, 76586))
 
     return JsonResponse({'year': year, 'x': x_coord, 'y': y_coord})
