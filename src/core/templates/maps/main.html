@@ -19,6 +19,7 @@
 
     <script src="https://js.arcgis.com/3.17/"></script>
 
+
 </head>
 <body><!-- The overlay -->
 <div id="myNav" class="overlay">
@@ -28,6 +29,7 @@
 
     <!-- Overlay content -->
     <div class="menu" id="menu">
+        <br><br><br>
         <a id="2016">2016</a>
         <a id="2015">2015</a>
         <a id="2014">2014</a>
@@ -115,7 +117,8 @@
 </script>
 <!-- Use any element to open/show the overlay navigation menu -->
 <div class="top">
-    <span class="open" onclick="openNav()">  &nbsp;&nbsp<i class="fa fa-bars"> open </i></span>
+    <span class="open" onclick="openNav()">  &nbsp;&nbsp<i class="fa fa-bars"
+                                                           id="open"> open &nbsp;&nbsp;|&nbsp;&nbsp; </i></span>
     <span id="current" class="current">current year</span>
 </div>
 <div id="map"></div>
