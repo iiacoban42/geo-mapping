@@ -109,13 +109,15 @@
     $(document).ready(function () {
         $(menu).click(function (event) {
             changeYear(event.target.id);
+            document.getElementById("current").innerHTML = event.target.id;
         });
     });
 </script>
 <!-- Use any element to open/show the overlay navigation menu -->
-<span id="open" onclick="openNav()">  &nbsp;&nbsp;<i class="fa fa-bars" style="font-size:30px;color:#212839"> open</i>
-</span>
-
+<div class="top">
+    <span class="open" onclick="openNav()">  &nbsp;&nbsp<i class="fa fa-bars"> open </i></span>
+    <span id="current" class="current">current year</span>
+</div>
 <div id="map"></div>
 <script src="{% static 'js/map.js' %}" type="text/javascript"></script>
 

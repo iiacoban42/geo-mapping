@@ -25,11 +25,32 @@
 #map_zoom_slider {
     left: 90%
 }
+
+.top {
+    background-color: rgba(0, 166, 214, 0.99);
+    height: auto;
+}
+
+.open {
+    font-size: 30px;
+    color: rgba(216, 232, 242, 1);
+}
+
+.current {
+    font-size: 30px;
+    color: rgba(216, 232, 242, 1);
+    float: right;
+}
+
 html {
-    background-color: #6d655c;
+    background-color: rgba(237, 237, 237, 0.18);
     opacity: 70%;
 }
-li,a, span { cursor: pointer; }
+
+li, a, .open {
+    cursor: pointer;
+}
+
 /* The navigation links inside the overlay */
 .overlay a {
     padding: 8px;
