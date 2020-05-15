@@ -60,3 +60,5 @@ wheel~=0.33.4
 wincertstore==0.2
 wrapt==1.12.1
 zipp==3.1.0
+opencv-python~=4.2.0.34
+numpy~=1.18.4
