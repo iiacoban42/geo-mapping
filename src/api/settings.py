@@ -72,19 +72,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'api.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
+#Database
+#https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'maps',
-#         'USER': 'postgres',
-#         'PASSWORD': 'timetravel',
-#         'HOST': '127.0.0.1',
-#         'PORT': '5432',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'projects_TimeTravelMaps',
+        'USER': 'pu_OkT0nkRGlc62l',
+        'PASSWORD': 'TFmzM7V8ihH9',
+        'HOST': 'projects-db.ewi.tudelft.nl',
+        'PORT': '3306',
+    }
+}
 
 
 # Password validation

@@ -10,6 +10,11 @@ class Tiles(models.Model):
     y_coord = models.IntegerField(blank=False)
     year = models.IntegerField(blank=False)
 
+    def random(self):
+        count = self.aggregate(count=Count('id'))['count']
+        random_index = randint(0, count - 1)
+        return self.all()[random_index]
+
 
 class Objects(models.Model):
     """Objects Table"""

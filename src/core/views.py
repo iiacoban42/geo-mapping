@@ -1,5 +1,6 @@
 """Views module"""
 import random
+from .models import *
 
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -16,13 +17,31 @@ def captcha(request):
 
 # pylint: disable=[unused-argument, fixme]
 def get_tile(request):
-    """Return object containing: year, x, y"""
-    year = 2010 # TODO: Support other years
-    x_coord = -1
-    y_coord = -1
+    """Return two object containing: year, x, y"""
 
-    if year == 2010:
-        x_coord = random.choice(range(75079, 75804))
-        y_coord = random.choice(range(74990, 76586))
 
-    return JsonResponse({'year': year, 'x': x_coord, 'y': y_coord})
+    #Pick an unknown tile
+    year_new = 2010 # TODO: Support other years
+    x_new = -1
+    y_new = -1
+
+    while True:
+        if year_new == 2010:
+            x_new = random.choice(range(75079, 75804))
+            y_new = random.choice(range(74990, 76586))
+
+        tile = Tiles.objects.filter(x_coord = x_new, y_coord = y_new)
+        if(len(tile) == 0):
+            break
+
+    #Pick a known tile
+    tile = random.choice(Tiles.objects.all())
+
+    year_known = tile.year
+    x_known = tile.x_coord
+    y_known = tile.y_coord
+
+    response = [{'year': year_new, 'x': x_new, 'y': y_new}, {'year': year_known, 'x': x_known, 'y': y_known}]
+    random.shuffle(response)
+
+    return JsonResponse(response, safe=False)
