@@ -15,7 +15,7 @@
     </div>
 
     <div id="challenge1" class="popup">
-        <img src="{% static '/img/tile_75315.png' %}" class="ch_img"> <br/>
+        <img id="ch_img1" class="ch_img"> <br/>
 
         Please select the objects that you see in the map: <br/>
 
@@ -24,11 +24,20 @@
         <input type="checkbox" autocomplete="off"/> Church <br/>
         <input type="checkbox" autocomplete="off"/> Oil Tank <br/> 
 
-        <button type="button" class="ch_submit">Submit</button> 
+        <button type="button1" class="ch_submit" onclick="next()">Next</button> 
     </div>
 
     <div id="challenge2" class="popup">
-        Alabala 2
+        <img id="ch_img2" class="ch_img"> <br/>
+
+        Please select the objects that you see in the map: <br/>
+
+        <input type="checkbox" autocomplete="off"/> Building <br/>
+        <input type="checkbox" autocomplete="off"/> Water <br/> 
+        <input type="checkbox" autocomplete="off"/> Church <br/>
+        <input type="checkbox" autocomplete="off"/> Oil Tank <br/> 
+
+        <button type="button" class="ch_submit" onclick="submit()">Submit</button> 
     </div>
 </body>
 </html>

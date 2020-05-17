@@ -1,6 +1,10 @@
 """Models module"""
+
+from random import randint
+
 from django.db import models
 
+# pylint: disable=[no-member, undefined-variable]
 
 # Create your models here.
 class Tiles(models.Model):
@@ -9,6 +13,12 @@ class Tiles(models.Model):
     x_coord = models.IntegerField(blank=False)
     y_coord = models.IntegerField(blank=False)
     year = models.IntegerField(blank=False)
+
+    def random(self):
+        """ Picks a random entry """
+        count = self.aggregate(count=Count('id'))['count']
+        random_index = randint(0, count - 1)
+        return self.all()[random_index]
 
 
 class Objects(models.Model):
