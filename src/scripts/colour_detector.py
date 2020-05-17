@@ -36,5 +36,4 @@ def get_map(year):
 
     print(result_year)
 
-
-get_map(2016)
+# get_map(2016)
