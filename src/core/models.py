@@ -6,10 +6,11 @@ from django.db import models
 
 # pylint: disable=[no-member, undefined-variable]
 
-# Create your models here.
+# Mapping to the database tables
+
 class Tiles(models.Model):
     """Tiles Table"""
-    hash = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     x_coord = models.IntegerField(blank=False)
     y_coord = models.IntegerField(blank=False)
     year = models.IntegerField(blank=False)
@@ -24,7 +25,7 @@ class Tiles(models.Model):
 class Objects(models.Model):
     """Objects Table"""
     id = models.AutoField(primary_key=True)
-    tiles_hash = models.ForeignKey(Tiles, on_delete=models.CASCADE)
+    tiles_id = models.ForeignKey(Tiles, on_delete=models.CASCADE)
     x_coord = models.IntegerField()
     y_coord = models.IntegerField()
     type = models.CharField(max_length=30)
@@ -34,7 +35,7 @@ class Objects(models.Model):
 class Characteristics(models.Model):
     """Characteristics Table"""
     id = models.AutoField(primary_key=True)
-    tiles_hash = models.ForeignKey(Tiles, on_delete=models.CASCADE)
+    tiles_id = models.ForeignKey(Tiles, on_delete=models.CASCADE)
     water_prediction = models.IntegerField()
     land_prediction = models.IntegerField()
     buildings_prediction = models.IntegerField()
