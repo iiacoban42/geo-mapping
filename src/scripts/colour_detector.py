@@ -1,16 +1,18 @@
 """Module for extracting colors from the tiles"""
+import os
 import urllib.request
 import extcolors
 
 
 # pylint: disable=C0301
-def extract_colors():
+def extract_colors(name):
     """Run extcolors on the input image (now it runs on black_tile.jpg to exemplify behavior)"""
-    colors, pixel_count = extcolors.extract("tile.png")
-    # extcolors.print_result(colors, pixel_count)
     result = []
-    for (color, pixels) in colors:
-        result.append((color, round(pixels / pixel_count * 100, 2)))
+    if os.path.exists(name):
+        colors, pixel_count = extcolors.extract(name)
+        # extcolors.print_result(colors, pixel_count)
+        for (color, pixels) in colors:
+            result.append((color, round(pixels / pixel_count * 100, 2)))
     return result
 
 
@@ -21,7 +23,7 @@ def get_tile(year, result):
             res = "https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_" + str(
                 year) + "/MapServer/tile/11/" + str(y_coord) + "/" + str(x_coord)
             urllib.request.urlretrieve(res, "tile.png")
-            tile = extract_colors()
+            tile = extract_colors("tile.png")
             print(tile)
             result.append(tile)
 
