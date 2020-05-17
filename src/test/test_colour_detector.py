@@ -1,6 +1,6 @@
 import unittest
 
-from src.scripts.colour_detector import extract_colors
+from scripts.colour_detector import extract_colors
 
 
 class TestStringMethods(unittest.TestCase):
