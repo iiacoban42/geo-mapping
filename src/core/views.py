@@ -1,12 +1,13 @@
 """Views module"""
-# pylint: disable=[unused-argument, fixme, relative-beyond-top-level]
+# pylint: disable=[unused-argument, fixme, relative-beyond-top-level, line-too-long]
 
 import random
+import json
 
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 
-from .models import Tiles
+from .models import Tiles, Characteristics, Objects
 
 # Create your views here.
 def home(request):
@@ -33,7 +34,7 @@ def get_tile(request):
             y_new = random.choice(range(74990, 76586))
 
         tile = Tiles.objects.filter(x_coord=x_new, y_coord=y_new)
-        if len(tile) == 0:
+        if not tile.exists():
             break
 
     #Pick a known tile
@@ -48,3 +49,38 @@ def get_tile(request):
     random.shuffle(response)
 
     return JsonResponse(response, safe=False)
+
+def submit_captcha(request):
+    """Verify captcha challenge"""
+    submission = json.loads(request.body)
+    print(submission[0])
+
+    #Find which tile is the control
+    tile1_query = Tiles.objects.filter(x_coord=submission[0]['x'], y_coord=submission[0]['y'],
+                                       year=submission[0]['year'])
+    tile2_query = Tiles.objects.filter(x_coord=submission[1]['x'], y_coord=submission[1]['y'],
+                                       year=submission[1]['year'])
+
+    if len(tile1_query) > 0:
+        #Tile #1 is control, verify it's data
+        control_tile = tile1_query[0]
+        control_sub = submission[0]
+    elif len(tile2_query) > 0:
+        #Tile #2 is control, verify it's data
+        control_tile = tile2_query[0]
+        control_sub = submission[1]
+    else:
+        return HttpResponseBadRequest("No tile")
+
+    char_query = Characteristics.objects.filter(tiles_id=control_tile.id)
+
+    if len(char_query) == 0:
+        return HttpResponseBadRequest("No characteristics")
+
+    control_char = char_query[0]
+    if (((control_char.water_prediction >= 50) == control_sub['water']) and
+            ((control_char.buildings_prediction >= 50) == control_sub['building']) and
+            ((control_char.land_prediction >= 50) == control_sub['land'])):
+        return HttpResponse()
+    else:
+        return HttpResponseBadRequest("Wrong answer")
