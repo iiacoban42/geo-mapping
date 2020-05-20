@@ -33,3 +33,19 @@ class Characteristics(models.Model):
     water_prediction = models.IntegerField()
     land_prediction = models.IntegerField()
     buildings_prediction = models.IntegerField()
+
+class CaptchaSubmissions(models.Model):
+    """Submitted CAPTCHAs"""
+    id = models.AutoField(primary_key=True)
+
+    # We cannot just reference a tile as it's not yet identified, so it doesn't exist in the DB
+    x_coord = models.IntegerField(blank=False)
+    y_coord = models.IntegerField(blank=False)
+    year = models.IntegerField(blank=False)
+
+    water = models.BooleanField()
+    land = models.BooleanField()
+    building = models.BooleanField()
+
+    church = models.BooleanField()
+    oiltank = models.BooleanField()

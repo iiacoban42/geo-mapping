@@ -7,7 +7,7 @@ import json
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 
-from .models import Tiles, Characteristics, Objects
+from .models import Tiles, Characteristics, Objects, CaptchaSubmissions
 
 # Create your views here.
 def home(request):
@@ -65,22 +65,50 @@ def submit_captcha(request):
         #Tile #1 is control, verify it's data
         control_tile = tile1_query[0]
         control_sub = submission[0]
+        unid_sub = submission[1]
     elif len(tile2_query) > 0:
         #Tile #2 is control, verify it's data
         control_tile = tile2_query[0]
         control_sub = submission[1]
+        unid_sub = submission[0]
     else:
         return HttpResponseBadRequest("No tile")
 
     char_query = Characteristics.objects.filter(tiles_id=control_tile.id)
-
     if len(char_query) == 0:
         return HttpResponseBadRequest("No characteristics")
 
     control_char = char_query[0]
+    # Check the characteristics
     if (((control_char.water_prediction >= 50) == control_sub['water']) and
             ((control_char.buildings_prediction >= 50) == control_sub['building']) and
             ((control_char.land_prediction >= 50) == control_sub['land'])):
+        obj_query = Objects.objects.filter(tiles_id=control_tile.id)
+        if len(obj_query) == 0:
+            if not control_sub['church'] and not control_sub['oiltank']: # In case there are no objects
+                correct_captcha(unid_sub)
+                return HttpResponse()
+            else:
+                return HttpResponseBadRequest("Wrong answer")
+
+        for obj in obj_query.all():
+            if ((obj.type == "church" and not control_sub['church']) or
+                    (obj.type == "oiltank" and not control_sub['oiltank'])):
+                    return HttpResponseBadRequest("Wrong answer")
+
+        correct_captcha(unid_sub)
         return HttpResponse()
     else:
         return HttpResponseBadRequest("Wrong answer")
+
+def correct_captcha(sub):
+    submission = CaptchaSubmissions()
+    submission.year = sub['year']
+    submission.x_coord = sub['x']
+    submission.y_coord = sub['y']
+    submission.water = sub['water']
+    submission.land = sub['land']
+    submission.building = sub['building']
+    submission.church = sub['church']
+    submission.oiltank = sub['oiltank']
+    submission.save()
