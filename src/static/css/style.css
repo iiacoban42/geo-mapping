@@ -80,6 +80,25 @@ a, .open {
     font-size: 40px;
 }
 
+.captcha {
+	background-color:rgba(157, 179, 191, 0.46);
+	border-radius:28px;
+	border:2px solid rgba(240, 240, 240, 0.7);
+	display:inline-block;
+	cursor:pointer;
+	color:#d7ecf6;
+	font-size:19px;
+	text-shadow:0px 1px 0px #2f6627;
+}
+.captcha:hover {
+	background-color:rgba(42, 170, 191, 0.34);
+}
+.captcha:active {
+	position:relative;
+	top:1px;
+}
+
+
 /* When the height of the screen is less than 450 pixels, change the font-size of the links and position the close button again, so they don't overlap */
 @media screen and (max-height: 450px) {
     .overlay a {
@@ -92,3 +111,5 @@ a, .open {
         right: 35px;
     }
 }
+
+
