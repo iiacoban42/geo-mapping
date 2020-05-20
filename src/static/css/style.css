@@ -81,14 +81,15 @@ a, .open {
 }
 
 .captcha {
-	background-color:rgba(157, 179, 191, 0.46);
-	border-radius:28px;
-	border:2px solid rgba(240, 240, 240, 0.7);
-	display:inline-block;
-	cursor:pointer;
-	color:#d7ecf6;
-	font-size:19px;
-	text-shadow:0px 1px 0px #2f6627;
+    background-color: rgba(157, 179, 191, 0.46);
+    border-radius: 28px;
+    border: 2px solid rgba(240, 240, 240, 0.7);
+    display: inline-block;
+    cursor: pointer;
+    color: #d7ecf6;
+    font-size: 19px;
+    margin-left: 60%;
+    text-shadow: 0px 1px 0px #2f6627;
 }
 .captcha:hover {
 	background-color:rgba(42, 170, 191, 0.34);
@@ -111,5 +112,3 @@ a, .open {
         right: 35px;
     }
 }
-
-
