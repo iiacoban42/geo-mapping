@@ -52,6 +52,7 @@ def get_tile(request):
 
 def submit_captcha(request):
     """Verify captcha challenge"""
+    #NOTE: Terrible code ahead. I'll try to make it prettier later on. -Georgi
     submission = json.loads(request.body)
     print(submission[0])
 
@@ -88,20 +89,19 @@ def submit_captcha(request):
             if not control_sub['church'] and not control_sub['oiltank']: # In case there are no objects
                 correct_captcha(unid_sub)
                 return HttpResponse()
-            else:
-                return HttpResponseBadRequest("Wrong answer")
+            return HttpResponseBadRequest("Wrong answer")
 
         for obj in obj_query.all():
             if ((obj.type == "church" and not control_sub['church']) or
                     (obj.type == "oiltank" and not control_sub['oiltank'])):
-                    return HttpResponseBadRequest("Wrong answer")
+                return HttpResponseBadRequest("Wrong answer")
 
         correct_captcha(unid_sub)
         return HttpResponse()
-    else:
-        return HttpResponseBadRequest("Wrong answer")
+    return HttpResponseBadRequest("Wrong answer")
 
 def correct_captcha(sub):
+    """When a correct control challenge is submitted, the unknown map tile result is recored"""
     submission = CaptchaSubmissions()
     submission.year = sub['year']
     submission.x_coord = sub['x']
