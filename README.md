@@ -10,6 +10,7 @@ Interest in maps
 1) Open the directory in command prompt (or bash if using Linux).
 2) Type in `pip install -r requirements.txt` to install the necessary packages. (First time only)
 3) Type in `python src/manage.py runserver` to run the server.
+4) Open a browser and access `localhost:8000`
 ## Built With
 Python with Django - Back-end API, testing   
 HTML, CSS, JavaScript - Front-end, CAPTCHAs  
