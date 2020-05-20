@@ -28,3 +28,8 @@ function closeNav() {
     document.getElementById("open").style.visibility = "visible";
     document.getElementById("myNav").style.width = "0%";
 }
+
+var btn = document.getElementById('captcha');
+btn.onclick = function() {
+location.assign('/captcha/');
+}
