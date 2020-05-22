@@ -7,6 +7,7 @@ before_script:
 stages:
   - Static Analysis
   - Test
+  - Deploy
 
 mypy:
   stage: Static Analysis
@@ -31,3 +32,16 @@ unit_test:
   script:
   - cd src
   - python manage.py test
+
+deploy_staging:
+  stage: deploy
+
+  script:
+  - apt-get update -qy
+  - apt-get install -y ruby-dev
+  - gem install dpl
+  - dpl --provider=heroku --app=timetravelmaps --api-key=8e8a1068-2e7b-4937-9f65-e684fe93d6e7
+  only:
+  - master
+  - dev
+  - heroku
