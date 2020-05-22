@@ -26,7 +26,9 @@ SECRET_KEY = 'h!&%tp^+j)3by@66fn)=l2o80g6utbdkpkku+n&68$=n7w(3_%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "timetravelmaps.herokuapp.com"
+]
 
 
 # Application definition
