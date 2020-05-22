@@ -34,7 +34,7 @@ unit_test:
   - python manage.py test
 
 deploy_staging:
-  stage: deploy
+  stage: Deploy
 
   script:
   - apt-get update -qy
