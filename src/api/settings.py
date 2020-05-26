@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
-import django_heroku
+#import django_heroku
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -27,7 +27,8 @@ SECRET_KEY = 'h!&%tp^+j)3by@66fn)=l2o80g6utbdkpkku+n&68$=n7w(3_%'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "timetravelmaps.herokuapp.com"
+    "timetravelmaps.herokuapp.com",
+    "127.0.0.1",
 ]
 
 

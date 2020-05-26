@@ -7,13 +7,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://js.arcgis.com/3.17/esri/css/esri.css">
-    <link rel="stylesheet" type="text/css" href="{% static '/css/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static '/css/tiles_overview.css' %}">
     <style>
         html, body, #map {
             height: 100%;
             width: 100%;
             margin: 0;
             padding: 0;
+            overflow: hidden;
         }
     </style>
 
@@ -118,8 +119,8 @@
 <!-- Use any element to open/show the overlay navigation menu -->
 <div class="top">
     <span class="open" onclick="openNav()">  &nbsp;&nbsp<i class="fa fa-bars"
-                                                           id="open"> open &nbsp;&nbsp;|&nbsp;&nbsp; </i></span>
-    <span id="current" class="current">current year</span>
+                                                           id="open"> Timeline &nbsp;&nbsp;|&nbsp;&nbsp; </i></span>
+    <span id="current" class="current">2016</span>
     <button class="captcha" id="captcha">
   click for captcha
 </button>

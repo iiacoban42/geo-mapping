@@ -1,7 +1,7 @@
 """Models module"""
 
-
 from django.db import models
+
 
 # pylint: disable=[no-member, undefined-variable]
 
@@ -32,6 +32,7 @@ class Characteristics(models.Model):
     water_prediction = models.IntegerField()
     land_prediction = models.IntegerField()
     buildings_prediction = models.IntegerField()
+
 
 class CaptchaSubmissions(models.Model):
     """Submitted CAPTCHAs"""
