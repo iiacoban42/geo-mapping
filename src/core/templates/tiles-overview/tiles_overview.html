@@ -34,7 +34,7 @@
 </div>
 <script>
     document.onreadystatechange = async function() {
-      const response = await fetch('/get_statistics');
+        const response = await fetch('/get_statistics');
     const json = await response.json();
 
     console.log(json);
@@ -52,6 +52,9 @@
              if(event.target.id === 'maps')
                  location.assign('/');
              else
+                 if(event.target.id === 'menu')
+                     return
+            else
                 location.assign('/' + event.target.id + '/');
             document.getElementById("current").innerHTML = event.target.id;
         });

@@ -80,7 +80,7 @@ a, .open {
     font-size: 40px;
 }
 
-.captcha {
+.captcha, .overview {
     background-color: rgba(157, 179, 191, 0.46);
     border-radius: 28px;
     border: 2px solid rgba(240, 240, 240, 0.7);
@@ -91,12 +91,35 @@ a, .open {
     margin-left: 60%;
     text-shadow: 0px 1px 0px #2f6627;
 }
+#captcha{
+    position: absolute;
+    margin-top: -31px;
+    margin-left: 1117px;
+}
+#overview{
+    margin-top: -31px;
+    margin-left: 1216px;
+    position: absolute;
+}
 .captcha:hover {
 	background-color:rgba(42, 170, 191, 0.34);
 }
-.captcha:active {
-	position:relative;
-	top:1px;
+.overview:hover {
+	background-color:rgba(42, 170, 191, 0.34);
+}
+
+
+/* When the height of the screen is less than 450 pixels, change the font-size of the links and position the close button again, so they don't overlap */
+@media screen and (max-height: 450px) {
+    .overlay a {
+        font-size: 20px
+    }
+
+    .overlay .closebtn {
+        font-size: 40px;
+        top: 15px;
+        right: 35px;
+    }
 }
 
 

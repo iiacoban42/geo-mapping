@@ -1,5 +1,5 @@
 /* Open when someone clicks on the span element */
-async function openNav() {
+function openNav() {
 
     document.getElementById("open").style.visibility = "hidden";
     document.getElementById("myNav").style.width = "7%";

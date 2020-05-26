@@ -29,7 +29,14 @@ function closeNav() {
     document.getElementById("myNav").style.width = "0%";
 }
 
-var btn = document.getElementById('captcha');
-btn.onclick = function() {
+var btn_captcha = document.getElementById('captcha');
+btn_captcha.onclick = function() {
+    console.log("captcha")
 location.assign('/captcha/');
+}
+
+var btn_overview = document.getElementById('overview');
+btn_overview.onclick = function() {
+    console.log("tiles_overview")
+location.assign('/tiles_overview/');
 }
