@@ -1,6 +1,5 @@
 """Models module"""
 
-from random import randint
 
 from django.db import models
 
@@ -14,12 +13,6 @@ class Tiles(models.Model):
     x_coord = models.IntegerField(blank=False)
     y_coord = models.IntegerField(blank=False)
     year = models.IntegerField(blank=False)
-
-    def random(self):
-        """ Picks a random entry """
-        count = self.aggregate(count=Count('id'))['count']
-        random_index = randint(0, count - 1)
-        return self.all()[random_index]
 
 
 class Objects(models.Model):
@@ -39,3 +32,19 @@ class Characteristics(models.Model):
     water_prediction = models.IntegerField()
     land_prediction = models.IntegerField()
     buildings_prediction = models.IntegerField()
+
+class CaptchaSubmissions(models.Model):
+    """Submitted CAPTCHAs"""
+    id = models.AutoField(primary_key=True)
+
+    # We cannot just reference a tile as it's not yet identified, so it doesn't exist in the DB
+    x_coord = models.IntegerField(blank=False)
+    y_coord = models.IntegerField(blank=False)
+    year = models.IntegerField(blank=False)
+
+    water = models.BooleanField()
+    land = models.BooleanField()
+    building = models.BooleanField()
+
+    church = models.BooleanField()
+    oiltank = models.BooleanField()
