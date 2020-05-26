@@ -23,7 +23,14 @@ def captcha(request):
 
 def tiles_overview(request):
     """render tiles_overview.html page"""
+
     return render(request, 'tiles-overview/tiles_overview.html')
+
+
+def get_statistics(request):
+    """send statistics json"""
+    response = {'ai': 1, 'cap': 2, 'dataset': 3}
+    return JsonResponse(response, safe=False)
 
 
 def get_tile(request):
@@ -109,7 +116,7 @@ def submit_captcha(request):
 
 
 def correct_captcha(sub):
-    """When a correct control challenge is submitted, the unknown map tile result is recored"""
+    """When a correct control challenge is submitted, the unknown map tile result is recorded"""
     submission = CaptchaSubmissions()
     submission.year = sub['year']
     submission.x_coord = sub['x']
