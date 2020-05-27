@@ -1,8 +1,9 @@
 :root {
     --main-cyan: rgba(0, 166, 214, 0.99);
     --main-sky-blue: rgba(110, 187, 213, 0.11);
-    --main-white:  rgba(216, 232, 242, 1);
+    --main-white: rgba(216, 232, 242, 1);
 }
+
 /* The Overlay (background) */
 .overlay {
     /* Height & width depends on how you want to reveal the overlay (see JS below) */
@@ -36,9 +37,10 @@
     font-size: 30px;
     color: var(--main-white);
 }
-.data{
+
+.data {
     font-family: "Roboto", Gadget, sans-serif;
-    color:rgb(0,0,0);
+    color: rgb(0, 0, 0);
     font-size: xx-large;
     text-align: left;
     width: 500px;
@@ -47,16 +49,19 @@
     margin-left: -250px;
     position: relative;
 }
-.results{
+
+.results {
     text-align: center;
     margin-top: -180px;
     position: relative;
 }
-.labels{
+
+.labels {
     position: relative;
     margin-top: 100px;
     margin-left: -450px;
 }
+
 #current {
     font-size: 30px;
     color: var(--main-white);
@@ -74,6 +79,7 @@ a, .open {
 .overlay {
     background-color: var(--main-sky-blue);
 }
+
 /* The navigation links inside the overlay */
 .overlay a {
     padding: 8px;

@@ -112,7 +112,7 @@
 <script>
     $(document).ready(function () {
         $(menu).click(function (event) {
-            if(event.target.id !== 'menu') {
+            if (event.target.id !== 'menu') {
                 changeYear(event.target.id);
                 document.getElementById("current").innerHTML = event.target.id;
             }
@@ -123,9 +123,9 @@
 <div class="top">
     <span class="open" onclick="openNav()">  &nbsp;&nbsp<i class="fa fa-bars"
                                                            id="open"> Timeline &nbsp;&nbsp;|&nbsp;&nbsp; </i></span>
-    <span id="current" class="current">current year</span>
+    <span id="current" class="current">2016</span>
     <div class="buttons">
-    <button class="captcha" id="captcha">captcha</button>
+        <button class="captcha" id="captcha">captcha</button>
         <button class="overview" id="overview">tiles data overview</button>
     </div>
 </div>

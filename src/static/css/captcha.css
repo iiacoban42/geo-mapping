@@ -4,10 +4,12 @@
     width: 250px;
     height: 80px;
     position: relative;
+    left: 50%;
+    margin-left: -125px;
+    top: 20%;
 }
 
-
-#not_a_robot_checkbox{
+#not_a_robot_checkbox {
     width: 50px;
     height: 50px;
     background: #ffffff;
@@ -16,7 +18,7 @@
     position: absolute;
 }
 
-#not_a_robot_checkbox:hover{
+#not_a_robot_checkbox:hover {
     width: 52px;
     height: 52px;
     background: #ffffff;
@@ -25,23 +27,23 @@
     position: absolute;
 }
 
-.checkmark{
+.checkmark {
     width: 50px;
     height: 50px;
     opacity: 0%;
 }
 
-.checkmark:hover{
+.checkmark:hover {
     width: 50px;
     height: 50px;
     opacity: 50%;
 }
 
-.checkmark_success{
+.checkmark_success {
     opacity: 100%;
 }
 
-#not_a_robot_text{
+#not_a_robot_text {
     margin-top: 30px;
     margin-left: 80px;
     position: absolute;
@@ -57,11 +59,12 @@
     border-radius: 50px;
     background-color: #e3e3e3;
     text-align: center;
-
     position: absolute;
-    top: 0%;
-    left: 0%;
+    top: 100px;
+    left: 50%;
+    margin-left: -200px;
 }
+
 
 .popup.show {
     visibility: visible;
@@ -69,7 +72,7 @@
     animation: fadeIn 1s
 }
 
-.ch_img{
+.ch_img {
     width: 50%;
     height: 50%;
     margin-left: auto;
@@ -79,7 +82,7 @@
     margin-bottom: 10px;
 }
 
-.ch_submit{
+.ch_submit {
     width: 100px;
     height: 40px;
     border-radius: 20px;
@@ -90,13 +93,21 @@
 
 /* Add animation (fade in the popup) */
 @-webkit-keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity: 1;}
-  }
-  
-  @keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity:1 ;}
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 
@@ -109,10 +120,104 @@
     left: 0px;
     width: 32px;
     height: 32px;
-    animation: spin 2s linear infinite;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+:root {
+    --main-cyan: rgba(0, 166, 214, 0.99);
+    --main-sky-blue: rgba(110, 187, 213, 0.11);
+    --main-white: rgba(216, 232, 242, 1);
+}
+
+/* The Overlay (background) */
+.overlay {
+    /* Height & width depends on how you want to reveal the overlay (see JS below) */
+    height: 100%;
+    width: 0;
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    background-color: rgb(0, 0, 0); /* Black fallback color */
+    background-color: rgba(0, 0, 0, 0.9); /* Black w/opacity */
+    overflow-x: hidden; /* Disable horizontal scroll */
+    transition: 0.5s; /* 0.5 second transition effect to slide in or slide down the overlay (height or width, depending on reveal) */
+}
+
+/* Position the content inside the overlay */
+.overlay-content {
+    position: relative;
+    top: 25%; /* 25% from the top */
+    width: 100%; /* 100% width */
+    text-align: center; /* Centered text/links */
+    margin-top: 30px; /* 30px top margin to avoid conflict with the close button on smaller screens */
+}
+
+.top {
+    background-color: var(--main-cyan);
+    height: auto;
+}
+
+.open {
+    font-size: 30px;
+    color: var(--main-white);
+}
+
+
+html {
+    background-color: rgba(237, 237, 237, 0.18);
+    opacity: 70%;
+}
+
+a, .open {
+    cursor: pointer;
+}
+
+.overlay {
+    background-color: var(--main-sky-blue);
+}
+
+/* The navigation links inside the overlay */
+.overlay a {
+    padding: 8px;
+    text-decoration: none;
+    font-size: 25px;
+    color: var(--main-cyan);
+    display: block; /* Display block instead of inline */
+    transition: 0.3s; /* Transition effects on hover (color) */
+}
+
+/* When you mouse over the navigation links, change their color */
+.overlay a:hover, .overlay a:focus {
+    color: rgba(110, 187, 213, 0.99);
+}
+
+/* Position the close button (top right corner) */
+.overlay .closebtn {
+    position: sticky;
+    top: 20px;
+    font-size: 40px;
+}
+
+
+/* When the height of the screen is less than 450 pixels, change the font-size of the links and position the close button again, so they don't overlap */
+@media screen and (max-height: 450px) {
+    .overlay a {
+        font-size: 20px
+    }
+
+    .overlay .closebtn {
+        font-size: 40px;
+        top: 15px;
+        right: 35px;
+    }
+}

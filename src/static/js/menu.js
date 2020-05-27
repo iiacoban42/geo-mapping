@@ -2,7 +2,7 @@
 function openNav() {
 
     document.getElementById("open").style.visibility = "hidden";
-    document.getElementById("myNav").style.width = "7%";
+    document.getElementById("myNav").style.width = "10%";
 
 }
 

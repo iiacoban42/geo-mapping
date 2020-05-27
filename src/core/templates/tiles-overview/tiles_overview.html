@@ -8,7 +8,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="{% static '/css/tiles_overview.css' %}">
     <style>
-        html, body{
+        html, body {
             height: 100%;
             width: 100%;
             margin: 0;
@@ -33,27 +33,26 @@
 
 </div>
 <script>
-    document.onreadystatechange = async function() {
+    document.onreadystatechange = async function () {
         const response = await fetch('/get_statistics');
-    const json = await response.json();
+        const json = await response.json();
 
-    console.log(json);
-    var ai = document.getElementById("ai");
-    var cap = document.getElementById("cap");
-    var dataset = document.getElementById("dataset");
-    ai.innerHTML = json.ai;
-    cap.innerHTML = json.cap;
-    dataset.innerHTML = json.dataset;
+        console.log(json);
+        var ai = document.getElementById("ai");
+        var cap = document.getElementById("cap");
+        var dataset = document.getElementById("dataset");
+        ai.innerHTML = json.ai;
+        cap.innerHTML = json.cap;
+        dataset.innerHTML = json.dataset;
 
-  }
+    }
     $(document).ready(function () {
         $(menu).click(function (event) {
-                console.log(event.target.id)
-             if(event.target.id === 'maps')
-                 location.assign('/');
-             else
-                 if(event.target.id === 'menu')
-                     return
+            console.log(event.target.id)
+            if (event.target.id === 'maps')
+                location.assign('/');
+            else if (event.target.id === 'menu')
+                return
             else
                 location.assign('/' + event.target.id + '/');
             document.getElementById("current").innerHTML = event.target.id;
@@ -69,18 +68,18 @@
 <div class="data">
     <h2>Total number of tiles</h2>
     <div class="labels">
-    <span>Classified by AI:</span><br>
-    <br><span>Registered by Captcha:</span><br>
-    <br><span>Dataset:</span><br>
+        <span>Classified by AI:</span><br>
+        <br><span>Registered by Captcha:</span><br>
+        <br><span>Dataset:</span><br>
     </div>
     <div class="results">
-    <span id="ai">loading...</span><br>
-    <br><span id="cap">loading...</span><br>
-    <br><span id="dataset">loading...</span><br>
+        <span id="ai">loading...</span><br>
+        <br><span id="cap">loading...</span><br>
+        <br><span id="dataset">loading...</span><br>
     </div>
 </div>
 
-<script src="{% static 'js/tile_overview.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/menu.js' %}" type="text/javascript"></script>
 
 </body>
 </html>
