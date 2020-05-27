@@ -1,8 +1,9 @@
 :root {
     --main-cyan: rgba(0, 166, 214, 0.99);
     --main-sky-blue: rgba(110, 187, 213, 0.11);
-    --main-white:  rgba(216, 232, 242, 1);
+    --main-white: rgba(216, 232, 242, 1);
 }
+
 /* The Overlay (background) */
 .overlay {
     /* Height & width depends on how you want to reveal the overlay (see JS below) */
@@ -58,6 +59,7 @@ a, .open {
 .overlay {
     background-color: var(--main-sky-blue);
 }
+
 /* The navigation links inside the overlay */
 .overlay a {
     padding: 8px;
@@ -91,21 +93,25 @@ a, .open {
     margin-left: 60%;
     text-shadow: 0px 1px 0px #2f6627;
 }
-#captcha{
+
+#captcha {
     position: absolute;
     margin-top: -31px;
     margin-left: 1117px;
 }
-#overview{
+
+#overview {
     margin-top: -31px;
     margin-left: 1216px;
     position: absolute;
 }
+
 .captcha:hover {
-	background-color:rgba(42, 170, 191, 0.34);
+    background-color: rgba(42, 170, 191, 0.34);
 }
+
 .overview:hover {
-	background-color:rgba(42, 170, 191, 0.34);
+    background-color: rgba(42, 170, 191, 0.34);
 }
 
 

@@ -30,13 +30,13 @@ function closeNav() {
 }
 
 var btn_captcha = document.getElementById('captcha');
-btn_captcha.onclick = function() {
+btn_captcha.onclick = function () {
     console.log("captcha")
-location.assign('/captcha/');
+    location.assign('/captcha/');
 }
 
 var btn_overview = document.getElementById('overview');
-btn_overview.onclick = function() {
+btn_overview.onclick = function () {
     console.log("tiles_overview")
-location.assign('/tiles_overview/');
+    location.assign('/tiles_overview/');
 }
