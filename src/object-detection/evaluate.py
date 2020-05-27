@@ -1,20 +1,10 @@
 import os
 
-from detecto import core, utils, visualize
+from detecto import core, utils
 
-# Constants used for training and evaluation
-TRAIN_DIR = "data/"
+# Constants used for evaluation
 OBJECTS_TO_DETECT = ['church']
 DETECTION_THRESHOLD = 0.95
-
-
-def train_model():
-    """Train church detection model"""
-    dataset = core.Dataset(TRAIN_DIR)
-    model = core.Model(OBJECTS_TO_DETECT)
-
-    model.fit(dataset)
-    model.save('model_weights.pth')
 
 
 def main():
