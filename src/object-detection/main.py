@@ -57,7 +57,14 @@ def main():
             print("Scores for non-church image {} are {}".format(filename, filtered_scores))
 
     image_count = len(os.listdir("validation-data/non-church")) + len(os.listdir("validation-data/church"))
-    print("Accuracy of this model is {}%".format(correct_classifications / image_count * 100))
+    classification_ratio = correct_classifications / image_count
+
+    # Write last accuracy
+    f = open("model/last_accuracy.txt", 'w')
+    f.write(str(classification_ratio))
+    f.close()
+
+    print("Accuracy of this model is {}%".format(classification_ratio * 100))
 
 
 if __name__ == "__main__":
