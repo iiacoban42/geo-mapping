@@ -25,7 +25,7 @@ def main():
     correct_classifications = 0
 
     # Check church detection
-    for i, filename in enumerate(os.listdir("validation-data/church")):
+    for filename in os.listdir("validation-data/church"):
         if filename.endswith(".png"):
             image = utils.read_image('validation-data/church/{}'.format(filename))
             predictions = model.predict(image)
@@ -38,10 +38,10 @@ def main():
             if len(filtered_scores) > 0:
                 correct_classifications += 1
 
-            print("Scores for church image {} are {}".format(i, filtered_scores))
+            print("Scores for church image {} are {}".format(filename, filtered_scores))
 
     # Check absence of churches
-    for i, filename in enumerate(os.listdir("validation-data/non-church")):
+    for filename in os.listdir("validation-data/non-church"):
         if filename.endswith(".png"):
             image = utils.read_image('validation-data/non-church/{}'.format(filename))
             predictions = model.predict(image)
@@ -54,7 +54,7 @@ def main():
             if len(filtered_scores) == 0:
                 correct_classifications += 1
 
-            print("Scores for non-church image {} are {}".format(i, filtered_scores))
+            print("Scores for non-church image {} are {}".format(filename, filtered_scores))
 
     image_count = len(os.listdir("validation-data/non-church")) + len(os.listdir("validation-data/church"))
     print("Accuracy of this model is {}%".format(correct_classifications / image_count * 100))
