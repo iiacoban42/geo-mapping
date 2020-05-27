@@ -29,7 +29,15 @@ def tiles_overview(request):
 
 def get_statistics(request):
     """send statistics json"""
-    response = {'ai': 1, 'cap': 2, 'dataset': 3}
+    cap = CaptchaSubmissions.objects.all().count()
+    response = {'ai': 0, 'cap': cap, 'dataset': 0}
+    return JsonResponse(response, safe=False)
+
+
+def get_statistics_year(request, requested_year):
+    """send statistics json"""
+    cap = CaptchaSubmissions.objects.filter(year=requested_year).count()
+    response = {'ai': 0, 'cap': cap, 'dataset': 0}
     return JsonResponse(response, safe=False)
 
 

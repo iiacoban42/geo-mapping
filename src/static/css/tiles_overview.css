@@ -1,117 +1,171 @@
-:root {
-    --main-cyan: rgba(0, 166, 214, 0.99);
-    --main-sky-blue: rgba(110, 187, 213, 0.11);
-    --main-white: rgba(216, 232, 242, 1);
-}
+        :root {
+            --main-cyan: rgba(0, 166, 214, 0.99);
+            --main-sky-blue: rgba(110, 187, 213, 0.11);
+            --main-white: rgba(216, 232, 242, 1);
+        }
 
-/* The Overlay (background) */
-.overlay {
-    /* Height & width depends on how you want to reveal the overlay (see JS below) */
-    height: 100%;
-    width: 0;
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    left: 0;
-    top: 0;
-    background-color: rgb(0, 0, 0); /* Black fallback color */
-    background-color: rgba(0, 0, 0, 0.9); /* Black w/opacity */
-    overflow-x: hidden; /* Disable horizontal scroll */
-    transition: 0.5s; /* 0.5 second transition effect to slide in or slide down the overlay (height or width, depending on reveal) */
-}
+        /* The Overlay (background) */
+        .overlay {
+            /* Height & width depends on how you want to reveal the overlay (see JS below) */
+            height: 100%;
+            width: 0;
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            background-color: rgb(0, 0, 0); /* Black fallback color */
+            background-color: rgba(0, 0, 0, 0.9); /* Black w/opacity */
+            overflow-x: hidden; /* Disable horizontal scroll */
+            transition: 0.5s; /* 0.5 second transition effect to slide in or slide down the overlay (height or width, depending on reveal) */
+        }
 
-/* Position the content inside the overlay */
-.overlay-content {
-    position: relative;
-    top: 25%; /* 25% from the top */
-    width: 100%; /* 100% width */
-    text-align: center; /* Centered text/links */
-    margin-top: 30px; /* 30px top margin to avoid conflict with the close button on smaller screens */
-}
+        /* Position the content inside the overlay */
+        .overlay-content {
+            position: relative;
+            top: 25%; /* 25% from the top */
+            width: 100%; /* 100% width */
+            text-align: center; /* Centered text/links */
+            margin-top: 30px; /* 30px top margin to avoid conflict with the close button on smaller screens */
+        }
 
-.top {
-    background-color: var(--main-cyan);
-    height: auto;
-}
+        .top {
+            background-color: var(--main-cyan);
+            height: auto;
+        }
 
-.open {
-    font-size: 30px;
-    color: var(--main-white);
-}
+        .open {
+            font-size: 30px;
+            color: var(--main-white);
+        }
 
-.data {
-    font-family: "Roboto", Gadget, sans-serif;
-    color: rgb(0, 0, 0);
-    font-size: xx-large;
-    text-align: left;
-    width: 500px;
-    height: 500px;
-    left: 50%;
-    margin-left: -250px;
-    position: relative;
-}
+        .data {
+            font-family: "Roboto", Gadget, sans-serif;
+            color: rgb(0, 0, 0);
+            font-size: xx-large;
+            text-align: left;
+            width: 500px;
+            height: 500px;
+            left: 50%;
+            margin-left: -250px;
+            position: relative;
+        }
 
-.results {
-    text-align: center;
-    margin-top: -180px;
-    position: relative;
-}
+        .results {
+            text-align: center;
+            margin-top: -33px;
+            position: relative;
+        }
 
-.labels {
-    position: relative;
-    margin-top: 100px;
-    margin-left: -450px;
-}
+        .labels {
+            margin-top: 50px;
+            margin-left: -450px;
+        }
 
-#current {
-    font-size: 30px;
-    color: var(--main-white);
-}
+        #captcha_label {
+            position: relative;
+            top: -82px;
+            left: 50%;
+            margin-left: -20%;
+        }
 
-html {
-    background-color: rgba(237, 237, 237, 0.18);
-    opacity: 70%;
-}
+        #ai_label {
+            position: relative;
+            top: -82px;
+            left: 5%;
+        }
 
-a, .open {
-    cursor: pointer;
-}
+        #dataset_label {
+            position: relative;
+            top: -82px;
+            left: 75%;
+        }
 
-.overlay {
-    background-color: var(--main-sky-blue);
-}
+        #ai {
+            position: relative;
+            left: -100%;
+        }
 
-/* The navigation links inside the overlay */
-.overlay a {
-    padding: 8px;
-    text-decoration: none;
-    font-size: 25px;
-    color: var(--main-cyan);
-    display: block; /* Display block instead of inline */
-    transition: 0.3s; /* Transition effects on hover (color) */
-}
+        #cap {
+            position: relative;
+            left: -5%;
+        }
 
-/* When you mouse over the navigation links, change their color */
-.overlay a:hover, .overlay a:focus {
-    color: rgba(110, 187, 213, 0.99);
-}
+        #dataset {
+            position: relative;
+            left: 87%;
+        }
 
-/* Position the close button (top right corner) */
-.overlay .closebtn {
-    position: sticky;
-    top: 20px;
-    font-size: 40px;
-}
+        #dataset_year {
+            position: relative;
+            left: 130%;
+        }
+
+        #cap_year {
+            position: relative;
+            left: 38%;
+        }
+
+        #ai_year {
+            position: relative;
+            left: -57%;
+        }
+
+        #current {
+            font-size: 30px;
+            color: var(--main-white);
+        }
+
+        #select_box {
+            position: relative;
+            top: -16%;
+            left: 75%;
+        }
+
+        html {
+            background-color: rgba(237, 237, 237, 0.18);
+            opacity: 70%;
+        }
+
+        a, .open {
+            cursor: pointer;
+        }
+
+        .overlay {
+            background-color: var(--main-sky-blue);
+        }
+
+        /* The navigation links inside the overlay */
+        .overlay a {
+            padding: 8px;
+            text-decoration: none;
+            font-size: 25px;
+            color: var(--main-cyan);
+            display: block; /* Display block instead of inline */
+            transition: 0.3s; /* Transition effects on hover (color) */
+        }
+
+        /* When you mouse over the navigation links, change their color */
+        .overlay a:hover, .overlay a:focus {
+            color: rgba(110, 187, 213, 0.99);
+        }
+
+        /* Position the close button (top right corner) */
+        .overlay .closebtn {
+            position: sticky;
+            top: 20px;
+            font-size: 40px;
+        }
 
 
-/* When the height of the screen is less than 450 pixels, change the font-size of the links and position the close button again, so they don't overlap */
-@media screen and (max-height: 450px) {
-    .overlay a {
-        font-size: 20px
-    }
+        /* When the height of the screen is less than 450 pixels, change the font-size of the links and position the close button again, so they don't overlap */
+        @media screen and (max-height: 450px) {
+            .overlay a {
+                font-size: 20px
+            }
 
-    .overlay .closebtn {
-        font-size: 40px;
-        top: 15px;
-        right: 35px;
-    }
-}
+            .overlay .closebtn {
+                font-size: 40px;
+                top: 15px;
+                right: 35px;
+            }
+        }
