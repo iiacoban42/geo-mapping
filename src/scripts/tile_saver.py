@@ -41,8 +41,8 @@ def save_tiles():
         for file in files:
             # get the coordinates from the file name
             coords = file.split('_')
-            x_coord = coords[0]
-            y_coord = coords[1]
+            y_coord = coords[0]
+            x_coord = coords[1]
             year = 2016
 
             # sql queries
