@@ -1,7 +1,7 @@
 """Models module"""
 
-
 from django.db import models
+
 
 # pylint: disable=[no-member, undefined-variable]
 
@@ -13,6 +13,17 @@ class Tiles(models.Model):
     x_coord = models.IntegerField(blank=False)
     y_coord = models.IntegerField(blank=False)
     year = models.IntegerField(blank=False)
+
+
+class Dataset(models.Model):
+    """Table for the dataset"""
+    id = models.AutoField(primary_key=True)
+    x_coord = models.IntegerField(blank=False)
+    y_coord = models.IntegerField(blank=False)
+    year = models.IntegerField(blank=False)
+    water = models.BooleanField()
+    land = models.BooleanField()
+    building = models.BooleanField()
 
 
 class Objects(models.Model):
@@ -32,6 +43,7 @@ class Characteristics(models.Model):
     water_prediction = models.IntegerField()
     land_prediction = models.IntegerField()
     buildings_prediction = models.IntegerField()
+
 
 class CaptchaSubmissions(models.Model):
     """Submitted CAPTCHAs"""
