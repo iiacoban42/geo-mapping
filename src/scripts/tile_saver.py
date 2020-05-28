@@ -59,12 +59,3 @@ def save_tiles():
 
     db.close()
 
-
-from datetime import datetime
-
-start = datetime.now()
-
-save_tiles()
-
-# calculate running time, just for the sake of it
-print(datetime.now() - start)

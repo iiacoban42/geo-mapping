@@ -9,7 +9,6 @@ import numpy as np
 
 def delete_img(img):
     """delete all tile identical to the black/empty tile in the current directory"""
-    # print("img"+img)
     original = cv2.imread("black_tile.png")
     dup = cv2.imread(img)
 
@@ -19,10 +18,10 @@ def delete_img(img):
         return
 
 
-directory = os.fsencode("../../..")
-for file in os.listdir(directory):
-    # print("f:"+str(file))
-    F = str(file).replace("'", '')
-    F = F.replace('b', '')
-    # print(""+f)
-    delete_img(F)
+def cleanup():
+    """Runs delete_img on all files in the current directory"""
+    directory = os.fsencode("../../..")
+    for file in os.listdir(directory):
+        F = str(file).replace("'", '')
+        F = F.replace('b', '')
+        delete_img(F)
