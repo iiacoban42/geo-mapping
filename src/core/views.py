@@ -37,7 +37,7 @@ def get_statistics(request):
 
 
 def get_statistics_year(request, requested_year):
-    """send statistics json"""
+    """send statistics json by year"""
     # TODO: statistics for ai
     cap = CaptchaSubmissions.objects.filter(year=requested_year).count()
     dataset = Dataset.objects.filter(year=requested_year).count()
