@@ -7,7 +7,7 @@ import json
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 
-from .models import Tiles, Characteristics, Objects, CaptchaSubmissions
+from .models import Tiles, Characteristics, Objects, CaptchaSubmissions, Dataset
 
 
 # Create your views here.
@@ -29,15 +29,19 @@ def tiles_overview(request):
 
 def get_statistics(request):
     """send statistics json"""
+    # TODO: statistics for ai
     cap = CaptchaSubmissions.objects.all().count()
-    response = {'ai': 0, 'cap': cap, 'dataset': 0}
+    dataset = Dataset.objects.all().count()
+    response = {'ai': 0, 'cap': cap, 'dataset': dataset}
     return JsonResponse(response, safe=False)
 
 
 def get_statistics_year(request, requested_year):
     """send statistics json"""
+    # TODO: statistics for ai
     cap = CaptchaSubmissions.objects.filter(year=requested_year).count()
-    response = {'ai': 0, 'cap': cap, 'dataset': 0}
+    dataset = Dataset.objects.filter(year=requested_year).count()
+    response = {'ai': 0, 'cap': cap, 'dataset': dataset}
     return JsonResponse(response, safe=False)
 
 
