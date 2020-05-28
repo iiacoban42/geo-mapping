@@ -1,6 +1,9 @@
 """Module for assigning labels to tiles based on colours"""
 import os
-from . import colour_detector
+import sys
+
+sys.path.append(os.path.join(os.path.dirname("src"), '..'))
+from src.scripts import colour_detector
 
 
 # usage: place script in the same folder as 2 other directories names images and labels
@@ -17,11 +20,10 @@ from . import colour_detector
 # since it cannot find the specified directory
 
 
-def sort_tiles():
+def sort_tiles(image_directory, labels_directory):
     """Check each file in the images directory and assign labels based on colours"""
-    for file in os.listdir("images"):
-        print(file)
-        result = colour_detector.extract_colours("images/" + file)
+    for file in os.listdir(image_directory):
+        result = colour_detector.extract_colours(image_directory + "/" + file)
         w_g_b = 0.0  # % of white/gray/black
         b_t = 0.0  # % of blue/teal
         o = 0.0  # % of other colours
@@ -62,11 +64,17 @@ def sort_tiles():
         dir_name = labels[0]
         for label in labels[1:]:
             dir_name += "+" + label
-        os.replace("images/" + file, "labels/" + dir_name + "/" + file)
+        os.replace(image_directory + "/" + file, labels_directory + "/" + dir_name + "/" + file)
 
 
 def find_colour(rgb):
     """Compare given rgb triplet to predefined colours to find the closest one"""
+
+    # this cannot normally happen to an image that is processed automatically, since colours
+    # are rbg by default, but it can happen if the function is called with invalid values
+    if rgb[0] < 0 or rgb[0] > 255 or rgb[1] < 0 or rgb[1] > 255 or rgb[2] < 0 or rgb[2] > 255:
+        return "part of the rgb triplet was invalid"
+
     # dictionary of predefined colours
     colours = {
         (255, 0, 0): "red",
@@ -111,14 +119,6 @@ def find_colour(rgb):
         (255, 255, 255): "white",
         (0, 0, 0): "black"
     }
-    # colour is considered gray if the r g b values are all within 10 of each other
-    gray = 1
-    differences = [abs(rgb[0] - rgb[1]), abs(rgb[1] - rgb[2]), abs(rgb[2] - rgb[1])]
-    for diff in differences:
-        if diff > 10:
-            gray = 0
-    if gray == 1:
-        return "gray"
     # calculate euclidean distance to all of the predefined colours
     # pick the closest one
     # note: 30000 was arbitrarily chosen as a threshold for a "close enough" colour
@@ -135,4 +135,15 @@ def find_colour(rgb):
         if d < min_dist:
             min_dist = d
             nearest_colour = colours[colour]
+
+    # colour is considered gray if the r g b values are all within 10 of each other
+    gray = 1
+    differences = [abs(rgb[0] - rgb[1]), abs(rgb[1] - rgb[2]), abs(rgb[2] - rgb[1])]
+    for diff in differences:
+        if diff > 10:
+            gray = 0
+    if gray == 1 and rgb[0] != 0 and rgb[1] != 0 and rgb[2] != 0 and rgb[0] != 255 and rgb[1] != 255 and rgb[2] != 255:
+        return "gray"
+
     return nearest_colour
+

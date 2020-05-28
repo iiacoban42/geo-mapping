@@ -7,6 +7,7 @@ sys.path.append(os.path.join(os.path.dirname("src"), '..'))
 from src.scripts.filter_tiles import delete_img
 from src.scripts.filter_tiles import cleanup
 
+
 class TestFilterTiles(unittest.TestCase):
 
     def test_delete_img_valid_black_tile(self):

@@ -4,7 +4,7 @@ import extcolors
 
 
 # pylint: disable=C0301
-def extract_colors(name):
+def extract_colours(name):
     """Run extcolors on the input image (now it runs on black_tile.jpg to exemplify behavior)"""
     result = []
     if os.path.exists(name):
@@ -13,4 +13,3 @@ def extract_colors(name):
         for (color, pixels) in colors:
             result.append((color, round(pixels / pixel_count * 100, 2)))
     return result
-
