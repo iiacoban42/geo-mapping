@@ -40,3 +40,12 @@ btn_overview.onclick = function () {
     console.log("tiles_overview")
     location.assign('/tiles_overview/');
 }
+
+$(document).ready(function () {
+    $(menu).click(function (event) {
+        if (event.target.id !== 'menu') {
+            changeYear(event.target.id);
+            document.getElementById("current").innerHTML = event.target.id;
+        }
+    });
+});

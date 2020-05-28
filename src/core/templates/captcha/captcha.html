@@ -9,14 +9,6 @@
     <script src="{% static '/js/captcha.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static '/css/captcha.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static '/css/overlay.css' %}">
-    <style>
-        html, body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-        }
-    </style>
 </head>
 <body>
 <div class="top">
@@ -33,22 +25,7 @@
         <br><br><br>
         <a id="maps">Maps</a>
         <a id="tiles_overview">Tiles data overview</a>
-
     </div>
-    <script>
-        $(document).ready(function () {
-            $(menu).click(function (event) {
-                console.log(event.target.id)
-                if (event.target.id === 'maps')
-                    location.assign('/');
-                else if (event.target.id === 'menu')
-                    return
-                else
-                    location.assign('/' + event.target.id + '/');
-                document.getElementById("current").innerHTML = event.target.id;
-            });
-        });
-    </script>
 
 </div>
 <div id="box">

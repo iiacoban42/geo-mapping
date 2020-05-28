@@ -10,14 +10,6 @@
     <script src="{% static 'js/tile_overview.js' %}" type="text/javascript"></script>
     <link rel="stylesheet" type="text/css" href="{% static '/css/tiles_overview.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static '/css/overlay.css' %}">
-    <style>
-        html, body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-        }
-    </style>
 
 </head>
 <body><!-- The overlay -->
@@ -34,33 +26,6 @@
     </div>
 </div>
 
-<script>
-    document.onreadystatechange = async function () {
-        const response = await fetch('/get_statistics');
-        const json = await response.json();
-
-        console.log(json);
-        var ai = document.getElementById("ai");
-        var cap = document.getElementById("cap");
-        var dataset = document.getElementById("dataset");
-        ai.innerHTML = json.ai;
-        cap.innerHTML = json.cap;
-        dataset.innerHTML = json.dataset;
-
-    }
-    $(document).ready(function () {
-        $(menu).click(function (event) {
-            console.log(event.target.id)
-            if (event.target.id === 'maps')
-                location.assign('/');
-            else if (event.target.id === 'menu')
-                return
-            else
-                location.assign('/' + event.target.id + '/');
-            document.getElementById("current").innerHTML = event.target.id;
-        });
-    });
-</script>
 <!-- Use any element to open/show the overlay navigation menu -->
 <div class="top">
     <span class="open" onclick="openNav()">  &nbsp;&nbsp<i class="fa fa-bars"
@@ -82,7 +47,7 @@
     <br>
     <h3>Number of tiles from </h3>
     <div id="select_box">
-        <select name="marked" id="marked" onchange="checkdata(this); ">
+        <select name="marked" id="marked" onchange="check_data(this); ">
             <option value="">Select year</option>
             <option value="2016">2016</option>
             <option value="2015">2015</option>
