@@ -39,6 +39,5 @@ def cleanup(directory, original):
     for file in os.listdir(directory):
         # fil = str(file).replace("'", '')
         # fil = fil.replace('b', '')
-        print(file)
         delete_img(directory + "/" + file, original)
 
