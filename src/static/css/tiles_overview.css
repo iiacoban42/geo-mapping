@@ -1,0 +1,83 @@
+
+.data {
+    font-family: "Roboto", Gadget, sans-serif;
+    color: rgb(0, 0, 0);
+    font-size: xx-large;
+    text-align: left;
+    width: 500px;
+    height: 500px;
+    left: 50%;
+    margin-left: -250px;
+    position: relative;
+}
+
+.results {
+    text-align: center;
+    margin-top: -33px;
+    position: relative;
+}
+
+.labels {
+    margin-top: 50px;
+    margin-left: -450px;
+}
+
+#captcha_label {
+    position: relative;
+    top: -82px;
+    left: 50%;
+    margin-left: -20%;
+}
+
+#ai_label {
+    position: relative;
+    top: -82px;
+    left: 5%;
+}
+
+#dataset_label {
+    position: relative;
+    top: -82px;
+    left: 75%;
+}
+
+#ai {
+    position: relative;
+    left: -100%;
+}
+
+#cap {
+    position: relative;
+    left: -5%;
+}
+
+#dataset {
+    position: relative;
+    left: 87%;
+}
+
+#dataset_year {
+    position: relative;
+    left: 130%;
+}
+
+#cap_year {
+    position: relative;
+    left: 38%;
+}
+
+#ai_year {
+    position: relative;
+    left: -57%;
+}
+
+#current {
+    font-size: 30px;
+    color: var(--main-white);
+}
+
+#select_box {
+    position: relative;
+    top: -16%;
+    left: 75%;
+}

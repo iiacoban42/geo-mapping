@@ -4,7 +4,7 @@ require(["esri/map", "esri/layers/ArcGISTiledMapServiceLayer", "dojo/domReady!"]
         map = new Map("map", {
             center: [-122.45, 37.75],
         });
-        var tiled = new Tiled("https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_2005/MapServer");
+        var tiled = new Tiled("https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_2016/MapServer");
         map.addLayer(tiled);
     }
 );
@@ -29,7 +29,23 @@ function closeNav() {
     document.getElementById("myNav").style.width = "0%";
 }
 
-var btn = document.getElementById('captcha');
-btn.onclick = function() {
-location.assign('/captcha/');
+var btn_captcha = document.getElementById('captcha');
+btn_captcha.onclick = function () {
+    console.log("captcha")
+    location.assign('/captcha/');
 }
+
+var btn_overview = document.getElementById('overview');
+btn_overview.onclick = function () {
+    console.log("tiles_overview")
+    location.assign('/tiles_overview/');
+}
+
+$(document).ready(function () {
+    $(menu).click(function (event) {
+        if (event.target.id !== 'menu') {
+            changeYear(event.target.id);
+            document.getElementById("current").innerHTML = event.target.id;
+        }
+    });
+});
