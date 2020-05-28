@@ -7,7 +7,7 @@ import json
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 
-from .models import Tiles, Characteristics, Objects, CaptchaSubmissions, Dataset
+from .models import *
 
 
 # Create your views here.

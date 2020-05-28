@@ -9,6 +9,10 @@ from django.db import models
 
 class Tiles(models.Model):
     """Tiles Table"""
+    # class Meta:
+    #     abstract = True  # specify this model as an Abstract Model
+    #     app_label = 'core'
+
     id = models.AutoField(primary_key=True)
     x_coord = models.IntegerField(blank=False)
     y_coord = models.IntegerField(blank=False)

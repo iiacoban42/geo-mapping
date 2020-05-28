@@ -38,7 +38,3 @@ class TestUrls(SimpleTestCase):
         print(resolve(url))
         self.assertEquals(resolve(url).func, captcha)
 
-    # def test_submit_captcha(self):
-    #     url = reverse('submit_captcha')
-    #     print(resolve(url))
-    #     self.assertEquals(resolve(url).func, submit_captcha)
