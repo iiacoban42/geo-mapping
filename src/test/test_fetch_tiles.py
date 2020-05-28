@@ -12,23 +12,23 @@ class TestFetchTiles(unittest.TestCase):
 
     def test_get_one_tile(self):
         """This test case retrieves one valid tile from the tile server"""
-        get_map(2016, range(75077, 75078), range(74956, 74957), "test")
-        self.assertEqual(os.path.exists("74956_75077.png"), True)
-        img1 = Image.open("74956_75077.png")
+        get_map(2016, range(75077, 75078), range(74956, 74957), ".")
+        self.assertEqual(os.path.exists("../74956_75077.png"), True)
+        img1 = Image.open("../74956_75077.png")
         img1.verify()
-        os.remove("74956_75077.png")
+        os.remove("../74956_75077.png")
 
     def test_get_more_tiles(self):
         """This test case retrieves two valid tiles from the tile server"""
-        get_map(2016, range(75078, 75080), range(74956, 74957), "test")
-        self.assertEqual(os.path.exists("74956_75078.png"), True)
-        self.assertEqual(os.path.exists("74956_75079.png"), True)
-        img1 = Image.open("74956_75078.png")
-        img2 = Image.open("74956_75079.png")
+        get_map(2016, range(75078, 75080), range(74956, 74957), ".")
+        self.assertEqual(os.path.exists("../74956_75078.png"), True)
+        self.assertEqual(os.path.exists("../74956_75079.png"), True)
+        img1 = Image.open("../74956_75078.png")
+        img2 = Image.open("../74956_75079.png")
         img1.verify()
         img2.verify()
-        os.remove("74956_75078.png")
-        os.remove("74956_75079.png")
+        os.remove("../74956_75078.png")
+        os.remove("../74956_75079.png")
 
     def test_inexistent_tile(self):
         """This test case tries to access a tile that does not exist on the tile server"""
@@ -40,7 +40,7 @@ class TestFetchTiles(unittest.TestCase):
 
     def test_inexistent_year(self):
         """This test case tries to access a tile from a year that does not exist on the tile server"""
-        get_map(1, range(1, 2), range(1, 2), "test")
+        get_map(1, range(1, 2), range(1, 2), ".")
         # the image is indeed retrieved, but the file cannot be opened because it is corrupted
-        self.assertRaises(OSError, Image.open, "74956_75078.png")
-        os.remove("1_1.png")
+        self.assertRaises(OSError, Image.open, "../test/1_1.png")
+        os.remove("../1_1.png")
