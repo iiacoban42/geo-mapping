@@ -13,7 +13,7 @@ class TestColourDetector(unittest.TestCase):
                            ((255, 79, 82), 17.25),
                            ((79, 255, 104), 17.25),
                            ((79, 81, 255), 17.25)]
-        self.assertEqual(extract_colours("test/sample_tile.png"), expected_result)
+        self.assertEqual(extract_colours("core/test/sample_tile.png"), expected_result)
 
     def test_inexistent_tile(self):
         expected_result = []
