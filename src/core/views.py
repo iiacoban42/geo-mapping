@@ -7,8 +7,11 @@ import json
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 
-from .models import *
-
+from core.models import CaptchaSubmissions as CaptchaTable
+from core.models import Dataset as DatasetTable
+from core.models import Tiles as TileTable
+from core.models import Characteristics as CharacteristicsTable
+from core.models import Objects as ObjectsTable
 
 # Create your views here.
 def home(request):
@@ -30,8 +33,8 @@ def tiles_overview(request):
 def get_statistics(request):
     """send statistics json"""
     # TODO: statistics for ai
-    cap = CaptchaSubmissions.objects.all().count()
-    dataset = Dataset.objects.all().count()
+    cap = CaptchaTable.objects.all().count()
+    dataset = DatasetTable.objects.all().count()
     response = {'ai': 0, 'cap': cap, 'dataset': dataset}
     return JsonResponse(response, safe=False)
 
@@ -39,8 +42,8 @@ def get_statistics(request):
 def get_statistics_year(request, requested_year):
     """send statistics json by year"""
     # TODO: statistics for ai
-    cap = CaptchaSubmissions.objects.filter(year=requested_year).count()
-    dataset = Dataset.objects.filter(year=requested_year).count()
+    cap = CaptchaTable.objects.filter(year=requested_year).count()
+    dataset = DatasetTable.objects.filter(year=requested_year).count()
     response = {'ai': 0, 'cap': cap, 'dataset': dataset}
     return JsonResponse(response, safe=False)
 
@@ -58,12 +61,12 @@ def get_tile(request):
             x_new = random.choice(range(75079, 75804))
             y_new = random.choice(range(74990, 76586))
 
-        tile = Tiles.objects.filter(x_coord=x_new, y_coord=y_new)
+        tile = TileTable.objects.filter(x_coord=x_new, y_coord=y_new)
         if not tile.exists():
             break
 
     # Pick a known tile
-    tile = random.choice(Tiles.objects.all())
+    tile = random.choice(TileTable.objects.all())
 
     year_known = tile.year
     x_known = tile.x_coord
@@ -83,9 +86,9 @@ def submit_captcha(request):
     print(submission[0])
 
     # Find which tile is the control
-    tile1_query = Tiles.objects.filter(x_coord=submission[0]['x'], y_coord=submission[0]['y'],
+    tile1_query = TileTable.objects.filter(x_coord=submission[0]['x'], y_coord=submission[0]['y'],
                                        year=submission[0]['year'])
-    tile2_query = Tiles.objects.filter(x_coord=submission[1]['x'], y_coord=submission[1]['y'],
+    tile2_query = TileTable.objects.filter(x_coord=submission[1]['x'], y_coord=submission[1]['y'],
                                        year=submission[1]['year'])
 
     if len(tile1_query) > 0:
@@ -101,7 +104,7 @@ def submit_captcha(request):
     else:
         return HttpResponseBadRequest("No tile")
 
-    char_query = Characteristics.objects.filter(tiles_id=control_tile.id)
+    char_query = CharacteristicsTable.objects.filter(tiles_id=control_tile.id)
     if len(char_query) == 0:
         return HttpResponseBadRequest("No characteristics")
 
@@ -110,7 +113,7 @@ def submit_captcha(request):
     if (((control_char.water_prediction >= 50) == control_sub['water']) and
             ((control_char.buildings_prediction >= 50) == control_sub['building']) and
             ((control_char.land_prediction >= 50) == control_sub['land'])):
-        obj_query = Objects.objects.filter(tiles_id=control_tile.id)
+        obj_query = ObjectsTable.objects.filter(tiles_id=control_tile.id)
         if len(obj_query) == 0:
             if not control_sub['church'] and not control_sub['oiltank']:  # In case there are no objects
                 correct_captcha(unid_sub)
@@ -129,7 +132,7 @@ def submit_captcha(request):
 
 def correct_captcha(sub):
     """When a correct control challenge is submitted, the unknown map tile result is recorded"""
-    submission = CaptchaSubmissions()
+    submission = CaptchaTable()
     submission.year = sub['year']
     submission.x_coord = sub['x']
     submission.y_coord = sub['y']

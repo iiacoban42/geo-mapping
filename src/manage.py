@@ -26,6 +26,8 @@ if __name__ == '__main__':
     #     cov.erase()
     #     cov.start()
 
+    # print(sys.path)
+
     execute_from_command_line(sys.argv)
 
     # if is_testing:
