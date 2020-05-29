@@ -3,8 +3,10 @@ import sys
 import unittest
 
 sys.path.append(os.path.join(os.path.dirname("src"), '..'))
-from src.scripts.colour_detector import extract_colors
+from src.scripts.colour_detector import extract_colours
 
+
+# pylint: disable=all
 
 class TestColourDetector(unittest.TestCase):
 
@@ -13,8 +15,8 @@ class TestColourDetector(unittest.TestCase):
                            ((255, 79, 82), 17.25),
                            ((79, 255, 104), 17.25),
                            ((79, 81, 255), 17.25)]
-        self.assertEqual(extract_colors("test/sample_tile.png"), expected_result)
+        self.assertEqual(extract_colours("core/test/sample_tile.png"), expected_result)
 
     def test_inexistent_tile(self):
         expected_result = []
-        self.assertEqual(extract_colors("test/inexistent_tile.png"), expected_result)
+        self.assertEqual(extract_colours("test/inexistent_tile.png"), expected_result)
