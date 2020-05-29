@@ -1,6 +1,6 @@
 :root {
     --main-cyan: rgba(0, 166, 214, 0.99);
-    --main-sky-blue: rgba(110, 187, 213, 0.11);
+    --main-sky-blue: rgba(110, 187, 213, 0.77);
     --main-white: rgba(216, 232, 242, 1);
 }
 
@@ -55,7 +55,7 @@ a, .open {
 }
 
 .overlay {
-    background-color: var(--main-sky-blue);
+    background-color: var(--main-white);
 }
 
 /* The navigation links inside the overlay */
@@ -76,10 +76,16 @@ a, .open {
 /* Position the close button (top right corner) */
 .overlay .closebtn {
     position: sticky;
-    top: 20px;
+    top: 0px;
     font-size: 40px;
 }
 
+.closebtn {
+    background-color: var(--main-white);
+    height: 60px;
+
+
+}
 /* When the height of the screen is less than 450 pixels, change the font-size of the links and position the close button again, so they don't overlap */
 @media screen and (max-height: 450px) {
     .overlay a {

@@ -13,21 +13,22 @@ if __name__ == '__main__':
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-    from django.core.management import execute_from_command_line
 
-    is_testing = 'test' in sys.argv
-
-    if is_testing:
-        import coverage
-
-        cov = coverage.coverage(source=['core', 'scripts'], omit=['*/tests/*', '*/migrations/*'], branch=True)
-        cov.erase()
-        cov.start()
-
+    ### UNCOMMENT FOR COVERAGE REPORT ###
+    # from django.core.management import execute_from_command_line
+    #
+    # is_testing = 'test' in sys.argv
+    #
+    # if is_testing:
+    #     import coverage
+    #
+    #     cov = coverage.coverage(source=['core', 'scripts'], omit=['*/tests/*', '*/migrations/*'], branch=True)
+    #     cov.erase()
+    #     cov.start()
+    #
     execute_from_command_line(sys.argv)
-
-    if is_testing:
-        cov.stop()
-        cov.save()
-        cov.html_report()
-
+    #
+    # if is_testing:
+    #     cov.stop()
+    #     cov.save()
+    #     cov.html_report()
