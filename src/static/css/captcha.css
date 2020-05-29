@@ -146,25 +146,26 @@
 }
 
 #legend_info {
-    z-index: 11;
+    z-index: 1;
     position: relative;
     display: none;
-    background-color: var(--main-cyan);
+    background-color: var(--main-white);
     border-radius: 28px;
-    border: 2px solid rgba(240, 240, 240, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.7);
     cursor: pointer;
     color: #d7ecf6;
     font-size: 19px;
     margin-left: auto;
     text-shadow: 0px 1px 0px #2f6627;
-    max-width: 100%;
+    width: auto;
     max-height: 100%;
 }
 
 #legend {
-    z-index: 11;
+    max-width: 100vh;
+    max-height: 100vh;
+    margin: auto;
+    z-index: 1;
     position: relative;
-    max-width: 100%;
-    max-height: 100%;
     display: block;
 }

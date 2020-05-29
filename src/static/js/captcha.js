@@ -112,10 +112,10 @@ function loadImage(img, url) {
 }
 
 function show_legend() {
-    var x = document.getElementById("legend_info");
-    if (x.style.display === "block") {
-        x.style.display = "none";
-    } else {
-        x.style.display = "block";
-    }
+    document.getElementById("legend_info").style.display = "block";
+}
+
+function hide_legend() {
+       document.getElementById("legend_info").style.display = "none";
+
 }
