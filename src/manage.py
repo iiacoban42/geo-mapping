@@ -22,12 +22,12 @@ if __name__ == '__main__':
     # if is_testing:
     #     import coverage
     #
-    #     cov = coverage.coverage(source=['core', 'scripts'], omit=['*/tests/*', '*/migrations/*'], branch=True)
+    #     cov = coverage.coverage(source=['core', 'scripts'], omit=['*/tests/*', '*/migrations/*', '*core/apps.py*'], branch=True)
     #     cov.erase()
     #     cov.start()
-    #
+
     execute_from_command_line(sys.argv)
-    #
+
     # if is_testing:
     #     cov.stop()
     #     cov.save()
