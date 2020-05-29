@@ -13,6 +13,7 @@ from core.models import Tiles as TileTable
 from core.models import Characteristics as CharacteristicsTable
 from core.models import Objects as ObjectsTable
 
+
 # Create your views here.
 def home(request):
     """render index.html page"""
@@ -87,9 +88,9 @@ def submit_captcha(request):
 
     # Find which tile is the control
     tile1_query = TileTable.objects.filter(x_coord=submission[0]['x'], y_coord=submission[0]['y'],
-                                       year=submission[0]['year'])
+                                           year=submission[0]['year'])
     tile2_query = TileTable.objects.filter(x_coord=submission[1]['x'], y_coord=submission[1]['y'],
-                                       year=submission[1]['year'])
+                                           year=submission[1]['year'])
 
     if len(tile1_query) > 0:
         # Tile #1 is control, verify it's data

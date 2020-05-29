@@ -8,6 +8,8 @@ sys.path.append(os.path.join(os.path.dirname("src"), '..'))
 from src.scripts.fetch_tiles import get_map
 
 
+# pylint: disable=all
+
 class TestFetchTiles(unittest.TestCase):
 
     def test_get_one_tile(self):
@@ -36,7 +38,8 @@ class TestFetchTiles(unittest.TestCase):
 
     def test_invalid_folder(self):
         """This test case tries to place the retrieved tile in an invalid folder"""
-        self.assertRaises(FileNotFoundError, get_map, 2016, range(75078, 75080), range(74956, 74957), "inexistent_folder")
+        self.assertRaises(FileNotFoundError, get_map, 2016, range(75078, 75080), range(74956, 74957),
+                          "inexistent_folder")
 
     def test_inexistent_year(self):
         """This test case tries to access a tile from a year that does not exist on the tile server"""

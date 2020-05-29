@@ -2,13 +2,15 @@
 
 from django.db import models
 
-# pylint: disable=[no-member, undefined-variable]
+
+# pylint: disable=[no-member, undefined-variable, too-few-public-methods, too-many-instance-attributes]
 
 # Mapping to the database tables
 class CaptchaSubmissions(models.Model):
     """Submitted CAPTCHAs"""
 
     class Meta:
+        """Meta CaptchaSubmissions"""
         app_label = 'core'
 
     id = models.AutoField(primary_key=True)
@@ -31,6 +33,7 @@ class Dataset(models.Model):
     """Table for the dataset"""
 
     class Meta:
+        """Meta Dataset"""
         app_label = 'core'
 
     id = models.AutoField(primary_key=True)
@@ -47,6 +50,7 @@ class Tiles(models.Model):
     """Tiles Table"""
 
     class Meta:
+        """Meta Tiles"""
         app_label = 'core'
 
     id = models.AutoField(primary_key=True)
@@ -60,6 +64,7 @@ class Objects(models.Model):
     """Objects Table"""
 
     class Meta:
+        """Meta Object"""
         app_label = 'core'
 
     id = models.AutoField(primary_key=True)
@@ -75,6 +80,7 @@ class Characteristics(models.Model):
     """Characteristics Table"""
 
     class Meta:
+        """Meta Characteristics"""
         app_label = 'core'
 
     id = models.AutoField(primary_key=True)

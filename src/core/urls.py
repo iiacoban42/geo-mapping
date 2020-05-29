@@ -1,6 +1,6 @@
 """Core urls module"""
 from django.urls import path
-from core import views
+from . import views
 from django.views.decorators.csrf import csrf_exempt
 
 # pylint: disable=all

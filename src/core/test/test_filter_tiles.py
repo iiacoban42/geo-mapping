@@ -8,6 +8,8 @@ from src.scripts.filter_tiles import delete_img
 from src.scripts.filter_tiles import cleanup
 
 
+# pylint: disable=all
+
 class TestFilterTiles(unittest.TestCase):
 
     def test_delete_img_valid_black_tile(self):
@@ -15,7 +17,8 @@ class TestFilterTiles(unittest.TestCase):
         im2 = im1.copy()
         im2.save("core/test/black_tile_copy.png")
         self.assertEqual(os.path.exists("core/test/black_tile_copy.png"), True)
-        self.assertEqual("successfully removed", delete_img("core/test/black_tile_copy.png", "core/test/black_tile.png"))
+        self.assertEqual("successfully removed",
+                         delete_img("core/test/black_tile_copy.png", "core/test/black_tile.png"))
         self.assertEqual(os.path.exists("core/test/black_tile_copy.png"), False)
 
     def test_delete_img_non_png_file(self):
@@ -25,7 +28,8 @@ class TestFilterTiles(unittest.TestCase):
 
     def test_delete_img_invalid_png_file(self):
         self.assertEqual(os.path.exists("core/test/not_a_valid_png.png"), True)
-        self.assertEqual("file is not a valid png", delete_img("core/test/not_a_valid_png.png", "core/test/black_tile.png"))
+        self.assertEqual("file is not a valid png",
+                         delete_img("core/test/not_a_valid_png.png", "core/test/black_tile.png"))
         self.assertEqual(os.path.exists("core/test/not_a_valid_png.png"), True)
 
     def test_delete_img_inexistent_file(self):

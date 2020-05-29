@@ -6,6 +6,8 @@ sys.path.append(os.path.join(os.path.dirname("src"), '..'))
 from src.scripts.colour_detector import extract_colours
 
 
+# pylint: disable=all
+
 class TestColourDetector(unittest.TestCase):
 
     def test_valid_tile(self):

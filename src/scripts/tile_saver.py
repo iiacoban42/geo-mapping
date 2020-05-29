@@ -1,7 +1,7 @@
 """Module for saving labeled tiles to the database"""
+# pylint: disable=[import-error, unused-variable]
 import os
 import MySQLdb
-
 
 # usage: place your "labels" folder in the same folder as this script
 #        labels has subdirectories with all possible combinations of labels:
@@ -12,19 +12,22 @@ import MySQLdb
 #               -land
 #               -land+water
 #               -water
-# note: the names of the directories have to be exactly those above, otherwise the script will crash since
+# note: the names of the directories have to be exactly those above,
+# otherwise the script will crash since
 # it cannot find the specified directory
-# the script looks through all the subdirectories of the directory named labels and saves after each one is done
+# the script looks through all the subdirectories of the
+# directory named labels and saves after each one is done
 
 
 def save_tiles():
-    db = MySQLdb.connect(host="projects-db.ewi.tudelft.nl",  # host
-                         user="pu_OkT0nkRGlc62l",  # username
-                         passwd="TFmzM7V8ihH9",  # password
-                         db="projects_TimeTravelMaps")  # name of the database
+    """Save tiles to db"""
+    data_base = MySQLdb.connect(host="projects-db.ewi.tudelft.nl",  # host
+                                user="pu_OkT0nkRGlc62l",  # username
+                                passwd="TFmzM7V8ihH9",  # password
+                                db="projects_TimeTravelMaps")  # name of the database
 
     # creating a cursor object
-    cur = db.cursor()
+    cur = data_base.cursor()
 
     for root, dirs, files in os.walk("labels", topdown=False):
         # assign the label of the folder that the image is placed in
@@ -46,7 +49,8 @@ def save_tiles():
             year = 2016
 
             # sql queries
-            cur.execute("INSERT INTO core_dataset (x_coord, y_coord, year, water, land, building) VALUES (\'"
+            cur.execute("INSERT INTO core_dataset "
+                        + "(x_coord, y_coord, year, water, land, building) VALUES (\'"
                         + str(x_coord) + "\',\'"
                         + str(y_coord) + "\',\'"
                         + str(year) + "\',\'"
@@ -55,7 +59,6 @@ def save_tiles():
                         + str(building) + "\');")
 
         # commit after each folder is done, in case something breaks
-        db.commit()
+        data_base.commit()
 
-    db.close()
-
+    data_base.close()

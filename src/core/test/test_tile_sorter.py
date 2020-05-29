@@ -9,6 +9,8 @@ from src.scripts.tile_sorter import find_colour
 from src.scripts.tile_sorter import sort_tiles
 
 
+# pylint: disable=all
+
 class TestTileSorter(unittest.TestCase):
 
     def test_simple_rgb(self):
