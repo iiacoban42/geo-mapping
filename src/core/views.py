@@ -14,7 +14,7 @@ from core.models import Dataset as DatasetTable
 from core.models import Tiles as TileTable
 from core.models import Characteristics as CharacteristicsTable
 from core.models import Objects as ObjectsTable
-from core.models import ConfirmedCaptchas
+from core.models import ConfirmedCaptchas as ConfirmedCaptchasTable
 
 # Create your views here.
 def home(request):
@@ -64,18 +64,17 @@ def get_tile(request):
             x_new = random.choice(range(75079, 75804))
             y_new = random.choice(range(74990, 76586))
 
-        tile = Tiles.objects.filter(x_coord=x_new, y_coord=y_new)
+        tile = TileTable.objects.filter(x_coord=x_new, y_coord=y_new)
         if len(tile) > 0:
             continue
 
-        tile_confirmed = ConfirmedCaptchas.objects.filter(x_coord=x_new, y_coord=y_new, year=year_new)
+        tile_confirmed = ConfirmedCaptchasTable.objects.filter(x_coord=x_new, y_coord=y_new, year=year_new)
 
         if len(tile_confirmed) > 0:
             continue
-        
+
         break
-    
-    
+
     # Pick a known tile
     tile = random.choice(TileTable.objects.all())
 
@@ -158,7 +157,7 @@ def correct_captcha(sub):
 
 def check_submission(year, x_coord, y_coord):
     """"When multiple people have answered a CAPTCHA in a similar matter, that answer is recorded"""
-    submissions_query = CaptchaSubmissions.objects.filter(x_coord=x_coord, y_coord=y_coord, year=year) \
+    submissions_query = CaptchaTable.objects.filter(x_coord=x_coord, y_coord=y_coord, year=year) \
                                     .aggregate(cnt=Count('*'), avg_water=Avg(Cast('water', FloatField())), avg_land=Avg(Cast('land', FloatField())), \
                                     avg_building=Avg(Cast('building', FloatField())), avg_church=Avg(Cast('church', FloatField())), \
                                     avg_oiltank=Avg(Cast('oiltank', FloatField())))
@@ -183,7 +182,7 @@ def check_submission(year, x_coord, y_coord):
         print("Votes are too different to classify tile")
         return
 
-    confirmed = ConfirmedCaptchas()
+    confirmed = ConfirmedCaptchasTable()
     confirmed.x_coord = x_coord
     confirmed.y_coord = y_coord
     confirmed.year = year
