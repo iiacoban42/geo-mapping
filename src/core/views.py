@@ -1,5 +1,5 @@
 """Views module"""
-# pylint: disable=[unused-argument, fixme, relative-beyond-top-level, line-too-long, too-many-branches]
+# pylint: disable=[unused-argument, fixme, relative-beyond-top-level, line-too-long, too-many-branches, too-many-return-statements]
 
 import random
 import json
@@ -178,7 +178,7 @@ def check_submission(year, x_coord, y_coord):
     confirmed.y_coord = y_coord
     confirmed.year = year
 
- 
+
     confirmed.water_prediction = (submissions['avg_water']) * 100
     confirmed.land_prediction = (submissions['avg_land']) * 100
     confirmed.buildings_prediction = (submissions['avg_building']) * 100
