@@ -1,0 +1,26 @@
+<annotation>
+	<folder>data</folder>
+	<filename>75085_75630_.png</filename>
+	<path>/Users/borisberman/Development/timetravel-maps/src/object-detection/data/75085_75630_.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>256</width>
+		<height>256</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>church</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>48</xmin>
+			<ymin>177</ymin>
+			<xmax>79</xmax>
+			<ymax>224</ymax>
+		</bndbox>
+	</object>
+</annotation>
