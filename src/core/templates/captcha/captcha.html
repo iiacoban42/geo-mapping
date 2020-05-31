@@ -36,6 +36,14 @@
     <div id="not_a_robot_text">I am not a robot</div>
 </div>
 
+<button id="legend_btn" style="height: 50px; width: 50px;" onmouseover="show_legend()" onmouseout="hide_legend()"><i class="fa fa-info"></i>
+</button>
+
+<div id="legend_info" onmouseover="show_legend()" onmouseout="hide_legend()">
+    <img id="legend" class="legend" src="{% static '/img/legend.png' %}">
+
+</div>
+
 <div id="challenge1" class="popup">
     <img id="ch_img1" class="ch_img"> <br/>
 
