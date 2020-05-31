@@ -60,3 +60,19 @@ class CaptchaSubmissions(models.Model):
 
     church = models.BooleanField()
     oiltank = models.BooleanField()
+
+
+class ConfirmedCaptchas(models.Model):
+    """Confirmed CAPTCHAs"""
+    id = models.AutoField(primary_key=True)
+
+    x_coord = models.IntegerField(blank=False)
+    y_coord = models.IntegerField(blank=False)
+    year = models.IntegerField(blank=False)
+
+    water_prediction = models.IntegerField()
+    land_prediction = models.IntegerField()
+    buildings_prediction = models.IntegerField()
+
+    church_prediction = models.IntegerField()
+    oiltank_prediction = models.IntegerField()

@@ -1,13 +1,15 @@
 """Views module"""
-# pylint: disable=[unused-argument, fixme, relative-beyond-top-level, line-too-long]
+# pylint: disable=[unused-argument, fixme, relative-beyond-top-level, line-too-long, too-many-branches]
 
 import random
 import json
 
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.db.models import Avg, Count, FloatField
+from django.db.models.functions import Cast
 
-from .models import Tiles, Characteristics, Objects, CaptchaSubmissions
+from .models import Tiles, Characteristics, Objects, CaptchaSubmissions, ConfirmedCaptchas
 
 
 # Create your views here.
@@ -55,8 +57,14 @@ def get_tile(request):
             y_new = random.choice(range(74990, 76586))
 
         tile = Tiles.objects.filter(x_coord=x_new, y_coord=y_new)
-        if not tile.exists():
-            break
+        if len(tile) > 0:
+            continue
+
+        tile_confirmed = ConfirmedCaptchas.objects.filter(x_coord=x_new, y_coord=y_new, year=year_new)
+
+        if len(tile_confirmed) > 0:
+            continue
+        break
 
     # Pick a known tile
     tile = random.choice(Tiles.objects.all())
@@ -135,3 +143,46 @@ def correct_captcha(sub):
     submission.church = sub['church']
     submission.oiltank = sub['oiltank']
     submission.save()
+
+    check_submission(submission.year, submission.x_coord, submission.y_coord)
+
+def check_submission(year, x_coord, y_coord):
+    """"When multiple people have answered a CAPTCHA in a similar matter, that answer is recorded"""
+    submissions_query = CaptchaSubmissions.objects.filter(x_coord=x_coord, y_coord=y_coord, year=year) \
+                                    .aggregate(cnt=Count('*'), avg_water=Avg(Cast('water', FloatField())), avg_land=Avg(Cast('land', FloatField())), \
+                                    avg_building=Avg(Cast('building', FloatField())), avg_church=Avg(Cast('church', FloatField())), \
+                                    avg_oiltank=Avg(Cast('oiltank', FloatField())))
+
+    if len(submissions_query) == 0:
+        return
+
+    print(submissions_query)
+    submissions = submissions_query
+    low_bound = 0.2
+    high_bound = 0.8
+
+    if submissions['cnt'] < 5:
+        print("Not enough votes to classify tile")
+        return
+
+    if ((not (submissions['avg_water'] <= low_bound or submissions['avg_water'] >= high_bound)) or \
+        (not (submissions['avg_land'] <= low_bound or submissions['avg_land'] >= high_bound)) or \
+        (not (submissions['avg_building'] <= low_bound or submissions['avg_building'] >= high_bound)) or \
+        (not (submissions['avg_church'] <= low_bound or submissions['avg_church'] >= high_bound)) or \
+        (not (submissions['avg_oiltank'] <= low_bound or submissions['avg_oiltank'] >= high_bound))):
+        print("Votes are too different to classify tile")
+        return
+
+    confirmed = ConfirmedCaptchas()
+    confirmed.x_coord = x_coord
+    confirmed.y_coord = y_coord
+    confirmed.year = year
+
+ 
+    confirmed.water_prediction = (submissions['avg_water']) * 100
+    confirmed.land_prediction = (submissions['avg_land']) * 100
+    confirmed.buildings_prediction = (submissions['avg_building']) * 100
+    confirmed.church_prediction = (submissions['avg_church']) * 100
+    confirmed.oiltank_prediction = (submissions['avg_oiltank']) * 100
+
+    confirmed.save()
