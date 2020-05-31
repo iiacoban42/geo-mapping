@@ -102,11 +102,20 @@ function getPixel(img, x, y) {
 
 function loadImage(img, url) {
     return new Promise((resolve, reject) => {
-      img.addEventListener('load', e => resolve(img));
-      img.addEventListener('error', () => {
-        reject(new Error(`Failed to load image's URL: ${url}`));
-      });
-      img.src = url;
-      img.crossOrigin = ''; // Required to get pixel color of the images
+        img.addEventListener('load', e => resolve(img));
+        img.addEventListener('error', () => {
+            reject(new Error(`Failed to load image's URL: ${url}`));
+        });
+        img.src = url;
+        img.crossOrigin = ''; // Required to get pixel color of the images
     });
+}
+
+function show_legend() {
+    document.getElementById("legend_info").style.display = "block";
+}
+
+function hide_legend() {
+       document.getElementById("legend_info").style.display = "none";
+
 }
