@@ -6,7 +6,7 @@ html, body, #map {
     overflow: hidden;
 }
 
-.esri-popup__footer {
+.esri-popup__footer, .esri-popup__button--dock, .esri-popup__button {
     visibility: hidden;
 }
 
