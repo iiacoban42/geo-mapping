@@ -1,7 +1,7 @@
 var map;
 var view;
-require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphic", "dojo/domReady!"],
-    function (Map, MapView, TileLayer, Graphic) {
+require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphic", "esri/PopupTemplate", "dojo/domReady!"],
+    function (Map, MapView, TileLayer, Graphic, PopupTemplate) {
         var baseLayer = new TileLayer({
             url: "https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_2016/MapServer"
         });
@@ -15,13 +15,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
             map: map
         });
 
-        // First create a point geometry
-        var point = {
-            type: "point",                     // autocasts as new Point()
-            longitude: 4.470590,
-            latitude: 51.922910
-        };
-
         // Create a symbol for drawing the point
         var pointSymbol = {
             type: "simple-marker",             // autocasts as new SimpleMarkerSymbol()
@@ -33,45 +26,41 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
             }
         };
 
-        // Create an object for storing attributes related to the point
-        var pointLabels = {
-            Name: "Mali",
-            Where: "Rotterdam",
+        var template = {
+            title: "{Label}",
+            content: [
+                {
+                    type: "fields",
+                    fieldInfos: [
+                        {
+                            fieldName: "Name"
+                        },
+                        {
+                            fieldName: "Other"
+                        }
+                    ]
+                }
+            ]
         };
 
-        var pointGraphic = new Graphic({
-            geometry: point,
-            symbol: pointSymbol,
-            attributes: pointLabels,
-            popupTemplate: {
-                title: "{Name}",
-                content: [
-                    {
-                        type: "fields",
-                        fieldInfos: [
-                            {
-                                fieldName: "Name"
-                            },
-                            {
-                                fieldName: "Where"
-                            }
-                        ]
-                    }
-                ]
-            }
-        });
+        labels = text.labels
+        points = text.points
+        for (let i = 0; i < points.length; i++) {
+            var pointGraphic = new Graphic({geometry: points[i], symbol: pointSymbol, attributes: labels[i]});
+            pointGraphic.popupTemplate = template
+            view.graphics.add(pointGraphic);
 
-        // Add the line graphic to the view's GraphicsLayer
-        view.graphics.add(pointGraphic);
+        }
+
 
         $(document).ready(function () {
-                $(menu).click(function (event) {
-                    if (event.target.id !== 'menu') {
-                        var year = event.target.id
-                        console.log(year)
-                        var yearLayer = new TileLayer({
-                            url: "https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_" + year + "/MapServer"
-                        });
+            $(menu).click(function (event) {
+                if (event.target.id !== 'menu') {
+                    var year = event.target.id
+                    console.log(year)
+                    var yearLayer = new TileLayer({
+                        url: "https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_" + year + "/MapServer"
+                    });
                         map.removeAll();
                         map.add(yearLayer);
                         document.getElementById("current").innerHTML = event.target.id;
@@ -105,4 +94,63 @@ var btn_overview = document.getElementById('overview');
 btn_overview.onclick = function () {
     console.log("tiles_overview")
     location.assign('/tiles_overview/');
+}
+
+
+// sorry
+var text = {
+    "labels": [
+        {
+            "Label": "Label",
+            "Name": "Mali",
+            "Other": "-"
+        },
+        {
+            "Label": "Label",
+            "Name": "Paula",
+            "Other": "-"
+        },
+        {
+            "Label": "Label",
+            "Name": "Andrei",
+            "Other": "-"
+        },
+        {
+            "Label": "Label",
+            "Name": "Georgi",
+            "Other": "-"
+        },
+        {
+            "Label": "Label",
+            "Name": "Boris",
+            "Other": "-"
+        }
+    ],
+    "points": [
+        {
+            "type": "point",
+            "longitude": "4.470590",
+            "latitude": "51.922910"
+        },
+        {
+            "type": "point",
+            "longitude": "4.300700",
+            "latitude": "52.070499"
+        },
+        {
+            "type": "point",
+            "longitude": "4.357068",
+            "latitude": "52.011578"
+        },
+        {
+            "type": "point",
+            "longitude": "-355.269549",
+            "latitude": "51.767840"
+        },
+        {
+            "type": "point",
+            "longitude": "-355.187097",
+            "latitude": "52.116626"
+        }
+    ]
 }
