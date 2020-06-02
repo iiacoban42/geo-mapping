@@ -1,4 +1,4 @@
-html, body ,#map {
+html, body, #map {
     height: 100%;
     width: 100%;
     margin: 0;
@@ -6,8 +6,13 @@ html, body ,#map {
     overflow: hidden;
 }
 
-#map_zoom_slider {
-    left: 90%
+.esri-popup__footer {
+    visibility: hidden;
+}
+
+.esri-ui-top-left {
+    margin-left: 95%;
+    margin-top: 1%;
 }
 
 .menu {
