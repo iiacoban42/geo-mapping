@@ -64,7 +64,6 @@ async function submitChallenge() {
     var church2 = document.getElementById("church2").checked;
     var oiltank2 = document.getElementById("oiltank2").checked;
 
-    clearCheckbox();
 
     data =
         [{
@@ -92,6 +91,7 @@ async function submitChallenge() {
         document.getElementById("not_a_robot_checkbox").classList.remove("disable");
         document.getElementById("not_a_robot_checkbox").classList.add("enable");
         document.getElementById("loading").classList.toggle("loader");
+        clearCheckbox();
         return;
     }
     fetch("/submit_captcha/", {
@@ -102,10 +102,12 @@ async function submitChallenge() {
         var result = document.getElementById("result");
         if (response.status === 200) {
             //result.innerHTML = "Correct";
+            clearCheckbox();
             window.alert("Correct CAPTCHA. Tile registered.")
         } else {
             console.log(response)
             //result.innerHTML = "Incorrect " + response.statusText;
+            clearCheckbox();
             window.alert("Incorrect CAPTCHA")
         }
     })
