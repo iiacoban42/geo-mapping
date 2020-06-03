@@ -3,6 +3,7 @@ var year_1, x_1, y_1, year_2, x_2, y_2;
 async function startChallenge(){
     await fetchImages();
     document.getElementById("loading").classList.toggle("loader")
+    document.getElementById("not_a_robot_checkbox").classList.add("disable")
 }
 
 async function nextChallenge(){
@@ -44,7 +45,7 @@ async function submitChallenge(){
             result.innerHTML = "Incorrect " + response.statusText;
         }
       })
-      
+    document.getElementById("not_a_robot_checkbox").classList.add("enable")
 }
 
 async function fetchImages(){
