@@ -1,0 +1,56 @@
+{
+  "labels": [
+    {
+      "Label": "Label",
+      "Name": "Mali",
+      "Other": "-"
+    },
+    {
+      "Label": "Label",
+      "Name": "Paula",
+      "Other": "-"
+    },
+    {
+      "Label": "Label",
+      "Name": "Andrei",
+      "Other": "-"
+    },
+    {
+      "Label": "Label",
+      "Name": "Georgi",
+      "Other": "-"
+    },
+    {
+      "Label": "Label",
+      "Name": "Boris",
+      "Other": "-"
+    }
+  ],
+  "points": [
+    {
+      "type": "point",
+      "longitude": "4.470590",
+      "latitude": "51.922910"
+    },
+    {
+      "type": "point",
+      "longitude": "4.300700",
+      "latitude": "52.070499"
+    },
+    {
+      "type": "point",
+      "longitude": "4.357068",
+      "latitude": "52.011578"
+    },
+    {
+      "type": "point",
+      "longitude": "-355.269549",
+      "latitude": "51.767840"
+    },
+    {
+      "type": "point",
+      "longitude": "-355.187097",
+      "latitude": "52.116626"
+    }
+  ]
+}
