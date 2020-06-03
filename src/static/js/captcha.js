@@ -25,6 +25,29 @@ function clearCheckbox() {
     document.getElementById("oiltank2").checked = false;
 }
 
+function verifyCheckbox1() {
+    if (document.getElementById("building1").checked === false &&
+        document.getElementById("water1").checked === false &&
+        document.getElementById("land1").checked === false &&
+        document.getElementById("church1").checked === false &&
+        document.getElementById("oiltank1").checked === false) {
+        return false;
+    }
+    return true;
+}
+
+function verifyCheckbox2() {
+    if (document.getElementById("building2").checked === false &&
+        document.getElementById("water2").checked === false &&
+        document.getElementById("land2").checked === false &&
+        document.getElementById("church2").checked === false &&
+        document.getElementById("oiltank2").checked === false) {
+        return false;
+    }
+    return true;
+}
+
+
 async function submitChallenge() {
     toggleChallenge(2);
 
@@ -33,6 +56,7 @@ async function submitChallenge() {
     var land1 = document.getElementById("land1").checked;
     var church1 = document.getElementById("church1").checked;
     var oiltank1 = document.getElementById("oiltank1").checked;
+
 
     var building2 = document.getElementById("building2").checked;
     var water2 = document.getElementById("water2").checked;
@@ -63,7 +87,13 @@ async function submitChallenge() {
                 'church': church2,
                 'oiltank': oiltank2
             }]
-
+    if (verifyCheckbox1() === false || verifyCheckbox2() === false) {
+        window.alert("A tile must have at least one label");
+        document.getElementById("not_a_robot_checkbox").classList.remove("disable");
+        document.getElementById("not_a_robot_checkbox").classList.add("enable");
+        document.getElementById("loading").classList.toggle("loader");
+        return;
+    }
     fetch("/submit_captcha/", {
         method: "POST",
         body: JSON.stringify(data),
