@@ -12,6 +12,19 @@ async function nextChallenge() {
     toggleChallenge(2);
 }
 
+function clearCheckbox() {
+    document.getElementById("building1").checked = false;
+    document.getElementById("water1").checked = false;
+    document.getElementById("land1").checked = false;
+    document.getElementById("church1").checked = false;
+    document.getElementById("oiltank1").checked = false;
+    document.getElementById("building2").checked = false;
+    document.getElementById("water2").checked = false;
+    document.getElementById("land2").checked = false;
+    document.getElementById("church2").checked = false;
+    document.getElementById("oiltank2").checked = false;
+}
+
 async function submitChallenge() {
     toggleChallenge(2);
 
@@ -27,10 +40,30 @@ async function submitChallenge() {
     var church2 = document.getElementById("church2").checked;
     var oiltank2 = document.getElementById("oiltank2").checked;
 
-    data = 
-        [{'year': year_1, 'x': x_1, 'y': y_1, 'building': building1, 'water': water1, 'land': land1, 'church': church1, 'oiltank': oiltank1},
-        {'year': year_2, 'x': x_2, 'y': y_2, 'building': building2, 'water': water2, 'land': land2, 'church': church2, 'oiltank': oiltank2}]
-                
+    clearCheckbox();
+
+    data =
+        [{
+            'year': year_1,
+            'x': x_1,
+            'y': y_1,
+            'building': building1,
+            'water': water1,
+            'land': land1,
+            'church': church1,
+            'oiltank': oiltank1
+        },
+            {
+                'year': year_2,
+                'x': x_2,
+                'y': y_2,
+                'building': building2,
+                'water': water2,
+                'land': land2,
+                'church': church2,
+                'oiltank': oiltank2
+            }]
+
     fetch("/submit_captcha/", {
         method: "POST",
         body: JSON.stringify(data),
@@ -38,10 +71,12 @@ async function submitChallenge() {
     }).then(response => {
         var result = document.getElementById("result");
         if (response.status === 200) {
-            result.innerHTML = "Correct";
+            //result.innerHTML = "Correct";
+            window.alert("Correct CAPTCHA. Tile registered.")
         } else {
             console.log(response)
-            result.innerHTML = "Incorrect " + response.statusText;
+            //result.innerHTML = "Incorrect " + response.statusText;
+            window.alert("Incorrect CAPTCHA")
         }
     })
     document.getElementById("not_a_robot_checkbox").classList.remove("disable")
