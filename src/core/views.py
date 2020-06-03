@@ -54,7 +54,7 @@ def get_statistics_year(request, requested_year):
 
 def get_markers(request):
     """Return json array of markers"""
-    with open('core/templates/maps/points.json', 'r') as markers:
+    with open("core/json/points.json", 'r') as markers:
         data = markers.read()
     return JsonResponse(data, safe=False)
 
