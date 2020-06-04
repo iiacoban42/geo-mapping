@@ -100,8 +100,9 @@ def get_tile(request):
 def submit_captcha(request):
     """Verify captcha challenge"""
     # NOTE: Terrible code ahead. I'll try to make it prettier later on. -Georgi
+    #print(request)
     submission = json.loads(request.body)
-    print(submission[0])
+    print(submission)
 
     # Find which tile is the control
     tile1_query = TileTable.objects.filter(x_coord=submission[0]['x'], y_coord=submission[0]['y'],
