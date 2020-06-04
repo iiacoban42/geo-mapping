@@ -75,9 +75,7 @@ def get_markers(request):
         transformer = Transformer.from_crs("EPSG:28992", "EPSG:4326")
         espg_4326 = transformer.transform(x_28992, y_28992)
 
-        print(x_28992, y_28992)
-        data['points'].append({'type': "point",'longitude': str(espg_4326[1]), 'latitude': str(espg_4326[0])})
-    print(data)
+        data['points'].append({'type': "point", 'longitude': str(espg_4326[1]), 'latitude': str(espg_4326[0])})
     return JsonResponse(data, safe=False)
 
 
