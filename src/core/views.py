@@ -9,6 +9,8 @@ from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.db.models import Avg, Count, FloatField
 from django.db.models.functions import Cast
 
+from pyproj import Transformer
+
 from core.models import CaptchaSubmissions as CaptchaTable
 from core.models import Dataset as DatasetTable
 from core.models import Tiles as TileTable
@@ -54,8 +56,28 @@ def get_statistics_year(request, requested_year):
 
 def get_markers(request):
     """Return json array of markers"""
-    with open("core/json/points.json", 'r') as markers:
-        data = markers.read()
+
+    data = {}
+    data['labels'] = []
+    data['points'] = []
+    for obj in ObjectsTable.objects.all():
+        data['labels'].append({"Label": "Label", "Name": obj.type, "Other": "-"})
+
+        # Linear regression magic (can be a few meters off, might improve with more data later)
+        x_28992 = obj.tiles_id.x_coord * 406.55828 - 30527385.66843
+        y_28992 = obj.tiles_id.y_coord * -406.41038 + 31113121.21698
+
+        #Center
+        x_28992 += 203
+        y_28992 -= 203
+
+        # Transorm to 'world' coordinates
+        transformer = Transformer.from_crs("EPSG:28992", "EPSG:4326")
+        espg_4326 = transformer.transform(x_28992, y_28992)
+
+        print(x_28992, y_28992)
+        data['points'].append({'type': "point",'longitude': str(espg_4326[1]), 'latitude': str(espg_4326[0])})
+    print(data)
     return JsonResponse(data, safe=False)
 
 
