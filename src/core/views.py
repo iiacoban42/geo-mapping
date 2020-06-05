@@ -1,5 +1,5 @@
 """Views module"""
-# pylint: disable=[unused-argument, fixme, relative-beyond-top-level, line-too-long, too-many-branches, too-many-return-statements]
+# pylint: disable=[line-too-long,import-error, unused-argument, no-name-in-module,wildcard-import, fixme]
 
 import random
 import json
@@ -11,11 +11,8 @@ from core.models import CaptchaSubmissions as CaptchaTable
 from core.models import Dataset as DatasetTable
 from core.models import Tiles as TileTable
 from core.models import Characteristics as CharacteristicsTable
-from core.models import Objects as ObjectsTable
-from core.captcha import *
-
-
-# Create your views here.
+from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles, check_characteristics, \
+     check_objects
 
 
 def home(request):
@@ -89,22 +86,13 @@ def submit_captcha(request):
     print(submission)
 
     # Find which tile is the control
-    tile1_query = TileTable.objects.filter(x_coord=submission[0]['x'], y_coord=submission[0]['y'],
-                                           year=submission[0]['year'])
-    tile2_query = TileTable.objects.filter(x_coord=submission[1]['x'], y_coord=submission[1]['y'],
-                                           year=submission[1]['year'])
-    if len(tile1_query) > 0:
-        # Tile #1 is control, verify it's data
-        control_tile = tile1_query[0]
-        control_sub = submission[0]
-        unid_sub = submission[1]
-    elif len(tile2_query) > 0:
-        # Tile #2 is control, verify it's data
-        control_tile = tile2_query[0]
-        control_sub = submission[1]
-        unid_sub = submission[0]
-    else:
+    control = find_tiles(submission)
+    if control == 0:
         return HttpResponseBadRequest("No tile")
+
+    control_tile = control[0]
+    control_sub = control[1]
+    unid_sub = control[2]
 
     char_query = CharacteristicsTable.objects.filter(tiles_id=control_tile.id)
     if len(char_query) == 0:
@@ -113,18 +101,6 @@ def submit_captcha(request):
 
     # Check the characteristics
     if check_characteristics(control_sub, control_char):
-        obj_query = ObjectsTable.objects.filter(tiles_id=control_tile.id)
-        if len(obj_query) == 0:
-            if not control_sub['church'] and not control_sub['oiltank']:  # In case there are no objects
-                correct_captcha(unid_sub)
-                return HttpResponse()
-            return HttpResponseBadRequest("Wrong answer")
-
-        for obj in obj_query.all():
-            if ((obj.type == "church" and not control_sub['church']) or
-                    (obj.type == "oiltank" and not control_sub['oiltank'])):
-                return HttpResponseBadRequest("Wrong answer")
-
-        correct_captcha(unid_sub)
-        return HttpResponse()
+        if check_objects(control_sub, unid_sub, control_tile):
+            return HttpResponse()
     return HttpResponseBadRequest("Wrong answer")

@@ -1,5 +1,5 @@
 """Captcha module"""
-# pylint: disable=[unused-argument, fixme, relative-beyond-top-level, line-too-long, too-many-branches, too-many-return-statements]
+# pylint: disable=[line-too-long, import-error, no-name-in-module]
 import random
 from django.db.models import Avg, Count, FloatField
 from django.db.models.functions import Cast
@@ -7,6 +7,29 @@ from django.db.models.functions import Cast
 from core.models import CaptchaSubmissions as CaptchaTable
 from core.models import Tiles as TileTable
 from core.models import ConfirmedCaptchas as ConfirmedCaptchasTable
+from core.models import Objects as ObjectsTable
+
+
+def find_tiles(submission):
+    """Find which tile is in control"""
+    tile1_query = TileTable.objects.filter(x_coord=submission[0]['x'], y_coord=submission[0]['y'],
+                                           year=submission[0]['year'])
+    tile2_query = TileTable.objects.filter(x_coord=submission[1]['x'], y_coord=submission[1]['y'],
+                                           year=submission[1]['year'])
+    if len(tile1_query) > 0:
+        # Tile #1 is control, verify it's data
+        control_tile = tile1_query[0]
+        control_sub = submission[0]
+        unid_sub = submission[1]
+        return [control_tile, control_sub, unid_sub]
+    if len(tile2_query) > 0:
+        # Tile #2 is control, verify it's data
+        control_tile = tile2_query[0]
+        control_sub = submission[1]
+        unid_sub = submission[0]
+        return [control_tile, control_sub, unid_sub]
+
+    return 0
 
 
 def check_characteristics(sub, db_tile):
@@ -18,6 +41,24 @@ def check_characteristics(sub, db_tile):
         return True
 
     return False
+
+
+def check_objects(control_sub, unid_sub, control_tile):
+    """Check if objects match"""
+    obj_query = ObjectsTable.objects.filter(tiles_id=control_tile.id)
+    if len(obj_query) == 0:
+        if not control_sub['church'] and not control_sub['oiltank']:  # In case there are no objects
+            correct_captcha(unid_sub)
+            return True
+        return False
+
+    for obj in obj_query.all():
+        if ((obj.type == "church" and not control_sub['church']) or
+                (obj.type == "oiltank" and not control_sub['oiltank'])):
+            return False
+
+    correct_captcha(unid_sub)
+    return True
 
 
 def correct_captcha(sub):
