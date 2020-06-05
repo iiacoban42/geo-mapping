@@ -23,19 +23,25 @@ def save_all_tiles(year, range_x, range_y):
             res = "https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_" + str(
                 year) + "/MapServer/tile/11/" + str(y_coord) + "/" + str(x_coord)
             # print(res)
-            try:
-                file = urllib.request.urlopen(res)
-                im = Image.open(file, 'r')
-                pix_val = list(im.getdata())
-                # print(str(y_coord)+"/"+str(x_coord))
-                if not check_transparent(pix_val):
-                    if not check_full_white(pix_val):
-                        # print("found one")
-                        saveTile(year, x_coord, y_coord)
-            except:
-                print("url was invalid")
+            check_request(res, year, x_coord, y_coord)
+    return "success"
 
-    print("done")
+
+def check_request(res, year, x_coord, y_coord):
+    try:
+        file = urllib.request.urlopen(res)
+        im = Image.open(file, 'r')
+        finish_request(im, year, x_coord, y_coord)
+    except:
+        print("url was invalid")
+
+
+def finish_request(im, year, x_coord, y_coord):
+    pix_val = list(im.getdata())
+    if not check_transparent(pix_val):
+        if not check_full_white(pix_val):
+            # print("found one")
+            save_tile(year, x_coord, y_coord)
 
 
 def check_transparent(pix_val):
@@ -63,19 +69,18 @@ def check_full_white(pix_val):
         return False
 
 
-def saveTile(year, x_coord, y_coord):
+def save_tile(year, x_coord, y_coord):
     tile = UsableTilesTable(x_coord=x_coord, y_coord=y_coord, year=year)
     tile.save()
 
-
-import timeit
-
-start = timeit.default_timer()
-
-save_all_tiles(2010, range(75079, 75804), range(74990, 76568))
-
-stop = timeit.default_timer()
-
-print('Time: ', stop - start)
+# import timeit
+#
+# start = timeit.default_timer()
+#
+# save_all_tiles(2010, range(75079, 75804), range(74990, 76568))
+#
+# stop = timeit.default_timer()
+#
+# print('Time: ', stop - start)
 #
 # save_all_tiles(2010, range(75300, 75804), range(75300, 76568))
