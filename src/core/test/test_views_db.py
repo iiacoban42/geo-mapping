@@ -84,13 +84,13 @@ class TestRequests(TestCase):
 
     # def test_submit_captcha(self):
     #     submission = '[{"year": "2010", "x": "75296", "y": "75488", "building": "True", "water": "True", "land": "False", "church": "False", "oiltank": "True"}, {"year": "2010", "x": "75578", "y": "75422", "building": "True", "water": "False", "land": "True", "church": "False", "oiltank": "False"}]'
-    #
+    
     #     sub = json.loads(submission)
     #     # Create an instance of a POST request.
-    #     request = self.factory.post(path='submit_captcha', data=sub, format='json')
-    #
+    #     request = self.factory.post(path='submit_captcha', data=sub, content_type='application/json')
+    
     #     # an AnonymousUser instance.
     #     request.user = AnonymousUser()
-    #
+    
     #     response = submit_captcha(request)
     #     self.assertEqual(response.status_code, 200)
