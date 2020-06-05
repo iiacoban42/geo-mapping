@@ -93,6 +93,11 @@ class Characteristics(models.Model):
 
 class ConfirmedCaptchas(models.Model):
     """Confirmed CAPTCHAs"""
+
+    class Meta:
+        """Meta ConfirmedCaptchas"""
+        app_label = 'core'
+
     id = models.AutoField(primary_key=True)
 
     x_coord = models.IntegerField(blank=False)
