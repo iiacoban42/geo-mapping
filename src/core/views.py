@@ -108,7 +108,7 @@ def get_tile(request):
     """Return two object containing: year, x, y"""
 
     (year_new, x_new, y_new) = pick_unsolved_captcha()
-    
+
     if year_new == -1: # If all current captchas are solved, pick a random new challenge
         print("Out of challenges. Picking random")
         (year_new, x_new, y_new) = pick_random_captcha()
