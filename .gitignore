@@ -1,6 +1,7 @@
 .idea
 .vscode
 node_modules
+htmlcov/
 venv/pyvenv.cfg
 venv/Scripts/pythonw.exe
 venv/Scripts/python.exe
