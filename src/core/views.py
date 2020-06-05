@@ -60,11 +60,30 @@ def get_markers(request):
     return JsonResponse(data, safe=False)
 
 
-def get_tile(request):
-    """Return two object containing: year, x, y"""
+def pick_unsolved_captcha():
+    """Pick a captcha challenge that has been submitted at least once before,
+       but not enough to be confirmed"""
 
-    # Pick an unknown tile
-    year_new = 2010  # TODO: Support other years
+    year_new = -1
+    x_new = -1
+    y_new = -1
+
+    for challenge in CaptchaTable.objects.order_by('?'):
+        tile_confirmed = ConfirmedCaptchasTable.objects.filter(x_coord=challenge.x_coord, y_coord=challenge.y_coord, year=challenge.year)
+
+        if len(tile_confirmed) > 0:
+            continue
+
+        year_new = challenge.year
+        x_new = challenge.x_coord
+        y_new = challenge.y_coord
+        break
+
+    return (year_new, x_new, y_new)
+
+def pick_random_captcha():
+    """Pick a random captcha challenge that hasn't been submitted (or confirmed) yet"""
+    year_new = 2010
     x_new = -1
     y_new = -1
 
@@ -83,6 +102,17 @@ def get_tile(request):
             continue
 
         break
+
+    return (year_new, x_new, y_new)
+
+def get_tile(request):
+    """Return two object containing: year, x, y"""
+
+    (year_new, x_new, y_new) = pick_unsolved_captcha()
+
+    if year_new == -1: # If all current captchas are solved, pick a random new challenge
+        print("Out of challenges. Picking random")
+        (year_new, x_new, y_new) = pick_random_captcha()
 
     # Pick a known tile
     tile = random.choice(TileTable.objects.all())
