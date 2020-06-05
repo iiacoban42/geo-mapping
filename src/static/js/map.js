@@ -53,9 +53,9 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
         document.onreadystatechange = async function () {
             const response = await fetch('/get_markers');
             const json = await response.json();
-            text = JSON.parse(json)
-            var labels = text.labels
-            var points = text.points
+            
+            var labels = json.labels
+            var points = json.points
             // display points in view
             for (let i = 0; i < points.length; i++) {
                 var pointGraphic = new Graphic({geometry: points[i], symbol: pointSymbol, attributes: labels[i]});
