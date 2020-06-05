@@ -6,8 +6,6 @@ import json
 
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
-from django.db.models import Avg, Count, FloatField
-from django.db.models.functions import Cast
 
 from core.models import CaptchaSubmissions as CaptchaTable
 from core.models import Dataset as DatasetTable
@@ -15,9 +13,12 @@ from core.models import Tiles as TileTable
 from core.models import Characteristics as CharacteristicsTable
 from core.models import Objects as ObjectsTable
 from core.models import ConfirmedCaptchas as ConfirmedCaptchasTable
+from core.captcha import *
 
 
 # Create your views here.
+
+
 def home(request):
     """render index.html page"""
     return render(request, 'maps/main.html')
@@ -100,7 +101,7 @@ def get_tile(request):
 def submit_captcha(request):
     """Verify captcha challenge"""
     # NOTE: Terrible code ahead. I'll try to make it prettier later on. -Georgi
-    #print(request)
+    # print(request)
     submission = json.loads(request.body)
     print(submission)
 
@@ -109,8 +110,10 @@ def submit_captcha(request):
                                            year=submission[0]['year'])
     tile2_query = TileTable.objects.filter(x_coord=submission[1]['x'], y_coord=submission[1]['y'],
                                            year=submission[1]['year'])
-
+    print(len(tile1_query))
+    print(len(tile2_query))
     if len(tile1_query) > 0:
+        print("I got here")
         # Tile #1 is control, verify it's data
         control_tile = tile1_query[0]
         control_sub = submission[0]
@@ -121,19 +124,24 @@ def submit_captcha(request):
         control_sub = submission[1]
         unid_sub = submission[0]
     else:
+        print("No tile")
         return HttpResponseBadRequest("No tile")
 
     char_query = CharacteristicsTable.objects.filter(tiles_id=control_tile.id)
+    print(char_query[0].land_prediction)
     if len(char_query) == 0:
+        print("No chars")
         return HttpResponseBadRequest("No characteristics")
-
+    print("I got here 2")
     control_char = char_query[0]
+
     # Check the characteristics
-    if (((control_char.water_prediction >= 50) == control_sub['water']) and
-            ((control_char.buildings_prediction >= 50) == control_sub['building']) and
-            ((control_char.land_prediction >= 50) == control_sub['land'])):
+    if check_characteristics(control_sub, control_char):
+        print("I got here 3")
         obj_query = ObjectsTable.objects.filter(tiles_id=control_tile.id)
+        print("I got here 3")
         if len(obj_query) == 0:
+            print("I got here 3")
             if not control_sub['church'] and not control_sub['oiltank']:  # In case there are no objects
                 correct_captcha(unid_sub)
                 return HttpResponse()
@@ -147,60 +155,3 @@ def submit_captcha(request):
         correct_captcha(unid_sub)
         return HttpResponse()
     return HttpResponseBadRequest("Wrong answer")
-
-
-def correct_captcha(sub):
-    """When a correct control challenge is submitted, the unknown map tile result is recorded"""
-    submission = CaptchaTable()
-    submission.year = sub['year']
-    submission.x_coord = sub['x']
-    submission.y_coord = sub['y']
-    submission.water = sub['water']
-    submission.land = sub['land']
-    submission.building = sub['building']
-    submission.church = sub['church']
-    submission.oiltank = sub['oiltank']
-    submission.save()
-
-    check_submission(submission.year, submission.x_coord, submission.y_coord)
-
-
-def check_submission(year, x_coord, y_coord):
-    """"When multiple people have answered a CAPTCHA in a similar matter, that answer is recorded"""
-    submissions_query = CaptchaTable.objects.filter(x_coord=x_coord, y_coord=y_coord, year=year) \
-        .aggregate(cnt=Count('*'), avg_water=Avg(Cast('water', FloatField())), avg_land=Avg(Cast('land', FloatField())), \
-                   avg_building=Avg(Cast('building', FloatField())), avg_church=Avg(Cast('church', FloatField())), \
-                   avg_oiltank=Avg(Cast('oiltank', FloatField())))
-
-    if len(submissions_query) == 0:
-        return
-
-    print(submissions_query)
-    submissions = submissions_query
-    low_bound = 0.2
-    high_bound = 0.8
-
-    if submissions['cnt'] < 5:
-        print("Not enough votes to classify tile")
-        return
-
-    if ((not (submissions['avg_water'] <= low_bound or submissions['avg_water'] >= high_bound)) or \
-            (not (submissions['avg_land'] <= low_bound or submissions['avg_land'] >= high_bound)) or \
-            (not (submissions['avg_building'] <= low_bound or submissions['avg_building'] >= high_bound)) or \
-            (not (submissions['avg_church'] <= low_bound or submissions['avg_church'] >= high_bound)) or \
-            (not (submissions['avg_oiltank'] <= low_bound or submissions['avg_oiltank'] >= high_bound))):
-        print("Votes are too different to classify tile")
-        return
-
-    confirmed = ConfirmedCaptchasTable()
-    confirmed.x_coord = x_coord
-    confirmed.y_coord = y_coord
-    confirmed.year = year
-
-    confirmed.water_prediction = (submissions['avg_water']) * 100
-    confirmed.land_prediction = (submissions['avg_land']) * 100
-    confirmed.buildings_prediction = (submissions['avg_building']) * 100
-    confirmed.church_prediction = (submissions['avg_church']) * 100
-    confirmed.oiltank_prediction = (submissions['avg_oiltank']) * 100
-
-    confirmed.save()

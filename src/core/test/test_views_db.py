@@ -19,36 +19,35 @@ from src.core.views import *
 
 
 class TestRequests(TestCase):
-    submission = "[{'year': 2010, 'x': 75296, 'y': 75488, 'building': True, 'water': True, 'land': False, 'church': False, 'oiltank': True}, {'year': 2010, 'x': 75578, 'y': 75422, 'building': True, 'water': False, 'land': True, 'church': False, 'oiltank': False}]"
 
     def setUp(self):
         # Every test needs access to the request factory.
         self.factory = RequestFactory()
         tile = TileTable()
-        tile.x_coord = 75296
-        tile.y_coord = 75488
+        tile.x_coord = 0
+        tile.y_coord = 0
         tile.year = 2010
         tile.save()
 
-        stored_tile = TileTable.objects.filter(x_coord=75296, y_coord=75488,
+        stored_tile = TileTable.objects.filter(x_coord=0, y_coord=0,
                                                year=2010)
 
         chars = CharacteristicsTable()
         chars.tiles_id = stored_tile[0]
         chars.water_prediction = 100
         chars.land_prediction = 0
-        chars.buildings_prediction = 100
+        chars.buildings_prediction = 0
         chars.save()
 
-        obj = ObjectsTable()
-        obj.tiles_id = stored_tile[0]
-        obj.x_coord = 0
-        obj.y_coord = 0
-        obj.prediction = 100
-        obj.type = 'oiltank'
-        obj.save()
-        ConfirmedCaptchasTable()
-        CaptchaTable()
+        # obj = ObjectsTable()
+        # obj.tiles_id = stored_tile[0]
+        # obj.x_coord = 0
+        # obj.y_coord = 0
+        # obj.prediction = 100
+        # obj.type = 'oiltank'
+        # obj.save()
+        # ConfirmedCaptchasTable()
+        # CaptchaTable()
 
     def test_get_statistics(self):
         # Create an instance of a GET request.
@@ -82,15 +81,72 @@ class TestRequests(TestCase):
         response = get_tile(request)
         self.assertEqual(response.status_code, 200)
 
-    # def test_submit_captcha(self):
-    #     submission = '[{"year": "2010", "x": "75296", "y": "75488", "building": "True", "water": "True", "land": "False", "church": "False", "oiltank": "True"}, {"year": "2010", "x": "75578", "y": "75422", "building": "True", "water": "False", "land": "True", "church": "False", "oiltank": "False"}]'
-    
-    #     sub = json.loads(submission)
-    #     # Create an instance of a POST request.
-    #     request = self.factory.post(path='submit_captcha', data=sub, content_type='application/json')
-    
-    #     # an AnonymousUser instance.
-    #     request.user = AnonymousUser()
-    
-    #     response = submit_captcha(request)
-    #     self.assertEqual(response.status_code, 200)
+    def test_valid_captcha(self):
+        submission = '[{"year":2010, "x":0, "y":0, "building":false, "water":true, "land":false, "church":false, "oiltank":false},' \
+                     ' {"year":2010, "x":1, "y":1, "building":true, "water":false, "land":true, "church":false, "oiltank":false}]'
+
+        sub = json.loads(submission)
+        # Create an instance of a POST request.
+        request = self.factory.post(path='submit_captcha', data=sub, content_type='application/json')
+
+        # an AnonymousUser instance.
+        request.user = AnonymousUser()
+
+        response = submit_captcha(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_valid_captcha_reverse_order(self):
+        submission = '[{"year":2010, "x":1, "y":1, "building":true, "water":false,"land":true, "church":false, "oiltank":false}, ' \
+                     '{"year":2010, "x":0, "y":0, "building":false, "water":true, "land":false, "church":false, "oiltank":false}]'
+
+        sub = json.loads(submission)
+        # Create an instance of a POST request.
+        request = self.factory.post(path='submit_captcha', data=sub, content_type='application/json')
+
+        # an AnonymousUser instance.
+        request.user = AnonymousUser()
+
+        response = submit_captcha(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_captcha(self):
+        submission = '[{"year":2010, "x":0, "y":0, "building":true, "water":true, "land":false, "church":false, "oiltank":false},' \
+                     ' {"year":2010, "x":1, "y":1, "building":true, "water":false, "land":true, "church":false, "oiltank":false}]'
+
+        sub = json.loads(submission)
+        # Create an instance of a POST request.
+        request = self.factory.post(path='submit_captcha', data=sub, content_type='application/json')
+
+        # an AnonymousUser instance.
+        request.user = AnonymousUser()
+
+        response = submit_captcha(request)
+        self.assertEqual(response.status_code, 400)
+
+    def test_invalid_check_captcha(self):
+        submission = '[{"year":2014, "x":0, "y":0, "building":true, "water":true, "land":false, "church":false, "oiltank":false},' \
+                     ' {"year":2010, "x":1, "y":1, "building":true, "water":false, "land":true, "church":false, "oiltank":false}]'
+
+        sub = json.loads(submission)
+        # Create an instance of a POST request.
+        request = self.factory.post(path='submit_captcha', data=sub, content_type='application/json')
+
+        # an AnonymousUser instance.
+        request.user = AnonymousUser()
+
+        response = submit_captcha(request)
+        self.assertEqual(response.status_code, 400)
+
+    def test_invalid_captcha_no_chars(self):
+        submission = '[{"year":2014, "x":2, "y":2, "building":true, "water":true, "land":false, "church":false, "oiltank":false}, ' \
+                     '{"year":2010, "x":1, "y":1, "building":true, "water":false, "land":true, "church":false, "oiltank":false}]'
+
+        sub = json.loads(submission)
+        # Create an instance of a POST request.
+        request = self.factory.post(path='submit_captcha', data=sub, content_type='application/json')
+
+        # an AnonymousUser instance.
+        request.user = AnonymousUser()
+
+        response = submit_captcha(request)
+        self.assertEqual(response.status_code, 400)
