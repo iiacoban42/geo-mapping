@@ -1,10 +1,11 @@
 """Captcha module"""
 # pylint: disable=[unused-argument, fixme, relative-beyond-top-level, line-too-long, too-many-branches, too-many-return-statements]
-
+import random
 from django.db.models import Avg, Count, FloatField
 from django.db.models.functions import Cast
 
 from core.models import CaptchaSubmissions as CaptchaTable
+from core.models import Tiles as TileTable
 from core.models import ConfirmedCaptchas as ConfirmedCaptchasTable
 
 
@@ -14,7 +15,6 @@ def check_characteristics(sub, db_tile):
     if (((db_tile.water_prediction >= 50) == sub['water']) and
             ((db_tile.buildings_prediction >= 50) == sub['building']) and
             ((db_tile.land_prediction >= 50) == sub['land'])):
-
         return True
 
     return False
@@ -76,3 +76,51 @@ def check_submission(year, x_coord, y_coord):
     confirmed.oiltank_prediction = (submissions['avg_oiltank']) * 100
 
     confirmed.save()
+
+
+def pick_unsolved_captcha():
+    """Pick a captcha challenge that has been submitted at least once before,
+       but not enough to be confirmed"""
+
+    year_new = -1
+    x_new = -1
+    y_new = -1
+
+    for challenge in CaptchaTable.objects.order_by('?'):
+        tile_confirmed = ConfirmedCaptchasTable.objects.filter(x_coord=challenge.x_coord, y_coord=challenge.y_coord,
+                                                               year=challenge.year)
+
+        if len(tile_confirmed) > 0:
+            continue
+
+        year_new = challenge.year
+        x_new = challenge.x_coord
+        y_new = challenge.y_coord
+        break
+
+    return (year_new, x_new, y_new)
+
+
+def pick_random_captcha():
+    """Pick a random captcha challenge that hasn't been submitted (or confirmed) yet"""
+    year_new = 2010
+    x_new = -1
+    y_new = -1
+
+    while True:
+        if year_new == 2010:
+            x_new = random.choice(range(75079, 75804))
+            y_new = random.choice(range(74990, 76586))
+
+        tile = TileTable.objects.filter(x_coord=x_new, y_coord=y_new)
+        if len(tile) > 0:
+            continue
+
+        tile_confirmed = ConfirmedCaptchasTable.objects.filter(x_coord=x_new, y_coord=y_new, year=year_new)
+
+        if len(tile_confirmed) > 0:
+            continue
+
+        break
+
+    return (year_new, x_new, y_new)

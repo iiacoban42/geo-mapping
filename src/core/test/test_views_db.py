@@ -1,4 +1,4 @@
-"""Test requests from views"""
+"""Integration tests between database and server"""
 from django.test import RequestFactory, TestCase
 from django.contrib.auth.models import AnonymousUser
 import sys
@@ -64,8 +64,6 @@ class TestRequests(TestCase):
 
         # an AnonymousUser instance.
         request.user = AnonymousUser()
-
-        # Test my_view() as if it were deployed at /customer/details
         response = get_statistics(request)
         self.assertEqual(response.status_code, 200)
 
@@ -75,8 +73,6 @@ class TestRequests(TestCase):
 
         # an AnonymousUser instance.
         request.user = AnonymousUser()
-
-        # Test my_view() as if it were deployed at /customer/details
         response = get_statistics_year(request, requested_year=2010)
         self.assertEqual(response.status_code, 200)
 
@@ -86,7 +82,6 @@ class TestRequests(TestCase):
 
         # an AnonymousUser instance.
         request.user = AnonymousUser()
-
         response = get_tile(request)
         self.assertEqual(response.status_code, 200)
 
@@ -100,7 +95,6 @@ class TestRequests(TestCase):
 
         # an AnonymousUser instance.
         request.user = AnonymousUser()
-
         response = submit_captcha(request)
         self.assertEqual(response.status_code, 200)
 
@@ -114,7 +108,6 @@ class TestRequests(TestCase):
 
         # an AnonymousUser instance.
         request.user = AnonymousUser()
-
         response = submit_captcha(request)
         self.assertEqual(response.status_code, 200)
 
@@ -128,7 +121,6 @@ class TestRequests(TestCase):
 
         # an AnonymousUser instance.
         request.user = AnonymousUser()
-
         response = submit_captcha(request)
         self.assertEqual(response.status_code, 400)
 
@@ -142,7 +134,6 @@ class TestRequests(TestCase):
 
         # an AnonymousUser instance.
         request.user = AnonymousUser()
-
         response = submit_captcha(request)
         self.assertEqual(response.status_code, 400)
 
@@ -156,7 +147,6 @@ class TestRequests(TestCase):
 
         # an AnonymousUser instance.
         request.user = AnonymousUser()
-
         response = submit_captcha(request)
         self.assertEqual(response.status_code, 400)
 
@@ -179,7 +169,6 @@ class TestRequests(TestCase):
 
         # an AnonymousUser instance.
         request.user = AnonymousUser()
-
         response = submit_captcha(request)
         self.assertEqual(response.status_code, 200)
 
@@ -202,7 +191,6 @@ class TestRequests(TestCase):
 
         # an AnonymousUser instance.
         request.user = AnonymousUser()
-
         response = submit_captcha(request)
         self.assertEqual(response.status_code, 400)
 
@@ -217,6 +205,5 @@ class TestRequests(TestCase):
 
         # an AnonymousUser instance.
         request.user = AnonymousUser()
-
         response = submit_captcha(request)
         self.assertEqual(response.status_code, 400)
