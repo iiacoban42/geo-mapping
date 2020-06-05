@@ -9,12 +9,15 @@ from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.db.models import Avg, Count, FloatField
 from django.db.models.functions import Cast
 
+from pyproj import Transformer
+
 from core.models import CaptchaSubmissions as CaptchaTable
 from core.models import Dataset as DatasetTable
 from core.models import Tiles as TileTable
 from core.models import Characteristics as CharacteristicsTable
 from core.models import Objects as ObjectsTable
 from core.models import ConfirmedCaptchas as ConfirmedCaptchasTable
+
 
 # Create your views here.
 def home(request):
@@ -49,6 +52,31 @@ def get_statistics_year(request, requested_year):
     dataset = DatasetTable.objects.filter(year=requested_year).count()
     response = {'ai': 0, 'cap': cap, 'dataset': dataset}
     return JsonResponse(response, safe=False)
+
+
+def get_markers(request):
+    """Return json array of markers"""
+
+    data = {}
+    data['labels'] = []
+    data['points'] = []
+    for obj in ObjectsTable.objects.all():
+        data['labels'].append({"Label": "Label", "Name": obj.type, "Other": "-"})
+
+        # Linear regression magic (can be a few meters off, might improve with more data later)
+        x_28992 = obj.tiles_id.x_coord * 406.55828 - 30527385.66843
+        y_28992 = obj.tiles_id.y_coord * -406.41038 + 31113121.21698
+
+        #Center
+        x_28992 += 203
+        y_28992 -= 203
+
+        # Transorm to 'world' coordinates
+        transformer = Transformer.from_crs("EPSG:28992", "EPSG:4326")
+        espg_4326 = transformer.transform(x_28992, y_28992)
+
+        data['points'].append({'type': "point", 'longitude': str(espg_4326[1]), 'latitude': str(espg_4326[0])})
+    return JsonResponse(data, safe=False)
 
 
 def get_tile(request):
@@ -155,12 +183,13 @@ def correct_captcha(sub):
 
     check_submission(submission.year, submission.x_coord, submission.y_coord)
 
+
 def check_submission(year, x_coord, y_coord):
     """"When multiple people have answered a CAPTCHA in a similar matter, that answer is recorded"""
     submissions_query = CaptchaTable.objects.filter(x_coord=x_coord, y_coord=y_coord, year=year) \
-                                    .aggregate(cnt=Count('*'), avg_water=Avg(Cast('water', FloatField())), avg_land=Avg(Cast('land', FloatField())), \
-                                    avg_building=Avg(Cast('building', FloatField())), avg_church=Avg(Cast('church', FloatField())), \
-                                    avg_oiltank=Avg(Cast('oiltank', FloatField())))
+        .aggregate(cnt=Count('*'), avg_water=Avg(Cast('water', FloatField())), avg_land=Avg(Cast('land', FloatField())), \
+                   avg_building=Avg(Cast('building', FloatField())), avg_church=Avg(Cast('church', FloatField())), \
+                   avg_oiltank=Avg(Cast('oiltank', FloatField())))
 
     if len(submissions_query) == 0:
         return
@@ -175,10 +204,10 @@ def check_submission(year, x_coord, y_coord):
         return
 
     if ((not (submissions['avg_water'] <= low_bound or submissions['avg_water'] >= high_bound)) or \
-        (not (submissions['avg_land'] <= low_bound or submissions['avg_land'] >= high_bound)) or \
-        (not (submissions['avg_building'] <= low_bound or submissions['avg_building'] >= high_bound)) or \
-        (not (submissions['avg_church'] <= low_bound or submissions['avg_church'] >= high_bound)) or \
-        (not (submissions['avg_oiltank'] <= low_bound or submissions['avg_oiltank'] >= high_bound))):
+            (not (submissions['avg_land'] <= low_bound or submissions['avg_land'] >= high_bound)) or \
+            (not (submissions['avg_building'] <= low_bound or submissions['avg_building'] >= high_bound)) or \
+            (not (submissions['avg_church'] <= low_bound or submissions['avg_church'] >= high_bound)) or \
+            (not (submissions['avg_oiltank'] <= low_bound or submissions['avg_oiltank'] >= high_bound))):
         print("Votes are too different to classify tile")
         return
 
@@ -186,7 +215,6 @@ def check_submission(year, x_coord, y_coord):
     confirmed.x_coord = x_coord
     confirmed.y_coord = y_coord
     confirmed.year = year
-
 
     confirmed.water_prediction = (submissions['avg_water']) * 100
     confirmed.land_prediction = (submissions['avg_land']) * 100
