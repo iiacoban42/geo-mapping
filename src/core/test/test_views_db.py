@@ -39,15 +39,24 @@ class TestRequests(TestCase):
         chars.buildings_prediction = 0
         chars.save()
 
-        # obj = ObjectsTable()
-        # obj.tiles_id = stored_tile[0]
-        # obj.x_coord = 0
-        # obj.y_coord = 0
-        # obj.prediction = 100
-        # obj.type = 'oiltank'
-        # obj.save()
-        # ConfirmedCaptchasTable()
-        # CaptchaTable()
+        tile = TileTable()
+        tile.x_coord = 2
+        tile.y_coord = 2
+        tile.year = 2014
+        tile.save()
+
+        stored_tile2 = TileTable.objects.filter(x_coord=2, y_coord=2,
+                                                year=2014)
+
+        obj = ObjectsTable()
+        obj.tiles_id = stored_tile2[0]
+        obj.x_coord = 0
+        obj.y_coord = 0
+        obj.prediction = 100
+        obj.type = 'oiltank'
+        obj.save()
+        ConfirmedCaptchasTable()
+        CaptchaTable()
 
     def test_get_statistics(self):
         # Create an instance of a GET request.
@@ -139,6 +148,67 @@ class TestRequests(TestCase):
 
     def test_invalid_captcha_no_chars(self):
         submission = '[{"year":2014, "x":2, "y":2, "building":true, "water":true, "land":false, "church":false, "oiltank":false}, ' \
+                     '{"year":2010, "x":1, "y":1, "building":true, "water":false, "land":true, "church":false, "oiltank":false}]'
+
+        sub = json.loads(submission)
+        # Create an instance of a POST request.
+        request = self.factory.post(path='submit_captcha', data=sub, content_type='application/json')
+
+        # an AnonymousUser instance.
+        request.user = AnonymousUser()
+
+        response = submit_captcha(request)
+        self.assertEqual(response.status_code, 400)
+
+    def test_valid_captcha_objects(self):
+        stored_tile2 = TileTable.objects.filter(x_coord=2, y_coord=2,
+                                                year=2014)
+        chars = CharacteristicsTable()
+        chars.tiles_id = stored_tile2[0]
+        chars.water_prediction = 100
+        chars.land_prediction = 0
+        chars.buildings_prediction = 0
+        chars.save()
+
+        submission = '[{"year":2014, "x":2, "y":2, "building":false, "water":true, "land":false, "church":false, "oiltank":true}, ' \
+                     '{"year":2010, "x":1, "y":1, "building":true, "water":false, "land":true, "church":false, "oiltank":false}]'
+
+        sub = json.loads(submission)
+        # Create an instance of a POST request.
+        request = self.factory.post(path='submit_captcha', data=sub, content_type='application/json')
+
+        # an AnonymousUser instance.
+        request.user = AnonymousUser()
+
+        response = submit_captcha(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_captcha_objects(self):
+        stored_tile2 = TileTable.objects.filter(x_coord=2, y_coord=2,
+                                                year=2014)
+        chars = CharacteristicsTable()
+        chars.tiles_id = stored_tile2[0]
+        chars.water_prediction = 100
+        chars.land_prediction = 0
+        chars.buildings_prediction = 0
+        chars.save()
+
+        submission = '[{"year":2014, "x":2, "y":2, "building":false, "water":true, "land":false, "church":false, "oiltank":false}, ' \
+                     '{"year":2010, "x":1, "y":1, "building":true, "water":false, "land":true, "church":false, "oiltank":false}]'
+
+        sub = json.loads(submission)
+        # Create an instance of a POST request.
+        request = self.factory.post(path='submit_captcha', data=sub, content_type='application/json')
+
+        # an AnonymousUser instance.
+        request.user = AnonymousUser()
+
+        response = submit_captcha(request)
+        self.assertEqual(response.status_code, 400)
+
+    def test_invalid_captcha_objects2(self):
+
+        submission = '[{"year":2010, "x":0, "y":0, "building":false, "water":true, "land":false, "church":true, "oiltank":true}, ' \
                      '{"year":2010, "x":1, "y":1, "building":true, "water":false, "land":true, "church":false, "oiltank":false}]'
 
         sub = json.loads(submission)

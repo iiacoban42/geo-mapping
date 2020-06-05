@@ -101,7 +101,6 @@ def get_tile(request):
 def submit_captcha(request):
     """Verify captcha challenge"""
     # NOTE: Terrible code ahead. I'll try to make it prettier later on. -Georgi
-    # print(request)
     submission = json.loads(request.body)
     print(submission)
 
@@ -110,10 +109,7 @@ def submit_captcha(request):
                                            year=submission[0]['year'])
     tile2_query = TileTable.objects.filter(x_coord=submission[1]['x'], y_coord=submission[1]['y'],
                                            year=submission[1]['year'])
-    print(len(tile1_query))
-    print(len(tile2_query))
     if len(tile1_query) > 0:
-        print("I got here")
         # Tile #1 is control, verify it's data
         control_tile = tile1_query[0]
         control_sub = submission[0]
@@ -124,24 +120,17 @@ def submit_captcha(request):
         control_sub = submission[1]
         unid_sub = submission[0]
     else:
-        print("No tile")
         return HttpResponseBadRequest("No tile")
 
     char_query = CharacteristicsTable.objects.filter(tiles_id=control_tile.id)
-    print(char_query[0].land_prediction)
     if len(char_query) == 0:
-        print("No chars")
         return HttpResponseBadRequest("No characteristics")
-    print("I got here 2")
     control_char = char_query[0]
 
     # Check the characteristics
     if check_characteristics(control_sub, control_char):
-        print("I got here 3")
         obj_query = ObjectsTable.objects.filter(tiles_id=control_tile.id)
-        print("I got here 3")
         if len(obj_query) == 0:
-            print("I got here 3")
             if not control_sub['church'] and not control_sub['oiltank']:  # In case there are no objects
                 correct_captcha(unid_sub)
                 return HttpResponse()
