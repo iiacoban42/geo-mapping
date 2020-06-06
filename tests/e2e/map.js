@@ -7,10 +7,12 @@ describe('Map', function () {
 
         // Check if zooming in and out works
         cy.get('div[title*="Zoom in"]').click();
-        cy.get('#coordsWidget').contains("Zoom 2");
+        cy.wait(1000);
+        cy.get('#coordsWidget').contains("Zoom 3");
 
         cy.get('div[title*="Zoom out"]').click();
-        cy.get('#coordsWidget').contains("Zoom 1");
+        cy.wait(1000);
+        cy.get('#coordsWidget').contains("Zoom 2");
     });
 
     it('has working nav menu', () => {
