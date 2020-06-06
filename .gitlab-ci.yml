@@ -37,7 +37,7 @@ e2e_test:
   image: cypress/base:10
   stage: Test
   script:
-    - python src/manage.py runserver & cypress run
+    - cypress run
 
 deploy_staging:
   stage: Deploy
