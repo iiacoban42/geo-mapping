@@ -90,8 +90,14 @@ class Characteristics(models.Model):
     buildings_prediction = models.IntegerField()
     objects = models.Manager()
 
+
 class ConfirmedCaptchas(models.Model):
     """Confirmed CAPTCHAs"""
+
+    class Meta:
+        """Meta ConfirmedCaptchas"""
+        app_label = 'core'
+
     id = models.AutoField(primary_key=True)
 
     x_coord = models.IntegerField(blank=False)
@@ -104,4 +110,14 @@ class ConfirmedCaptchas(models.Model):
 
     church_prediction = models.IntegerField()
     oiltank_prediction = models.IntegerField()
+    objects = models.Manager()
+
+
+class UsableTiles(models.Model):
+    """Tiles that can be used because they are not black"""
+    id = models.AutoField(primary_key=True)
+
+    x_coord = models.IntegerField(blank=False)
+    y_coord = models.IntegerField(blank=False)
+    year = models.IntegerField(blank=False)
     objects = models.Manager()

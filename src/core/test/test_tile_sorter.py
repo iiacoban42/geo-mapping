@@ -40,6 +40,7 @@ class TestTileSorter(unittest.TestCase):
         self.assertEqual(os.path.exists("core/test/images/land_tile.png"), True)
         self.assertEqual(os.path.exists("core/test/images/land+water_tile.png"), True)
         self.assertEqual(os.path.exists("core/test/images/water_tile.png"), True)
+        self.assertEqual(os.path.exists("core/test/images/extra_tile.png"), True)
 
         im1 = Image.open("core/test/images/building_tile.png")
         im2 = Image.open("core/test/images/building+land_tile.png")
@@ -48,6 +49,7 @@ class TestTileSorter(unittest.TestCase):
         im5 = Image.open("core/test/images/land_tile.png")
         im6 = Image.open("core/test/images/land+water_tile.png")
         im7 = Image.open("core/test/images/water_tile.png")
+        im8 = Image.open("core/test/images/extra_tile.png")
 
         copy1 = im1.copy()
         copy2 = im2.copy()
@@ -56,6 +58,7 @@ class TestTileSorter(unittest.TestCase):
         copy5 = im5.copy()
         copy6 = im6.copy()
         copy7 = im7.copy()
+        copy8 = im8.copy()
 
         self.assertEqual(os.path.exists("core/test/labels/building/building_tile.png"), False)
         self.assertEqual(os.path.exists("core/test/labels/building+land/building+land_tile.png"), False)
@@ -64,6 +67,7 @@ class TestTileSorter(unittest.TestCase):
         self.assertEqual(os.path.exists("core/test/labels/land/land_tile.png"), False)
         self.assertEqual(os.path.exists("core/test/labels/land+water/land+water_tile.png"), False)
         self.assertEqual(os.path.exists("core/test/labels/water/water_tile.png"), False)
+        self.assertEqual(os.path.exists("core/test/labels/building+land/extra_tile.png"), False)
 
         sort_tiles("core/test/images", "core/test/labels")
 
@@ -74,6 +78,7 @@ class TestTileSorter(unittest.TestCase):
         self.assertEqual(os.path.exists("core/test/images/land_tile.png"), False)
         self.assertEqual(os.path.exists("core/test/images/land+water_tile.png"), False)
         self.assertEqual(os.path.exists("core/test/images/water_tile.png"), False)
+        self.assertEqual(os.path.exists("core/test/images/extra_tile.png"), False)
 
         self.assertEqual(os.path.exists("core/test/labels/building/building_tile.png"), True)
         self.assertEqual(os.path.exists("core/test/labels/building+land/building+land_tile.png"), True)
@@ -82,6 +87,7 @@ class TestTileSorter(unittest.TestCase):
         self.assertEqual(os.path.exists("core/test/labels/land/land_tile.png"), True)
         self.assertEqual(os.path.exists("core/test/labels/land+water/land+water_tile.png"), True)
         self.assertEqual(os.path.exists("core/test/labels/water/water_tile.png"), True)
+        self.assertEqual(os.path.exists("core/test/labels/building+land/extra_tile.png"), True)
 
         copy1.save("core/test/images/building_tile.png")
         copy2.save("core/test/images/building+land_tile.png")
@@ -90,6 +96,7 @@ class TestTileSorter(unittest.TestCase):
         copy5.save("core/test/images/land_tile.png")
         copy6.save("core/test/images/land+water_tile.png")
         copy7.save("core/test/images/water_tile.png")
+        copy8.save("core/test/images/extra_tile.png")
 
         os.remove("core/test/labels/building/building_tile.png")
         os.remove("core/test/labels/building+land/building+land_tile.png")
@@ -98,3 +105,4 @@ class TestTileSorter(unittest.TestCase):
         os.remove("core/test/labels/land/land_tile.png")
         os.remove("core/test/labels/land+water/land+water_tile.png")
         os.remove("core/test/labels/water/water_tile.png")
+        os.remove("core/test/labels/building+land/extra_tile.png")
