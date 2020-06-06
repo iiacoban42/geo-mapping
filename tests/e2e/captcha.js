@@ -15,11 +15,11 @@ describe('Captcha', function () {
     it('has working info with legend', () => {
         cy.visit('/captcha');
 
-        //Should be not visible before mouseover
+        // Should be not visible before mouseover
         cy.get('#legend_info').should('be.not.visible');
         cy.get('#legend_btn').trigger('mouseover');
 
-        //Should be visible after mouseover
+        // Should be visible after mouseover
         cy.get('#legend_info').should('be.visible');
     })
 
