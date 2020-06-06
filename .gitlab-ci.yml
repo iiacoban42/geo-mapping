@@ -33,6 +33,12 @@ unit_test:
   - cd src
   - python manage.py test
 
+e2e_test:
+  stage: Test
+  script:
+    - python src/manage.py runserver
+    - node_modules/.bin/cypress run
+
 deploy_staging:
   stage: Deploy
 
