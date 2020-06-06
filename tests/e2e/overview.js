@@ -1,10 +1,10 @@
 describe('Tiles Overview', function () {
-    it.only('updates numbers when selecting a year', () => {
+    it('updates numbers when selecting a year', () => {
         cy.visit('/tiles_overview');
         // Check if number of dataset tiles appears after selecting a year
         cy.get('#dataset_year').invoke('text').then((textBefore) => {
             cy.get('select').select('2016');
-            cy.wait(1000);
+            cy.wait(2000);
             cy.get('#dataset_year').invoke('text').then((textAfter) => {
                 expect(textBefore).not.equal(textAfter);
             });

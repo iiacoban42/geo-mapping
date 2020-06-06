@@ -1,5 +1,5 @@
 describe('Map', function () {
-    it('is working', () => {
+    it('loads correctly and allows to zoom in and out', () => {
         cy.visit('/');
 
         // Check if the map is loaded
@@ -7,11 +7,11 @@ describe('Map', function () {
 
         // Check if zooming in and out works
         cy.get('div[title*="Zoom in"]').click();
-        cy.wait(1000);
+        cy.wait(2000);
         cy.get('#coordsWidget').contains("Zoom 3");
 
         cy.get('div[title*="Zoom out"]').click();
-        cy.wait(1000);
+        cy.wait(2000);
         cy.get('#coordsWidget').contains("Zoom 2");
     });
 
