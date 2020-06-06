@@ -36,9 +36,7 @@ unit_test:
 e2e_test:
   stage: Test
   script:
-    - npm install wait-on
-    - python src/manage.py runserver & wait-on http://127.0.0.1:8000
-    - node_modules/.bin/cypress run
+    - python src/manage.py runserver & node_modules/.bin/cypress run
 
 deploy_staging:
   stage: Deploy
