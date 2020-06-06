@@ -34,9 +34,10 @@ unit_test:
   - python manage.py test
 
 e2e_test:
+  image: cypress/base:10
   stage: Test
   script:
-    - python src/manage.py runserver & node_modules/.bin/cypress run
+    - python src/manage.py runserver & cypress run
 
 deploy_staging:
   stage: Deploy
