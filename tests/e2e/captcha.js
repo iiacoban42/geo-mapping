@@ -37,6 +37,6 @@ describe('Captcha', function () {
         cy.get('.open').click();
 
         cy.get('#tiles_overview').click();
-        cy.url().should('eq', 'http://127.0.0.1:8000/tiles_overview');
+        cy.url().should('eq', 'http://127.0.0.1:8000/tiles_overview/');
     })
 });

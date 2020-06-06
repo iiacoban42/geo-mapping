@@ -24,6 +24,6 @@ describe('Tiles Overview', function () {
         cy.get('.open').click();
 
         cy.get('#captcha').click();
-        cy.url().should('eq', 'http://127.0.0.1:8000/captcha');
+        cy.url().should('eq', 'http://127.0.0.1:8000/captcha/');
     })
 });
