@@ -3,6 +3,7 @@ image: "python:3.7"
 before_script:
   - python --version
   - pip install -r src/requirements.txt
+  - npm install
 
 stages:
   - Static Analysis
