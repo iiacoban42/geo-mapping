@@ -6,7 +6,6 @@ before_script:
 
 stages:
   - Static Analysis
-  - Build
   - Test
   - Deploy
 
@@ -27,18 +26,6 @@ pylint:
   script:
   - pylint -d C0301 src/core/*.py
   - pylint -d C0301 src/api/*.py
-
-install:
-  image: cypress/base:10
-  stage: Build
-
-  script:
-    - npm ci
-    - npx cypress cache path
-    - npx cypress cache list
-    - $(npm bin)/print-env CI
-    - npm run cy:verify
-    - npm run cy:info
 
 unit_test:
   stage: Test
