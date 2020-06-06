@@ -24,4 +24,4 @@ describe('Map', function () {
         cy.get('#myNav').should('be.visible');
         cy.get("#2015").click({force: true});
     })
-})
+});
