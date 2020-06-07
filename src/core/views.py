@@ -86,6 +86,9 @@ def get_tile(request):
         print("Out of challenges. Picking random unsolved from usable")
         (year_new, x_new, y_new) = pick_random_captcha()
 
+    if year_new == -1:  # If there are no usable tiles, return empty
+        return HttpResponse()
+
     # Pick a known tile
     tile = random.choice(TileTable.objects.all())
 
