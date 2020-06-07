@@ -1,8 +1,21 @@
 {
   "name": "timetravel-maps",
   "version": "1.0.0",
-  "dependencies": {
-    "@tensorflow-models/coco-ssd": "^2.0.3",
-    "esri": "0.0.1-security"
-  }
+  "devDependencies": {
+    "cypress": "^4.7.0"
+  },
+  "description": "The main driving aspect of this project is the fact that the maps of the Netherlands could be used to provide insights into human development, leading to a better understanding of urban planning for the future. Despite already being available online, they are merely images of maps and as such cannot provide too much meaningful information, much less be used for actual research. Had they been digitized though, the story would be completely different.",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.ewi.tudelft.nl:cse2000-software-project/2019-2020-q4/cluster-11/timetravel-maps/timetravel-maps.git"
+  },
+  "author": "",
+  "license": "ISC"
 }
