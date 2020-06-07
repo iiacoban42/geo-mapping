@@ -1,3 +1,5 @@
+image: "python:3.7"
+
 before_script:
   - python --version
   - pip install -r src/requirements.txt
@@ -8,20 +10,17 @@ stages:
   - Deploy
 
 mypy:
-  image: "python:3.7"
   stage: Static Analysis
   script:
   - pwd
   - ls -l
 
 flake8:
-  image: "python:3.7"
   stage: Static Analysis
   script:
   - flake8 --max-line-length=120 bild/*.py
 
 pylint:
-  image: "python:3.7"
   stage: Static Analysis
   allow_failure: true
   script:
@@ -29,20 +28,18 @@ pylint:
   - pylint -d C0301 src/api/*.py
 
 unit_test:
-  image: "python:3.7"
   stage: Test
   script:
   - cd src
   - python manage.py test
 
 e2e_test:
-  image: cypress/base:10
+  image: moneymeets/cypress-python
   stage: Test
   script:
     - cypress run
 
 deploy_staging:
-  image: "python:3.7"
   stage: Deploy
 
   script:
