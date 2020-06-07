@@ -150,13 +150,16 @@ def pick_random_captcha():
     x_new = -1
     y_new = -1
 
+    if not UsableTilesTable.objects.all():
+        return (year_new, x_new, y_new)
+
     while True:
 
         tile = random.choice(UsableTilesTable.objects.all())
         x_new = tile.x_coord
         y_new = tile.y_coord
         year_new = tile.year
-        
+
         tile_confirmed = ConfirmedCaptchasTable.objects.filter(x_coord=x_new, y_coord=y_new, year=year_new)
 
         if len(tile_confirmed) > 0:
