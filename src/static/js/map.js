@@ -1,7 +1,8 @@
 var map;
 var view;
-require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphic", "dojo/domReady!"],
-    function (Map, MapView, TileLayer, Graphic) {
+require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphic",
+        "esri/geometry/Extent", "esri/widgets/Search", "esri/widgets/Attribution", "dojo/domReady!"],
+    function (Map, MapView, TileLayer, Graphic, Extent, Search) {
 
         // initial map
         var baseLayer = new TileLayer({
@@ -18,8 +19,17 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
             container: "map",
             map: map,
         });
-
-
+        var extent = new Extent({
+            xmin: -122.68,
+            ymin: 45.53,
+            xmax: -122.45,
+            ymax: 45.60,
+            spatialReference: {
+                wkid: 4326
+            }
+        });
+        // map.extent = extent
+        // view.extent = extent
         // create a symbol for drawing the point
         var pointSymbol = {
             type: "simple-marker",             // autocasts as new SimpleMarkerSymbol()
@@ -86,10 +96,29 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
         });
 
         // add event to show mouse coordinates on click and move
-        view.on(["pointer-down", "pointer-move"], function (evt) {
+        view.on(["pointer-down"], function (evt) {
             showCoordinates(view.toMap({x: evt.x, y: evt.y}));
         });
 
+        view.on("click", function (event) {
+            event.stopPropagation(); // overwrite default click-for-popup behavior
+            // Get the coordinates of the click on the view
+            var lat = event.mapPoint.y;
+            var lon = event.mapPoint.x;
+            view.popup.open({
+                // Set the popup's title to the coordinates of the location
+                title: "Reverse geocode: [" + lon + ", " + lat + "]",
+                location: event.mapPoint // Set the location of the popup to the clicked location
+            });
+            view.popup.content = view.spatialReference.wkid.toString();
+        });
+
+        var searchWidget = new Search({view: view});
+        view.ui.add(searchWidget, "top-right");
+
+
+        // x_28992 = obj.tiles_id.x_coord * 406.55828 - 30527385.66843
+        // y_28992 = obj.tiles_id.y_coord * -406.41038 + 31113121.21698
 
         // change years based on the selection from the menu
         $(document).ready(function () {
