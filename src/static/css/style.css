@@ -6,13 +6,13 @@ html, body, #map {
     overflow: hidden;
 }
 
-.esri-popup__footer, .esri-popup__button--dock, .esri-popup__button {
+.esri-popup__footer, .esri-popup__button--dock {
     visibility: hidden;
 }
 
 .esri-ui-top-left {
-    margin-left: 95%;
-    margin-top: 1%;
+    margin-left: 97.7%;
+    margin-top: 3%;
 }
 
 .menu {
