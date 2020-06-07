@@ -1,8 +1,8 @@
 image: "python:3.7"
 
 before_script:
-  - python --version
-  - pip install -r src/requirements.txt
+  - python3 --version
+  - pip3 install -r src/requirements.txt
 
 stages:
   - Static Analysis
@@ -33,9 +33,15 @@ unit_test:
   - cd src
   - python manage.py test
 
+e2e_test:
+  image: moneymeets/cypress-python
+  stage: Test
+  script:
+    - npm install cypress --save-dev
+    - python3 src/manage.py runserver & $(npm bin)/cypress run
+
 deploy_staging:
   stage: Deploy
-
   script:
   - apt-get update -qy
   - apt-get install -y ruby-dev

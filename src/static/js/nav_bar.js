@@ -13,13 +13,12 @@ function closeNav() {
 
 $(document).ready(function () {
     $(menu).click(function (event) {
-        console.log(event.target.id)
+        console.log(event.target.id);
         if (event.target.id === 'maps')
             location.assign('/');
         else if (event.target.id === 'menu')
             return
         else
             location.assign('/' + event.target.id + '/');
-        document.getElementById("current").innerHTML = event.target.id;
     });
 });
