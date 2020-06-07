@@ -37,6 +37,8 @@ e2e_test:
   image: moneymeets/cypress-python
   stage: Test
   script:
+    - npm install cypress --save-dev
+    - python3 src/manage.py runserver
     - cypress run
 
 deploy_staging:
