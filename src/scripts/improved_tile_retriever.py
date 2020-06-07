@@ -28,20 +28,26 @@ def save_all_tiles(year, range_x, range_y):
 
 
 def check_request(res, year, x_coord, y_coord):
+    print("res ", res, "said: ")
     try:
         file = urllib.request.urlopen(res)
         im = Image.open(file, 'r')
         finish_request(im, year, x_coord, y_coord)
-    except:
-        print("url was invalid")
+    except Exception as e:
+        print(e)
 
 
 def finish_request(im, year, x_coord, y_coord):
     pix_val = list(im.getdata())
     if not check_transparent(pix_val):
         if not check_full_white(pix_val):
-            # print("found one")
+            print("image was good. saving...")
             save_tile(year, x_coord, y_coord)
+            print("saved")
+        else:
+            print("image was full white")
+    else:
+        print("image was transparent")
 
 
 def check_transparent(pix_val):
@@ -73,14 +79,16 @@ def save_tile(year, x_coord, y_coord):
     tile = UsableTilesTable(x_coord=x_coord, y_coord=y_coord, year=year)
     tile.save()
 
+
 # import timeit
 #
 # start = timeit.default_timer()
 #
-# save_all_tiles(2010, range(75079, 75804), range(74990, 76568))
+# save_all_tiles(2010, range(75157, 75804), range(74990, 76568))
 #
 # stop = timeit.default_timer()
 #
 # print('Time: ', stop - start)
-#
+
 # save_all_tiles(2010, range(75300, 75804), range(75300, 76568))
+
