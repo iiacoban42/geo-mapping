@@ -42,7 +42,6 @@ e2e_test:
 
 deploy_staging:
   stage: Deploy
-
   script:
   - apt-get update -qy
   - apt-get install -y ruby-dev
