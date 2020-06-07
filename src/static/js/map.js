@@ -150,13 +150,13 @@ require(['esri/Map', 'esri/views/MapView', 'esri/layers/TileLayer', 'esri/Graphi
     }
 );
 
+
 async function getLabels(req) {
-    fetch('/get_labels/' + JSON.stringify(req), {
-        method: "GET",
-    }).then(response => {
-        console.log(response)
-        console.log(response.json())
-    })
+    const response = await fetch('/get_labels/' + JSON.stringify(req));
+    var data = await response.json()
+    view.popup.content += ('<br>Building: ' + Boolean(data.building))
+    view.popup.content += ('<br>Land: ' + Boolean(data.land))
+    view.popup.content += ('<br>Water: ' + Boolean(data.water))
 }
 
 // open when someone clicks on the span element
