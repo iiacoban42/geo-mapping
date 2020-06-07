@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 urlpatterns = [
     path('captcha/', views.captcha, name='captcha'),
     path('get_tile/', views.get_tile, name='get_tile'),
+    path('store_tiles/', views.store_tiles, name='store_tiles'),
     path('submit_captcha/', csrf_exempt(views.submit_captcha), name='submit_captcha'),
     path('tiles_overview/', views.tiles_overview, name='tiles_overview'),
     path('get_statistics/', views.get_statistics, name='get_statistics'),
