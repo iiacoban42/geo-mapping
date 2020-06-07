@@ -133,33 +133,31 @@ require(['esri/Map', 'esri/views/MapView', 'esri/layers/TileLayer', 'esri/Graphi
 
         // change years based on the selection from the menu
         $(document).ready(function () {
-            $(menu).click(function (event) {
-                if (event.target.id !== 'menu') {
-                    var year = event.target.id
-                    console.log(year)
-                    var yearLayer = new TileLayer({
-                        url: 'https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_' + year + '/MapServer'
-                    });
-                    map.removeAll();
-                    map.add(yearLayer);
-                    document.getElementById('current').innerHTML = event.target.id;
-                }
+                $(menu).click(function (event) {
+                    if (event.target.id !== 'menu') {
+                        var year = event.target.id
+                        console.log(year)
+                        var yearLayer = new TileLayer({
+                            url: 'https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_' + year + '/MapServer'
+                        });
+                        map.removeAll();
+                        map.add(yearLayer);
+                        document.getElementById('current').innerHTML = event.target.id;
+                    }
                 });
             }
         );
     }
 );
 
-async function getLabels(req){
-  fetch('/get_labels/', {
+async function getLabels(req) {
+    fetch('/get_labels/' + JSON.stringify(req), {
         method: "GET",
-        args: JSON.stringify(req)
     }).then(response => {
         console.log(response)
+        console.log(response.json())
     })
-
 }
-
 
 // open when someone clicks on the span element
 function openNav() {
