@@ -38,8 +38,7 @@ e2e_test:
   stage: Test
   script:
     - npm install cypress --save-dev
-    - python3 src/manage.py runserver &
-    - $(npm bin)/cypress run
+    - python3 src/manage.py runserver & $(npm bin)/cypress run
 
 deploy_staging:
   stage: Deploy
