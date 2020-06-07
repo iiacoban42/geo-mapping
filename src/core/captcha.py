@@ -5,6 +5,7 @@ from django.db.models import Avg, Count, FloatField
 from django.db.models.functions import Cast
 
 from core.models import CaptchaSubmissions as CaptchaTable
+from core.models import UsableTiles as UsableTilesTable
 from core.models import Tiles as TileTable
 from core.models import ConfirmedCaptchas as ConfirmedCaptchasTable
 from core.models import Objects as ObjectsTable
@@ -144,19 +145,18 @@ def pick_unsolved_captcha():
 
 def pick_random_captcha():
     """Pick a random captcha challenge that hasn't been submitted (or confirmed) yet"""
-    year_new = 2010
+
+    year_new = -1
     x_new = -1
     y_new = -1
 
     while True:
-        if year_new == 2010:
-            x_new = random.choice(range(75079, 75804))
-            y_new = random.choice(range(74990, 76586))
 
-        tile = TileTable.objects.filter(x_coord=x_new, y_coord=y_new)
-        if len(tile) > 0:
-            continue
-
+        tile = random.choice(UsableTilesTable.objects.all())
+        x_new = tile.x_coord
+        y_new = tile.y_coord
+        year_new = tile.year
+        
         tile_confirmed = ConfirmedCaptchasTable.objects.filter(x_coord=x_new, y_coord=y_new, year=year_new)
 
         if len(tile_confirmed) > 0:

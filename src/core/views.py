@@ -83,7 +83,7 @@ def get_tile(request):
     (year_new, x_new, y_new) = pick_unsolved_captcha()
 
     if year_new == -1:  # If all current captchas are solved, pick a random new challenge
-        print("Out of challenges. Picking random")
+        print("Out of challenges. Picking random unsolved from usable")
         (year_new, x_new, y_new) = pick_random_captcha()
 
     # Pick a known tile
