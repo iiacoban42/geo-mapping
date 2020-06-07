@@ -53,7 +53,7 @@ require(['esri/Map', 'esri/views/MapView', 'esri/layers/TileLayer', 'esri/Graphi
         document.onreadystatechange = async function () {
             const response = await fetch('/get_markers');
             const json = await response.json();
-            
+
             var labels = json.labels
             var points = json.points
             // display points in view
@@ -97,10 +97,11 @@ require(['esri/Map', 'esri/views/MapView', 'esri/layers/TileLayer', 'esri/Graphi
             year = document.getElementById('current').innerHTML
             coord_x_db = Math.round((event.mapPoint.x + 30527385.66843) / 406.55828)
             coord_y_db = Math.round((event.mapPoint.y - 31113121.21698) / (-406.41038))
-
             const req = {'year': year, 'x_coord': coord_x_db, 'y_coord': coord_y_db}
-            const response = fetch('/get_labels/' + req);
-            const json = response.json();
+
+            const json = getLabels(req);
+            console.log(json)
+
 
             // template for labelled tiles on map
             view.popup.open({
@@ -148,6 +149,17 @@ require(['esri/Map', 'esri/views/MapView', 'esri/layers/TileLayer', 'esri/Graphi
         );
     }
 );
+
+async function getLabels(req){
+  fetch('/get_labels/', {
+        method: "GET",
+        args: JSON.stringify(req)
+    }).then(response => {
+        console.log(response)
+    })
+
+}
+
 
 // open when someone clicks on the span element
 function openNav() {

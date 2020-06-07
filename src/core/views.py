@@ -77,9 +77,9 @@ def get_markers(request):
     return JsonResponse(data, safe=False)
 
 
-def get_labels(request, requested_tile):
+def get_labels(request):
     """Return the labels of a tile stored in DatasetTable"""
-    query = json.loads(requested_tile)
+    query = json.loads(request.body)
     tile = DatasetTable.objects.filter(year=query.year, x_coord=query.x_coord, y_coord=query.y_coord).all()
     print(tile[0])
     if len(tile) == 0:
