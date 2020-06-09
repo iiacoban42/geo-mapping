@@ -20,6 +20,11 @@ pix_to_check.sort()
 def save_all_tiles(year, range_x, range_y):
     for x_coord in range_x:
         for y_coord in range_y:
+            if y_coord % 10 == 0:
+                # get this table once every 10 iterations to avoid losing connection to database
+                # Note: this is horrible and slow, but I have no idea how to do it differently - Andrei
+                tile1 = UsableTilesTable.objects.all()
+                # print(tile1)
             res = "https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_" + str(
                 year) + "/MapServer/tile/11/" + str(y_coord) + "/" + str(x_coord)
             # print(res)
@@ -28,7 +33,7 @@ def save_all_tiles(year, range_x, range_y):
 
 
 def check_request(res, year, x_coord, y_coord):
-    print("res ", res, "said: ")
+    # print("res ", res, "said: ")
     try:
         file = urllib.request.urlopen(res)
         im = Image.open(file, 'r')
@@ -44,10 +49,10 @@ def finish_request(im, year, x_coord, y_coord):
             print("image was good. saving...")
             save_tile(year, x_coord, y_coord)
             print("saved")
-        else:
-            print("image was full white")
-    else:
-        print("image was transparent")
+        # else:
+            # print("image was full white")
+    # else:
+        # print("image was transparent")
 
 
 def check_transparent(pix_val):
@@ -84,11 +89,10 @@ def save_tile(year, x_coord, y_coord):
 #
 # start = timeit.default_timer()
 #
-# save_all_tiles(2010, range(75157, 75804), range(74990, 76568))
+# save_all_tiles(2010, range(75367, 75804), range(74990, 76568))
 #
 # stop = timeit.default_timer()
 #
 # print('Time: ', stop - start)
 
 # save_all_tiles(2010, range(75300, 75804), range(75300, 76568))
-
