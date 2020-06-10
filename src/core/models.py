@@ -3,9 +3,11 @@
 from django.db import models
 
 
-# pylint: disable=[no-member, undefined-variable, too-few-public-methods, too-many-instance-attributes]
+# pylint: disable=[no-member, undefined-variable, too-few-public-methods, too-many-instance-attributes, invalid-name]
 
 # Mapping to the database tables
+
+# CAPTCHA tables ################################################
 class CaptchaSubmissions(models.Model):
     """Submitted CAPTCHAs"""
 
@@ -29,25 +31,8 @@ class CaptchaSubmissions(models.Model):
     objects = models.Manager()
 
 
-class Dataset(models.Model):
-    """Table for the dataset"""
-
-    class Meta:
-        """Meta Dataset"""
-        app_label = 'core'
-
-    id = models.AutoField(primary_key=True)
-    x_coord = models.IntegerField(blank=False)
-    y_coord = models.IntegerField(blank=False)
-    year = models.IntegerField(blank=False)
-    water = models.BooleanField()
-    land = models.BooleanField()
-    building = models.BooleanField()
-    objects = models.Manager()
-
-
 class Tiles(models.Model):
-    """Tiles Table"""
+    """Tiles Table used to verify CAPTCHA user input"""
 
     class Meta:
         """Meta Tiles"""
@@ -61,7 +46,7 @@ class Tiles(models.Model):
 
 
 class Objects(models.Model):
-    """Objects Table"""
+    """Objects Table used to verify CAPTCHA user input"""
 
     class Meta:
         """Meta Object"""
@@ -75,7 +60,7 @@ class Objects(models.Model):
 
 
 class Characteristics(models.Model):
-    """Characteristics Table"""
+    """Characteristics Table used to verify CAPTCHA user input"""
 
     class Meta:
         """Meta Characteristics"""
@@ -111,8 +96,8 @@ class ConfirmedCaptchas(models.Model):
     objects = models.Manager()
 
 
-class CaptchaTiles(models.Model):
-    """Confirmed CAPTCHAs tiles"""
+class Captcha_Tiles(models.Model):
+    """CAPTCHAs tiles"""
 
     class Meta:
         """Meta ConfirmedCaptchas Tiles"""
@@ -128,7 +113,7 @@ class CaptchaTiles(models.Model):
     objects = models.Manager()
 
 
-class CaptchaCharacteristics(models.Model):
+class Captcha_Characteristics(models.Model):
     """Characteristics Table for CAPTCHAs"""
 
     class Meta:
@@ -136,14 +121,14 @@ class CaptchaCharacteristics(models.Model):
         app_label = 'core'
 
     id = models.AutoField(primary_key=True)
-    tiles_id = models.ForeignKey(CaptchaTiles, on_delete=models.CASCADE)
+    tiles_id = models.ForeignKey(Captcha_Tiles, on_delete=models.CASCADE)
     water_prediction = models.IntegerField()
     land_prediction = models.IntegerField()
     buildings_prediction = models.IntegerField()
     objects = models.Manager()
 
 
-class CaptchaObjects(models.Model):
+class Captcha_Objects(models.Model):
     """Objects Table for CPATHCAs"""
 
     class Meta:
@@ -151,13 +136,59 @@ class CaptchaObjects(models.Model):
         app_label = 'core'
 
     id = models.AutoField(primary_key=True)
-    tiles_id = models.ForeignKey(CaptchaTiles, on_delete=models.CASCADE)
+    tiles_id = models.ForeignKey(Captcha_Tiles, on_delete=models.CASCADE)
     type = models.CharField(max_length=30)
     prediction = models.IntegerField()
     objects = models.Manager()
 
 
-class AITiles(models.Model):
+class Confirmed_Captcha_Tiles(models.Model):
+    """Confirmed CAPTCHAs tiles"""
+
+    class Meta:
+        """Meta ConfirmedCaptchas Tiles"""
+        app_label = 'core'
+
+    id = models.AutoField(primary_key=True)
+
+    x_coord = models.IntegerField(blank=False)
+    y_coord = models.IntegerField(blank=False)
+    year = models.IntegerField(blank=False)
+    objects = models.Manager()
+
+
+class Confirmed_Captcha_Characteristics(models.Model):
+    """Characteristics Table for confirmed CAPTCHAs"""
+
+    class Meta:
+        """Meta Characteristics CAPTCHA"""
+        app_label = 'core'
+
+    id = models.AutoField(primary_key=True)
+    tiles_id = models.ForeignKey(Confirmed_Captcha_Tiles, on_delete=models.CASCADE)
+    water_prediction = models.IntegerField()
+    land_prediction = models.IntegerField()
+    buildings_prediction = models.IntegerField()
+    objects = models.Manager()
+
+
+class Confimed_Captcha_Objects(models.Model):
+    """Objects Table for confirmed CPATHCAs"""
+
+    class Meta:
+        """Meta Object"""
+        app_label = 'core'
+
+    id = models.AutoField(primary_key=True)
+    tiles_id = models.ForeignKey(Confirmed_Captcha_Tiles, on_delete=models.CASCADE)
+    type = models.CharField(max_length=30)
+    prediction = models.IntegerField()
+    objects = models.Manager()
+
+
+# AI tables ###############################################
+
+class AI_Tiles(models.Model):
     """Tiles classified by the AI"""
 
     class Meta:
@@ -172,7 +203,7 @@ class AITiles(models.Model):
     objects = models.Manager()
 
 
-class AICharacteristics(models.Model):
+class AI_Characteristics(models.Model):
     """Characteristics Table for AI tiles"""
 
     class Meta:
@@ -180,14 +211,14 @@ class AICharacteristics(models.Model):
         app_label = 'core'
 
     id = models.AutoField(primary_key=True)
-    tiles_id = models.ForeignKey(AITiles, on_delete=models.CASCADE)
+    tiles_id = models.ForeignKey(AI_Tiles, on_delete=models.CASCADE)
     water_prediction = models.IntegerField()
     land_prediction = models.IntegerField()
     buildings_prediction = models.IntegerField()
     objects = models.Manager()
 
 
-class AIObjects(models.Model):
+class AI_Objects(models.Model):
     """Objects Table for AI tiled"""
 
     class Meta:
@@ -195,11 +226,13 @@ class AIObjects(models.Model):
         app_label = 'core'
 
     id = models.AutoField(primary_key=True)
-    tiles_id = models.ForeignKey(AITiles, on_delete=models.CASCADE)
+    tiles_id = models.ForeignKey(AI_Tiles, on_delete=models.CASCADE)
     type = models.CharField(max_length=30)
     prediction = models.IntegerField()
     objects = models.Manager()
 
+
+# Other tables ######################################################
 
 class UsableTiles(models.Model):
     """Tiles that can be used because they are not black"""
@@ -208,4 +241,21 @@ class UsableTiles(models.Model):
     x_coord = models.IntegerField(blank=False)
     y_coord = models.IntegerField(blank=False)
     year = models.IntegerField(blank=False)
+    objects = models.Manager()
+
+
+class Dataset(models.Model):
+    """Table for the dataset"""
+
+    class Meta:
+        """Meta Dataset"""
+        app_label = 'core'
+
+    id = models.AutoField(primary_key=True)
+    x_coord = models.IntegerField(blank=False)
+    y_coord = models.IntegerField(blank=False)
+    year = models.IntegerField(blank=False)
+    water = models.BooleanField()
+    land = models.BooleanField()
+    building = models.BooleanField()
     objects = models.Manager()
