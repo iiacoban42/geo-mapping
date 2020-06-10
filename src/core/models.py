@@ -69,8 +69,6 @@ class Objects(models.Model):
 
     id = models.AutoField(primary_key=True)
     tiles_id = models.ForeignKey(Tiles, on_delete=models.CASCADE)
-    x_coord = models.IntegerField()
-    y_coord = models.IntegerField()
     type = models.CharField(max_length=30)
     prediction = models.IntegerField()
     objects = models.Manager()
@@ -110,6 +108,96 @@ class ConfirmedCaptchas(models.Model):
 
     church_prediction = models.IntegerField()
     oiltank_prediction = models.IntegerField()
+    objects = models.Manager()
+
+
+class CaptchaTiles(models.Model):
+    """Confirmed CAPTCHAs tiles"""
+
+    class Meta:
+        """Meta ConfirmedCaptchas Tiles"""
+        app_label = 'core'
+
+    id = models.AutoField(primary_key=True)
+
+    x_coord = models.IntegerField(blank=False)
+    y_coord = models.IntegerField(blank=False)
+    year = models.IntegerField(blank=False)
+    uuid = models.CharField(max_length=32, blank=True)
+    time_stamp = models.DateTimeField(auto_now_add=True, blank=True)
+    objects = models.Manager()
+
+
+class CaptchaCharacteristics(models.Model):
+    """Characteristics Table for CAPTCHAs"""
+
+    class Meta:
+        """Meta Characteristics CAPTCHA"""
+        app_label = 'core'
+
+    id = models.AutoField(primary_key=True)
+    tiles_id = models.ForeignKey(CaptchaTiles, on_delete=models.CASCADE)
+    water_prediction = models.IntegerField()
+    land_prediction = models.IntegerField()
+    buildings_prediction = models.IntegerField()
+    objects = models.Manager()
+
+
+class CaptchaObjects(models.Model):
+    """Objects Table for CPATHCAs"""
+
+    class Meta:
+        """Meta Object"""
+        app_label = 'core'
+
+    id = models.AutoField(primary_key=True)
+    tiles_id = models.ForeignKey(CaptchaTiles, on_delete=models.CASCADE)
+    type = models.CharField(max_length=30)
+    prediction = models.IntegerField()
+    objects = models.Manager()
+
+
+class AITiles(models.Model):
+    """Tiles classified by the AI"""
+
+    class Meta:
+        """Meta AI Tiles"""
+        app_label = 'core'
+
+    id = models.AutoField(primary_key=True)
+
+    x_coord = models.IntegerField(blank=False)
+    y_coord = models.IntegerField(blank=False)
+    year = models.IntegerField(blank=False)
+    objects = models.Manager()
+
+
+class AICharacteristics(models.Model):
+    """Characteristics Table for AI tiles"""
+
+    class Meta:
+        """Meta Characteristics AI tiles"""
+        app_label = 'core'
+
+    id = models.AutoField(primary_key=True)
+    tiles_id = models.ForeignKey(AITiles, on_delete=models.CASCADE)
+    water_prediction = models.IntegerField()
+    land_prediction = models.IntegerField()
+    buildings_prediction = models.IntegerField()
+    objects = models.Manager()
+
+
+class AIObjects(models.Model):
+    """Objects Table for AI tiled"""
+
+    class Meta:
+        """Meta AI objects"""
+        app_label = 'core'
+
+    id = models.AutoField(primary_key=True)
+    tiles_id = models.ForeignKey(AITiles, on_delete=models.CASCADE)
+    type = models.CharField(max_length=30)
+    prediction = models.IntegerField()
     objects = models.Manager()
 
 
