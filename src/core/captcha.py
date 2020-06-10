@@ -9,6 +9,9 @@ from core.models import UsableTiles as UsableTilesTable
 from core.models import Tiles as TileTable
 from core.models import ConfirmedCaptchas as ConfirmedCaptchasTable
 from core.models import Objects as ObjectsTable
+# from core.models import Captcha_Tiles as CaptchaTilesTable
+# from core.models import Captcha_Characteristics as CaptchaCharsTable
+# from core.models import Captcha_Objects as CaptchaObjectsTable
 
 
 def find_tiles(submission):
@@ -75,6 +78,32 @@ def correct_captcha(sub):
     submission.church = sub['church']
     submission.oiltank = sub['oiltank']
     submission.save()
+
+    # tile = CaptchaTilesTable()
+    # tile.year = sub['year']
+    # tile.x_coord = sub['x']
+    # tile.y_coord = sub['y']
+    # tile.save()
+    #
+    # chars = CaptchaCharsTable()
+    # chars.tile_id = tile
+    # chars.land_prediction = sub['land']
+    # chars.water_prediction = sub['water']
+    # chars.buildings_prediction = sub['building']
+    # chars.save()
+    #
+    # if sub['oiltank']:
+    #     obj = CaptchaObjectsTable()
+    #     obj.tile_id = tile
+    #     obj.type = 'oiltank'
+    #     obj.save()
+    # elif sub['church']:
+    #     obj = CaptchaObjectsTable()
+    #     obj.tile_id = tile
+    #     obj.type = 'church'
+    #     obj.save()
+
+    # check_submission(tile.year, tile.x_coord, tile.y_coord)
 
     check_submission(submission.year, submission.x_coord, submission.y_coord)
 

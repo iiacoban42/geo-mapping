@@ -37,11 +37,9 @@ class TestRequests(TestCase):
         tile.year = 2014
         tile.save()
 
-        stored_tile2 = TileTable.objects.filter(x_coord=2, y_coord=2,
-                                                year=2014)
 
         obj = ObjectsTable()
-        obj.tiles_id = stored_tile2[0]
+        obj.tiles_id = tile
         obj.x_coord = 0
         obj.y_coord = 0
         obj.prediction = 100
