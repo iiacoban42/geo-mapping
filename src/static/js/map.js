@@ -104,28 +104,30 @@ require(['esri/Map', 'esri/views/MapView', 'esri/layers/TileLayer', 'esri/Graphi
 
 
             // template for labelled tiles on map
-            view.popup.open({
-                title: 'Tile from year ' + year + ' with coords x= ' + coord_x_db + ', y= ' + coord_y_db + '!!!',
-                content: [
-                    {
-                        type: 'fields',
-                        fieldInfos: [
-                            {
-                                building: json.building
-                            },
-                            {
-                                land: json.land
+            // if(json.building === true || json.land === true || json.water === true) {
+                view.popup.open({
+                    title: 'Tile from year ' + year + ' with coords x= ' + coord_x_db + ', y= ' + coord_y_db + '!!!',
+                    content: [
+                        {
+                            type: 'fields',
+                            fieldInfos: [
+                                {
+                                    building: json.building
+                                },
+                                {
+                                    land: json.land
 
-                            },
-                            {
-                                water: json.water
-                            },
-                        ]
-                    }
-                ],
-                location: event.mapPoint // Set the location of the popup to the clicked location
-            });
-            view.popup.content = view.spatialReference.wkid.toString();
+                                },
+                                {
+                                    water: json.water
+                                },
+                            ]
+                        }
+                    ],
+                    location: event.mapPoint // Set the location of the popup to the clicked location
+                });
+                view.popup.content = view.spatialReference.wkid.toString();
+             // }
         });
         var searchWidget = new Search({view: view});
         view.ui.add(searchWidget, 'top-right');
