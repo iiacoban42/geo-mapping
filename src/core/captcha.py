@@ -1,8 +1,7 @@
 """Captcha module"""
 # pylint: disable=[line-too-long, import-error, no-name-in-module]
 import random
-from django.db.models import Avg, Count, FloatField, Q
-from django.db.models.functions import Cast
+from django.db.models import Avg, Count, Q
 
 from core.models import CaptchaSubmissions as CaptchaTable
 from core.models import UsableTiles as UsableTilesTable
@@ -115,9 +114,9 @@ def correct_captcha(sub):
 def check_submission(year, x_coord, y_coord):
     """"When multiple people have answered a CAPTCHA in a similar matter, that answer is recorded"""
     submissions_query = CaptchaTilesTable.objects.filter(x_coord=x_coord, y_coord=y_coord, year=year) \
-        .aggregate(cnt=Count('*'), avg_water=Avg(Cast('captcha_characteristics__water_prediction', FloatField())), \
-                    avg_land=Avg(Cast('captcha_characteristics__land_prediction', FloatField())), \
-                    avg_building=Avg(Cast('captcha_characteristics__buildings_prediction', FloatField())), \
+        .aggregate(cnt=Count('*'), avg_water=Avg('captcha_characteristics__water_prediction'), \
+                    avg_land=Avg('captcha_characteristics__land_prediction'), \
+                    avg_building=Avg('captcha_characteristics__buildings_prediction'), \
                     cnt_church=Count('captcha_objects__tiles_id', filter=Q(captcha_objects__type="church")), \
                     cnt_oiltank=Count('captcha_objects__tiles_id', filter=Q(captcha_objects__type="oiltank")))
 
