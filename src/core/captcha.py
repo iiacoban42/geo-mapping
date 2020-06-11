@@ -14,6 +14,9 @@ from core.models import Objects as ObjectsTable
 from core.models import Captcha_Tiles as CaptchaTilesTable
 from core.models import Captcha_Characteristics as CaptchaCharsTable
 from core.models import Captcha_Objects as CaptchaObjectsTable
+from core.models import Confirmed_Captcha_Tiles as ConfirmedCaptchaTiles
+from core.models import Confirmed_Captcha_Characteristics as ConfirmedCaptchaChars
+from core.models import Confimed_Captcha_Objects as ConfirmedCaptchaObj
 
 
 def find_tiles(submission):
@@ -70,18 +73,6 @@ def check_objects(control_sub, unid_sub, control_tile):
 def correct_captcha(sub):
     """When a correct control challenge is submitted, the unknown map tile result is recorded"""
     print("correct captcha")
-    # submission = CaptchaTable()
-    # submission.year = sub['year']
-    # submission.x_coord = sub['x']
-    # submission.y_coord = sub['y']
-    # submission.water = sub['water']
-    # submission.land = sub['land']
-    # submission.building = sub['building']
-    # submission.church = sub['church']
-    # submission.oiltank = sub['oiltank']
-    #     submission.uuid = uuid.uuid4()
-    # submission.timestamp = timezone.now
-    # submission.save()
 
     tile = CaptchaTilesTable()
     tile.year = sub['year']
@@ -104,7 +95,7 @@ def correct_captcha(sub):
         obj.type = 'oiltank'
         obj.prediction = 1
         obj.save()
-    elif sub['church']:
+    if sub['church']:
         obj = CaptchaObjectsTable()
         obj.tiles_id = tile
         obj.type = 'church'
@@ -113,24 +104,22 @@ def correct_captcha(sub):
 
     check_submission(tile.year, tile.x_coord, tile.y_coord)
 
-    #check_submission(submission.year, submission.x_coord, submission.y_coord)
-
 
 def check_submission(year, x_coord, y_coord):
     """"When multiple people have answered a CAPTCHA in a similar matter, that answer is recorded"""
     submissions_query = CaptchaTilesTable.objects.filter(x_coord=x_coord, y_coord=y_coord, year=year) \
         .aggregate(cnt=Count('*'), avg_water=Avg('captcha_characteristics__water_prediction'), \
-                    avg_land=Avg('captcha_characteristics__land_prediction'), \
-                    avg_building=Avg('captcha_characteristics__buildings_prediction'), \
-                    cnt_church=Count('captcha_objects__tiles_id', filter=Q(captcha_objects__type="church")), \
-                    cnt_oiltank=Count('captcha_objects__tiles_id', filter=Q(captcha_objects__type="oiltank")))
+                   avg_land=Avg('captcha_characteristics__land_prediction'), \
+                   avg_building=Avg('captcha_characteristics__buildings_prediction'), \
+                   cnt_church=Count('captcha_objects__tiles_id', filter=Q(captcha_objects__type="church")), \
+                   cnt_oiltank=Count('captcha_objects__tiles_id', filter=Q(captcha_objects__type="oiltank")))
 
     if len(submissions_query) == 0:
         return
 
     submissions = submissions_query
 
-    #Calculate average church and oiltank submission
+    # Calculate average church and oiltank submission
     submissions['avg_church'] = submissions['cnt_church'] / submissions['cnt']
     submissions['avg_oiltank'] = submissions['cnt_oiltank'] / submissions['cnt']
 
@@ -151,18 +140,45 @@ def check_submission(year, x_coord, y_coord):
         print("Votes are too different to classify tile")
         return
 
-    confirmed = ConfirmedCaptchasTable()
-    confirmed.x_coord = x_coord
-    confirmed.y_coord = y_coord
-    confirmed.year = year
+    # confirmed = ConfirmedCaptchasTable()
+    # confirmed.x_coord = x_coord
+    # confirmed.y_coord = y_coord
+    # confirmed.year = year
+    #
+    # confirmed.water_prediction = (submissions['avg_water']) * 100
+    # confirmed.land_prediction = (submissions['avg_land']) * 100
+    # confirmed.buildings_prediction = (submissions['avg_building']) * 100
+    # confirmed.church_prediction = (submissions['avg_church']) * 100
+    # confirmed.oiltank_prediction = (submissions['avg_oiltank']) * 100
+    #
+    # confirmed.save()
 
-    confirmed.water_prediction = (submissions['avg_water']) * 100
-    confirmed.land_prediction = (submissions['avg_land']) * 100
-    confirmed.buildings_prediction = (submissions['avg_building']) * 100
-    confirmed.church_prediction = (submissions['avg_church']) * 100
-    confirmed.oiltank_prediction = (submissions['avg_oiltank']) * 100
+    confirmed_tile = ConfirmedCaptchaTiles()
+    confirmed_tile.x_coord = x_coord
+    confirmed_tile.y_coord = y_coord
+    confirmed_tile.year = year
+    confirmed_tile.save()
 
-    confirmed.save()
+    tile_chars = ConfirmedCaptchaChars()
+    tile_chars.tiles_id = confirmed_tile
+    tile_chars.water_prediction = (submissions['avg_water']) * 100
+    tile_chars.land_prediction = (submissions['avg_land']) * 100
+    tile_chars.buildings_prediction = (submissions['avg_building']) * 100
+    tile_chars.save()
+
+    if ((submissions['avg_church']) * 100) > 0:
+        tile_obj = ConfirmedCaptchaObj()
+        tile_obj.tiles_id = confirmed_tile
+        tile_obj.type = 'church'
+        tile_obj.prediction = (submissions['avg_church']) * 100
+        tile_obj.save()
+
+    if ((submissions['avg_oiltank']) * 100) > 0:
+        tile_obj = ConfirmedCaptchaObj()
+        tile_obj.tiles_id = confirmed_tile
+        tile_obj.type = 'oiltank'
+        tile_obj.prediction = (submissions['avg_oiltank']) * 100
+        tile_obj.save()
 
 
 def pick_unsolved_captcha():
