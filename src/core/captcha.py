@@ -1,7 +1,10 @@
 """Captcha module"""
 # pylint: disable=[line-too-long, import-error, no-name-in-module]
 import random
+import uuid
+
 from django.db.models import Avg, Count, Q
+from django.utils import timezone
 
 from core.models import CaptchaSubmissions as CaptchaTable
 from core.models import UsableTiles as UsableTilesTable
@@ -84,6 +87,8 @@ def correct_captcha(sub):
     tile.year = sub['year']
     tile.x_coord = sub['x']
     tile.y_coord = sub['y']
+    tile.uuid = uuid.uuid4().hex
+    tile.timestamp = timezone.now
     tile.save()
 
     chars = CaptchaCharsTable()
