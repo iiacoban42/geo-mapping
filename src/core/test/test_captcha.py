@@ -4,11 +4,10 @@ from django.contrib.auth.models import AnonymousUser
 import sys
 import os
 
-from core.models import CaptchaSubmissions as CaptchaTable
+
 from core.models import Tiles as TileTable
 from core.models import Characteristics as CharacteristicsTable
 from core.models import Objects as ObjectsTable
-from core.models import ConfirmedCaptchas as ConfirmedCaptchasTable
 
 sys.path.append(os.path.join(os.path.dirname("src"), '..'))
 # pylint: disable=all
@@ -29,34 +28,26 @@ class TestCaptcha(TestCase):
         tile.year = 2010
         tile.save()
 
-        stored_tile = TileTable.objects.filter(x_coord=0, y_coord=0,
-                                               year=2010)
-
         chars = CharacteristicsTable()
-        chars.tiles_id = stored_tile[0]
+        chars.tiles_id = tile
         chars.water_prediction = 100
         chars.land_prediction = 0
         chars.buildings_prediction = 0
         chars.save()
 
-        tile = TileTable()
-        tile.x_coord = 2
-        tile.y_coord = 2
-        tile.year = 2014
-        tile.save()
-
-        stored_tile2 = TileTable.objects.filter(x_coord=2, y_coord=2,
-                                                year=2014)
+        tile2 = TileTable()
+        tile2.x_coord = 2
+        tile2.y_coord = 2
+        tile2.year = 2014
+        tile2.save()
 
         obj = ObjectsTable()
-        obj.tiles_id = stored_tile2[0]
+        obj.tiles_id = tile2
         obj.x_coord = 0
         obj.y_coord = 0
         obj.prediction = 100
         obj.type = 'oiltank'
         obj.save()
-        ConfirmedCaptchasTable()
-        CaptchaTable()
 
     def test_get_tile(self):
         # Create an instance of a GET request.

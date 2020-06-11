@@ -9,11 +9,12 @@ from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 
 from pyproj import Transformer
 
-from core.models import CaptchaSubmissions as CaptchaTable
+from core.models import Captcha_Tiles as CaptchaTable
 from core.models import Dataset as DatasetTable
 from core.models import Tiles as TileTable
 from core.models import Characteristics as CharacteristicsTable
 from core.models import Objects as ObjectsTable
+from core.models import AI_Tiles as AITilesTable
 from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles, check_characteristics, \
      check_objects
 
@@ -36,19 +37,19 @@ def tiles_overview(request):
 
 def get_statistics(request):
     """send statistics json"""
-    # TODO: statistics for ai
+    ai_tiles = AITilesTable.objects.all().count()
     cap = CaptchaTable.objects.all().count()
     dataset = DatasetTable.objects.all().count()
-    response = {'ai': 0, 'cap': cap, 'dataset': dataset}
+    response = {'ai': ai_tiles, 'cap': cap, 'dataset': dataset}
     return JsonResponse(response, safe=False)
 
 
 def get_statistics_year(request, requested_year):
     """send statistics json by year"""
-    # TODO: statistics for ai
+    ai_tiles = AITilesTable.objects.filter(year=requested_year).count()
     cap = CaptchaTable.objects.filter(year=requested_year).count()
     dataset = DatasetTable.objects.filter(year=requested_year).count()
-    response = {'ai': 0, 'cap': cap, 'dataset': dataset}
+    response = {'ai': ai_tiles, 'cap': cap, 'dataset': dataset}
     return JsonResponse(response, safe=False)
 
 
