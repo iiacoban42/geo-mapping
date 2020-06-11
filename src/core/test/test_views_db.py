@@ -7,6 +7,7 @@ import os
 from core.models import Tiles as TileTable
 from core.models import Objects as ObjectsTable
 from core.models import Dataset as DatasetTable
+from core.models import AI_Tiles as AITilesTable
 
 sys.path.append(os.path.join(os.path.dirname("src"), '..'))
 # pylint: disable=all
@@ -45,6 +46,12 @@ class TestRequests(TestCase):
         obj.prediction = 100
         obj.type = 'oiltank'
         obj.save()
+
+        tile_ai = AITilesTable()
+        tile_ai.x_coord = 2
+        tile_ai.y_coord = 2
+        tile_ai.year = 2010
+        tile_ai.save()
 
     def test_get_statistics(self):
         # Create an instance of a GET request.

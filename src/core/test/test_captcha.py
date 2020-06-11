@@ -4,11 +4,10 @@ from django.contrib.auth.models import AnonymousUser
 import sys
 import os
 
-from core.models import CaptchaSubmissions as CaptchaTable
+
 from core.models import Tiles as TileTable
 from core.models import Characteristics as CharacteristicsTable
 from core.models import Objects as ObjectsTable
-from core.models import ConfirmedCaptchas as ConfirmedCaptchasTable
 
 sys.path.append(os.path.join(os.path.dirname("src"), '..'))
 # pylint: disable=all
@@ -49,8 +48,6 @@ class TestCaptcha(TestCase):
         obj.prediction = 100
         obj.type = 'oiltank'
         obj.save()
-        ConfirmedCaptchasTable()
-        CaptchaTable()
 
     def test_get_tile(self):
         # Create an instance of a GET request.
