@@ -1,23 +1,22 @@
 """Views module"""
 # pylint: disable=[line-too-long,import-error, unused-argument, no-name-in-module,wildcard-import, fixme]
 
-import random
 import json
+import random
 
-from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
-
+from django.shortcuts import render
 from pyproj import Transformer
 
-from core.models import Captcha_Tiles as CaptchaTable
-from core.models import Dataset as DatasetTable
-from core.models import Tiles as TileTable
-from core.models import Characteristics as CharacteristicsTable
-from core.models import Objects as ObjectsTable
-from core.models import AI_Tiles as AITilesTable
-from core.filter_ai_tiles import get_tiles_with_label
 from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles, check_characteristics, \
     check_objects
+from core.filter_ai_tiles import get_tiles_with_label
+from core.models import AI_Tiles as AITilesTable
+from core.models import Captcha_Tiles as CaptchaTable
+from core.models import Characteristics as CharacteristicsTable
+from core.models import Dataset as DatasetTable
+from core.models import Objects as ObjectsTable
+from core.models import Tiles as TileTable
 
 
 def home(request):
@@ -93,6 +92,7 @@ def get_labels(request, tile):
 
 def get_all_labels(request, requested_map):
     """Return json array of tiles with a specific label"""
+    transformer = Transformer.from_crs("EPSG:28992", "EPSG:4326")
     query = json.loads(requested_map)
     tiles = AITilesTable.objects.filter(year=query.get("year"))
     if len(tiles) == 0:
@@ -103,8 +103,10 @@ def get_all_labels(request, requested_map):
     result = []
     for tile in tile_list:
         found = tile.tiles_id
-        result.append({"x_coord": found.x_coord, "y_coord": found.y_coord})
-        print(result)
+        x_28992 = found.x_coord * 406.55828 - 30527385.66843
+        y_28992 = found.y_coord * -406.41038 + 31113121.21698
+        espg_4326 = transformer.transform(x_28992, y_28992)
+        result.append({"x_coord": espg_4326[1], "y_coord": espg_4326[0]})
     return JsonResponse(result, safe=False)
 
 

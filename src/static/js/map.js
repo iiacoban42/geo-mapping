@@ -3,18 +3,18 @@ var view;
 var graphics = [];
 
 require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphic", 'esri/geometry/Extent',
-'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
+        'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
     function (Map, MapView, TileLayer, Graphic, Extent, Search, Circle) {
 
         // initial map
-        var baseLayer = new TileLayer({
+        var layer = new TileLayer({
             url: 'https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_2016/MapServer'
         });
         map = new Map('map', {
             center: [-122.45, 37.75],
         });
 
-        map.add(baseLayer)
+        map.add(layer)
 
         // map is added to the view
         view = new MapView({
@@ -22,72 +22,73 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
             map: map,
         });
 
-        // create a symbol for drawing the point
-        var pointSymbol = {
-            type: 'simple-marker',             // autocasts as new SimpleMarkerSymbol()
-            color: [226, 119, 40],
-            width: 8,
-            outline: {
-                color: [255, 255, 255],
-                width: 4
+        var symbol_building = {
+            type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+            color: [130, 130, 130, 0.3],
+            style: "solid",
+            outline: {  // autocasts as new SimpleLineSymbol()
+                color: [130, 130, 130, 0.5],
+                width: 10
             }
         };
 
-        // template for points on map
-        var template = {
-            title: '{Label}',
-            content: [
-                {
-                    type: 'fields',
-                    fieldInfos: [
-                        {
-                            fieldName: 'Name'
-                        },
-                        {
-                            fieldName: 'Other'
-                        }
-                    ]
-                }
-            ]
+        var symbol_land = {
+            type: "simple-fill",
+            color: [227, 197, 89, 0.3],
+            style: "solid",
+            outline: {
+                color: [227, 197, 89, 0.5],
+                width: 5
+            }
         };
+
+        var symbol_water = {
+            type: "simple-fill",
+            color: [10, 10, 204, 0.3],
+            style: "solid",
+            outline: {
+                color: [10, 10, 204, 0.5],
+                width: 2
+            }
+        };
+
 
         // get json with points
-        document.onreadystatechange = async function () {
-            const response = await fetch('/get_markers');
-            const json = await response.json();
+        // document.onreadystatechange = load_labels()
+        $(predictions).click(async function (event) {
+            let label = event.target.id
+            document.getElementById(label).innerHTML = "loading..."
+            let year = document.getElementById('current').innerHTML
+            const req = {"year": year, "label": label}
+            const response = await fetch('/get_all_labels/' + JSON.stringify(req));
+            console.log("response")
+            var json = await response.json()
 
-            var labels = json.labels
-            var points = json.points
+            console.log(json.length)
+
             // display points in view
-            for (let i = 0; i < points.length; i++) {
-                var pointGraphic = new Graphic({geometry: points[i], symbol: pointSymbol, attributes: labels[i]});
-                pointGraphic.popupTemplate = template
-                view.graphics.add(pointGraphic);
-
-                var lat = parseFloat(points[i].latitude), long = parseFloat(points[i].longitude)
-
-                var circleGeometry = new Circle([long, lat],{
+            for (let i = 0; i < json.length; i++) {
+                var circleGeometry = new Circle([json[i].x_coord, json[i].y_coord], {
                     radius: 203,
                     radiusUnit: "meters",
-                    spatialReference: { wkid: 28992 } ,
-                    geodesic: true 
-                  });
-                
+                    spatialReference: {wkid: 28992},
+                    geodesic: true
+                });
+                console.log(json[i].x_coord + " " + json[i].y_coord)
 
-                var symbol = {
-                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
-                    color: [ 51,51, 204, 0.2 ],
-                    style: "solid",
-                    outline: {  // autocasts as new SimpleLineSymbol()
-                      color: "white",
-                      width: 1
+                if (label == "building")
+                    view.graphics.add(new Graphic({geometry: circleGeometry.extent, symbol: symbol_building}));
+                if (label == "land")
+                    view.graphics.add(new Graphic({geometry: circleGeometry.extent, symbol: symbol_land}));
+
+                if (label == "water")
+                    view.graphics.add(new Graphic({geometry: circleGeometry.extent, symbol: symbol_water}));
+                document.getElementById(label).innerHTML = label
             }
-                  };
-                graphics[graphics.length] = new Graphic({geometry: circleGeometry.extent, symbol: symbol});
-        }
-        }
+            console.log("DONE")
 
-        // add div element to show coords
+        });
+
         var coordsWidget = document.createElement('div');
         coordsWidget.id = 'coordsWidget';
         coordsWidget.className = 'esri-widget esri-component';
@@ -114,44 +115,15 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
         });
 
 
-        view.on('click', function (event) {
-            event.stopPropagation(); // overwrite default click-for-popup behavior
-            // Get the coordinates of the click on the view
-            year = document.getElementById('current').innerHTML
-            coord_x_db = Math.round((event.mapPoint.x + 30527385.66843) / 406.55828)
-            coord_y_db = Math.round((event.mapPoint.y - 31113121.21698) / (-406.41038))
-            const req = {'year': year, 'x_coord': coord_x_db, 'y_coord': coord_y_db}
-
-            const json = getLabels(req);
-            console.log(json)
-
-
-            // template for labelled tiles on map
-            // if(json.building === true || json.land === true || json.water === true) {
-                view.popup.open({
-                    title: 'Tile from year ' + year + ' with coords x= ' + coord_x_db + ', y= ' + coord_y_db + '!!!',
-                    content: [
-                        {
-                            type: 'fields',
-                            fieldInfos: [
-                                {
-                                    building: json.building
-                                },
-                                {
-                                    land: json.land
-
-                                },
-                                {
-                                    water: json.water
-                                },
-                            ]
-                        }
-                    ],
-                    location: event.mapPoint // Set the location of the popup to the clicked location
-                });
-                view.popup.content = view.spatialReference.wkid.toString();
-             // }
-        });
+        // view.on('click', function (event) {
+        //     event.stopPropagation(); // overwrite default click-for-popup behavior
+        //     // Get the coordinates of the click on the view
+        //     year = document.getElementById('current').innerHTML
+        //     coord_x_db = Math.round((event.mapPoint.x + 30527385.66843) / 406.55828)
+        //     coord_y_db = Math.round((event.mapPoint.y - 31113121.21698) / (-406.41038))
+        //     const req = {'year': year, 'x_coord': coord_x_db, 'y_coord': coord_y_db}
+        //
+        // });
         var searchWidget = new Search({view: view});
         view.ui.add(searchWidget, 'top-right');
 
@@ -161,7 +133,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
                 $(menu).click(function (event) {
                     if (event.target.id !== 'menu') {
                         var year = event.target.id
-                        console.log(year)
                         var yearLayer = new TileLayer({
                             url: 'https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_' + year + '/MapServer'
                         });
@@ -176,14 +147,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
 );
 
 
-async function getLabels(req) {
-    const response = await fetch('/get_labels/' + JSON.stringify(req));
-    var data = await response.json()
-    view.popup.content += ('<br>Building: ' + Boolean(data.building))
-    view.popup.content += ('<br>Land: ' + Boolean(data.land))
-    view.popup.content += ('<br>Water: ' + Boolean(data.water))
-}
-
 // open when someone clicks on the span element
 function openNav() {
     document.getElementById('open').style.visibility = 'hidden';
@@ -192,17 +155,16 @@ function openNav() {
 }
 
 function toggle_graphics(id) {
-    if(document.getElementById(id).classList.contains("hide_graphics")){
-        for(let i=0; i<graphics.length;i++){
-        view.graphics.add(graphics[i])
+    if (document.getElementById(id).classList.contains("hide_graphics")) {
+        for (let i = 0; i < graphics.length; i++) {
+            view.graphics.add(graphics[i])
         }
         document.getElementById(id).classList.remove("hide_graphics")
         document.getElementById(id).classList.add("show_graphics")
 
-    }
-    else{
-        for(let i=0; i<graphics.length;i++){
-        view.graphics.remove(graphics[i])
+    } else {
+        for (let i = 0; i < graphics.length; i++) {
+            view.graphics.remove(graphics[i])
         }
         document.getElementById(id).classList.remove("show_graphics")
         document.getElementById(id).classList.add("hide_graphics")
