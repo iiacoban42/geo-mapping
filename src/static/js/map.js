@@ -1,8 +1,9 @@
 var map;
 var view;
-require(['esri/Map', 'esri/views/MapView', 'esri/layers/TileLayer', 'esri/Graphic', 'esri/geometry/Extent',
-        'esri/widgets/Search', 'dojo/domReady!'],
-    function (Map, MapView, TileLayer, Graphic, Extent, Search) {
+
+require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphic", 'esri/geometry/Extent',
+'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
+    function (Map, MapView, TileLayer, Graphic, Extent, Search, Circle) {
 
         // initial map
         var baseLayer = new TileLayer({
@@ -61,7 +62,29 @@ require(['esri/Map', 'esri/views/MapView', 'esri/layers/TileLayer', 'esri/Graphi
                 var pointGraphic = new Graphic({geometry: points[i], symbol: pointSymbol, attributes: labels[i]});
                 pointGraphic.popupTemplate = template
                 view.graphics.add(pointGraphic);
+
+                var lat = parseFloat(points[i].latitude), long = parseFloat(points[i].longitude)
+
+                var circleGeometry = new Circle([long, lat],{
+                    radius: 203,
+                    radiusUnit: "meters",
+                    spatialReference: { wkid: 28992 } ,
+                    geodesic: true 
+                  });
+                
+
+                var symbol = {
+                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                    color: [ 51,51, 204, 0.2 ],
+                    style: "solid",
+                    outline: {  // autocasts as new SimpleLineSymbol()
+                      color: "white",
+                      width: 1
             }
+                  };
+                
+                view.graphics.add(new Graphic({geometry:circleGeometry.extent, symbol:symbol}));
+        }
         }
 
         // add div element to show coords
