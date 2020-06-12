@@ -97,14 +97,19 @@ def get_all_labels(request, requested_map):
     year = query.get("year")
     label = query.get("label")
     print(label)
-    tiles = AITilesTable.objects.filter(year=year).all()
+    tiles = AITilesTable.objects.filter(year=year)
     if len(tiles) == 0:
         return HttpResponseBadRequest("No tiles")
-
+    print("no loop")
+    print(tiles)
     tile_list = []
     for tile in tiles:
+        print("loop")
+        print(tile)
         if label == 'land':
             res = AICharsTable.objects.filter(tiles_id=tile)
+            print("land")
+            print(res)
             if len(res) > 0 and res[0].land_prediction == 1:
                 tile_list.append(res[0])
         elif label == 'water':
@@ -119,6 +124,7 @@ def get_all_labels(request, requested_map):
     if len(tile_list) == 0:
         return HttpResponseBadRequest("No tiles")
     result = []
+    print("loop done")
     print(len(tile_list))
     print(tile_list)
     for tile in tile_list:
