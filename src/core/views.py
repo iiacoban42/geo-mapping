@@ -15,8 +15,9 @@ from core.models import Tiles as TileTable
 from core.models import Characteristics as CharacteristicsTable
 from core.models import Objects as ObjectsTable
 from core.models import AI_Tiles as AITilesTable
+from core.models import AI_Characteristics as AICharsTable
 from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles, check_characteristics, \
-     check_objects
+    check_objects
 
 
 def home(request):
@@ -81,12 +82,51 @@ def get_markers(request):
 def get_labels(request, tile):
     """Return the labels of a tile stored in DatasetTable"""
     query = json.loads(tile)
-    tile = DatasetTable.objects.filter(year=query.get("year"), x_coord=query.get("x_coord"), y_coord=query.get("y_coord")).all()
+    tile = DatasetTable.objects.filter(year=query.get("year"), x_coord=query.get("x_coord"),
+                                       y_coord=query.get("y_coord")).all()
     if len(tile) == 0:
         res = {'land': 0, 'water': 0, 'building': 0}
         return JsonResponse(res, safe=False)
     response = {'land': tile[0].land, 'water': tile[0].water, 'building': tile[0].building}
     return JsonResponse(response, safe=False)
+
+
+def get_all_labels(request, requested_map):
+    """Return json array of tile labels"""
+    query = json.loads(requested_map)
+    year = query.get("year")
+    label = query.get("label")
+    print(label)
+    tiles = AITilesTable.objects.filter(year=year).all()
+    if len(tiles) == 0:
+        return HttpResponseBadRequest("No tiles")
+
+    tile_list = []
+    for tile in tiles:
+        if label == 'land':
+            res = AICharsTable.objects.filter(tiles_id=tile)
+            if len(res) > 0 and res[0].land_prediction == 1:
+                tile_list.append(res[0])
+        elif label == 'water':
+            res = AICharsTable.objects.filter(tiles_id=tile)
+            if len(res) > 0 and res[0].water_prediction == 1:
+                tile_list.append(res[0])
+        elif label == 'building':
+            res = AICharsTable.objects.filter(tiles_id=tile)
+            if len(res) > 0 and res[0].buildings_prediction == 1:
+                tile_list.append(res[0])
+
+    if len(tile_list) == 0:
+        return HttpResponseBadRequest("No tiles")
+    result = []
+    print(len(tile_list))
+    print(tile_list)
+    for tile in tile_list:
+        print()
+        found = tile.tiles_id
+        result.append({"x_coord": found.x_coord, "y_coord": found.y_coord})
+        print(result)
+    return JsonResponse(result, safe=False)
 
 
 def get_tile(request):

@@ -34,7 +34,7 @@ html, body, #map {
     transition: 0.3s; /* Transition effects on hover (color) */
 }
 
-.captcha, .overview, .water, .buildings, .land, .churches, .oil_tanks {
+.captcha, .overview, .water, .buildings, .land {
     background-color: rgba(157, 179, 191, 0.46);
     border-radius: 28px;
     border: 2px solid rgba(240, 240, 240, 0.7);
@@ -76,17 +76,6 @@ html, body, #map {
     margin-left: 700px;
 }
 
-#oil_tanks {
-    position: absolute;
-    margin-top: -31px;
-    margin-left: 500px;
-}
-
-#churches {
-    position: absolute;
-    margin-top: -31px;
-    margin-left: 316px;
-}
 
 .buttons:hover {
     background-color: rgba(42, 170, 191, 0.34);
