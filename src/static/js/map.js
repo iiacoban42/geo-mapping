@@ -1,5 +1,6 @@
 var map;
 var view;
+var graphics = [];
 
 require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphic", 'esri/geometry/Extent',
 'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
@@ -82,8 +83,7 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
                       width: 1
             }
                   };
-                
-                view.graphics.add(new Graphic({geometry:circleGeometry.extent, symbol:symbol}));
+                graphics[graphics.length] = new Graphic({geometry: circleGeometry.extent, symbol: symbol});
         }
         }
 
@@ -189,6 +189,24 @@ function openNav() {
     document.getElementById('open').style.visibility = 'hidden';
     document.getElementById('myNav').style.width = '7%';
 
+}
+
+function toggle_graphics(id) {
+    if(document.getElementById(id).classList.contains("hide_graphics")){
+        for(let i=0; i<graphics.length;i++){
+        view.graphics.add(graphics[i])
+        }
+        document.getElementById(id).classList.remove("hide_graphics")
+        document.getElementById(id).classList.add("show_graphics")
+
+    }
+    else{
+        for(let i=0; i<graphics.length;i++){
+        view.graphics.remove(graphics[i])
+        }
+        document.getElementById(id).classList.remove("show_graphics")
+        document.getElementById(id).classList.add("hide_graphics")
+    }
 }
 
 // close when someone clicks on the 'x' symbol inside the overlay
