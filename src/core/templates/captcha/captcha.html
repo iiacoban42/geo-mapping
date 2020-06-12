@@ -36,7 +36,8 @@
     <div id="not_a_robot_text">I am not a robot</div>
 </div>
 
-<button id="legend_btn" style="height: 50px; width: 50px;" onmouseover="show_legend()" onmouseout="hide_legend()"><i class="fa fa-info"></i>
+<button id="legend_btn" style="height: 50px; width: 50px;" onmouseover="show_legend()" onmouseout="hide_legend()"><i
+        class="fa fa-info"></i>
 </button>
 
 <div id="legend_info" onmouseover="show_legend()" onmouseout="hide_legend()">
@@ -48,30 +49,30 @@
     <img id="ch_img1" class="ch_img"> <br/>
 
     Please select any features/objects that you see in the map: <br/>
-
-    <input id="building1" type="checkbox" autocomplete="off"/> Building <br/>
-    <input id="water1" type="checkbox" autocomplete="off"/> Water <br/>
-    <input id="land1" type="checkbox" autocomplete="off"/> Unbuilt Land <br/>
-    <br>
-    <input id="church1" type="checkbox" autocomplete="off"/> Church <br/>
-    <input id="oiltank1" type="checkbox" autocomplete="off"/> Oil Tank <br/>
-
-    <button type="button1" class="ch_submit" onclick="nextChallenge()">Next</button>
+    <div id="check_boxes_div" , class="check_boxes">
+        <input id="building1" type="checkbox" autocomplete="off"/> Building <br/>
+        <input id="water1" type="checkbox" autocomplete="off"/> Water <br/>
+        <input id="land1" type="checkbox" autocomplete="off"/> Unbuilt Land <br/>
+        <br>
+        <input id="church1" type="checkbox" autocomplete="off"/> Church <br/>
+        <input id="oiltank1" type="checkbox" autocomplete="off"/> Oil Tank <br/>
+    </div>
+    <button id="nextChallenge" class="ch_submit" onclick="nextChallenge()">Next</button>
 </div>
 
 <div id="challenge2" class="popup">
     <img id="ch_img2" class="ch_img"> <br/>
 
     Please select any features/objects that you see in the map: <br/>
-
-    <input id="building2" type="checkbox" autocomplete="off"/> Building <br/>
-    <input id="water2" type="checkbox" autocomplete="off"/> Water <br/>
-    <input id="land2" type="checkbox" autocomplete="off"/> Unbuilt Land <br/>
-    <br>
-    <input id="church2" type="checkbox" autocomplete="off"/> Church <br/>
-    <input id="oiltank2" type="checkbox" autocomplete="off"/> Oil Tank <br/>
-
-    <button type="button" class="ch_submit" onclick="submitChallenge()">Submit</button>
+    <div id="check_boxes_div2" , class="check_boxes2">
+        <input id="building2" type="checkbox" autocomplete="off"/> Building <br/>
+        <input id="water2" type="checkbox" autocomplete="off"/> Water <br/>
+        <input id="land2" type="checkbox" autocomplete="off"/> Unbuilt Land <br/>
+        <br>
+        <input id="church2" type="checkbox" autocomplete="off"/> Church <br/>
+        <input id="oiltank2" type="checkbox" autocomplete="off"/> Oil Tank <br/>
+    </div>
+    <button id="submit" class="ch_submit" onclick="submitChallenge()">Submit</button>
 </div>
 <div id="result"></div>
 </body>

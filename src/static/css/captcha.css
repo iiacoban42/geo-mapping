@@ -42,7 +42,10 @@
 .checkmark_success {
     opacity: 100%;
 }
-
+.check_boxes, .check_boxes2{
+    text-align: left;
+    margin-left: 40%;
+}
 #not_a_robot_text {
     margin-top: 10%;
     margin-left: 80px;
@@ -168,4 +171,12 @@
     z-index: 1;
     position: relative;
     display: block;
+}
+
+.disable {
+    pointer-events: none
+}
+
+.enable {
+    pointer-events: all;
 }
