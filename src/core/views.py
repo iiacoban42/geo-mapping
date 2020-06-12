@@ -103,7 +103,11 @@ def get_all_labels(request, requested_map):
     result = []
     for tile in tile_list:
         found = tile.tiles_id
-        result.append({"x_coord": found.x_coord, "y_coord": found.y_coord})
+        x_28992 = found.x_coord * 406.55828 - 30527385.66843
+        y_28992 = found.y_coord * -406.41038 + 31113121.21698
+        transformer = Transformer.from_crs("EPSG:28992", "EPSG:4326")
+        espg_4326 = transformer.transform(x_28992, y_28992)
+        result.append({"x_coord": espg_4326[0], "y_coord": espg_4326[1]})
         print(result)
     return JsonResponse(result, safe=False)
 
