@@ -67,7 +67,7 @@ class TestRequests(TestCase):
         tile_ai2.save()
 
         tile_chars2 = AICharsTable()
-        tile_chars2.tiles_id = tile_ai
+        tile_chars2.tiles_id = tile_ai2
         tile_chars2.land_prediction = 1
         tile_chars2.water_prediction = 0
         tile_chars2.buildings_prediction = 0
@@ -134,7 +134,9 @@ class TestRequests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_ai_tiles(self):
+        print(len(AICharsTable.objects.filter(land_prediction=1).all()))
         submission = '{"year": 2010, "label": "land"}'
+
 
         sub = json.loads(submission)
         # Create an instance of a GET request.

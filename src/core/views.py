@@ -93,6 +93,7 @@ def get_labels(request, tile):
 
 def get_all_labels(request, requested_map):
     """Return json array of tile labels"""
+    print("server")
     query = json.loads(requested_map)
     year = query.get("year")
     label = query.get("label")
