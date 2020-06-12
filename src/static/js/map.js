@@ -1,8 +1,10 @@
 var map;
 var view;
-require(['esri/Map', 'esri/views/MapView', 'esri/layers/TileLayer', 'esri/Graphic', 'esri/geometry/Extent',
-        'esri/widgets/Search', 'dojo/domReady!'],
-    function (Map, MapView, TileLayer, Graphic, Extent, Search) {
+var graphics = [];
+
+require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphic", 'esri/geometry/Extent',
+'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
+    function (Map, MapView, TileLayer, Graphic, Extent, Search, Circle) {
 
         // initial map
         var baseLayer = new TileLayer({
@@ -61,7 +63,28 @@ require(['esri/Map', 'esri/views/MapView', 'esri/layers/TileLayer', 'esri/Graphi
                 var pointGraphic = new Graphic({geometry: points[i], symbol: pointSymbol, attributes: labels[i]});
                 pointGraphic.popupTemplate = template
                 view.graphics.add(pointGraphic);
+
+                var lat = parseFloat(points[i].latitude), long = parseFloat(points[i].longitude)
+
+                var circleGeometry = new Circle([long, lat],{
+                    radius: 203,
+                    radiusUnit: "meters",
+                    spatialReference: { wkid: 28992 } ,
+                    geodesic: true 
+                  });
+                
+
+                var symbol = {
+                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                    color: [ 51,51, 204, 0.2 ],
+                    style: "solid",
+                    outline: {  // autocasts as new SimpleLineSymbol()
+                      color: "white",
+                      width: 1
             }
+                  };
+                graphics[graphics.length] = new Graphic({geometry: circleGeometry.extent, symbol: symbol});
+        }
         }
 
         // add div element to show coords
@@ -104,28 +127,30 @@ require(['esri/Map', 'esri/views/MapView', 'esri/layers/TileLayer', 'esri/Graphi
 
 
             // template for labelled tiles on map
-            view.popup.open({
-                title: 'Tile from year ' + year + ' with coords x= ' + coord_x_db + ', y= ' + coord_y_db + '!!!',
-                content: [
-                    {
-                        type: 'fields',
-                        fieldInfos: [
-                            {
-                                building: json.building
-                            },
-                            {
-                                land: json.land
+            // if(json.building === true || json.land === true || json.water === true) {
+                view.popup.open({
+                    title: 'Tile from year ' + year + ' with coords x= ' + coord_x_db + ', y= ' + coord_y_db + '!!!',
+                    content: [
+                        {
+                            type: 'fields',
+                            fieldInfos: [
+                                {
+                                    building: json.building
+                                },
+                                {
+                                    land: json.land
 
-                            },
-                            {
-                                water: json.water
-                            },
-                        ]
-                    }
-                ],
-                location: event.mapPoint // Set the location of the popup to the clicked location
-            });
-            view.popup.content = view.spatialReference.wkid.toString();
+                                },
+                                {
+                                    water: json.water
+                                },
+                            ]
+                        }
+                    ],
+                    location: event.mapPoint // Set the location of the popup to the clicked location
+                });
+                view.popup.content = view.spatialReference.wkid.toString();
+             // }
         });
         var searchWidget = new Search({view: view});
         view.ui.add(searchWidget, 'top-right');
@@ -164,6 +189,24 @@ function openNav() {
     document.getElementById('open').style.visibility = 'hidden';
     document.getElementById('myNav').style.width = '7%';
 
+}
+
+function toggle_graphics(id) {
+    if(document.getElementById(id).classList.contains("hide_graphics")){
+        for(let i=0; i<graphics.length;i++){
+        view.graphics.add(graphics[i])
+        }
+        document.getElementById(id).classList.remove("hide_graphics")
+        document.getElementById(id).classList.add("show_graphics")
+
+    }
+    else{
+        for(let i=0; i<graphics.length;i++){
+        view.graphics.remove(graphics[i])
+        }
+        document.getElementById(id).classList.remove("show_graphics")
+        document.getElementById(id).classList.add("hide_graphics")
+    }
 }
 
 // close when someone clicks on the 'x' symbol inside the overlay

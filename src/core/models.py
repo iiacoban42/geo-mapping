@@ -66,8 +66,11 @@ class Characteristics(models.Model):
         """Meta Characteristics"""
         app_label = 'core'
 
-    id = models.AutoField(primary_key=True)
-    tiles_id = models.ForeignKey(Tiles, on_delete=models.CASCADE)
+    tiles_id = models.OneToOneField(
+        Tiles,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
     water_prediction = models.IntegerField()
     land_prediction = models.IntegerField()
     buildings_prediction = models.IntegerField()
@@ -104,7 +107,6 @@ class Captcha_Tiles(models.Model):
         app_label = 'core'
 
     id = models.AutoField(primary_key=True)
-
     x_coord = models.IntegerField(blank=False)
     y_coord = models.IntegerField(blank=False)
     year = models.IntegerField(blank=False)
@@ -120,8 +122,11 @@ class Captcha_Characteristics(models.Model):
         """Meta Characteristics CAPTCHA"""
         app_label = 'core'
 
-    id = models.AutoField(primary_key=True)
-    tiles_id = models.ForeignKey(Captcha_Tiles, on_delete=models.CASCADE)
+    tiles_id = models.OneToOneField(
+        Captcha_Tiles,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
     water_prediction = models.IntegerField()
     land_prediction = models.IntegerField()
     buildings_prediction = models.IntegerField()
@@ -150,7 +155,6 @@ class Confirmed_Captcha_Tiles(models.Model):
         app_label = 'core'
 
     id = models.AutoField(primary_key=True)
-
     x_coord = models.IntegerField(blank=False)
     y_coord = models.IntegerField(blank=False)
     year = models.IntegerField(blank=False)
@@ -164,8 +168,11 @@ class Confirmed_Captcha_Characteristics(models.Model):
         """Meta Characteristics CAPTCHA"""
         app_label = 'core'
 
-    id = models.AutoField(primary_key=True)
-    tiles_id = models.ForeignKey(Confirmed_Captcha_Tiles, on_delete=models.CASCADE)
+    tiles_id = models.OneToOneField(
+        Confirmed_Captcha_Tiles,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
     water_prediction = models.IntegerField()
     land_prediction = models.IntegerField()
     buildings_prediction = models.IntegerField()
@@ -210,8 +217,11 @@ class AI_Characteristics(models.Model):
         """Meta Characteristics AI tiles"""
         app_label = 'core'
 
-    id = models.AutoField(primary_key=True)
-    tiles_id = models.ForeignKey(AI_Tiles, on_delete=models.CASCADE)
+    tiles_id = models.OneToOneField(
+        AI_Tiles,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
     water_prediction = models.IntegerField()
     land_prediction = models.IntegerField()
     buildings_prediction = models.IntegerField()

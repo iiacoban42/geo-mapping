@@ -28,9 +28,7 @@ function clearCheckbox() {
 function verifyCheckbox1() {
     if (document.getElementById("building1").checked === false &&
         document.getElementById("water1").checked === false &&
-        document.getElementById("land1").checked === false &&
-        document.getElementById("church1").checked === false &&
-        document.getElementById("oiltank1").checked === false) {
+        document.getElementById("land1").checked === false) {
         return false;
     }
     return true;
@@ -39,9 +37,7 @@ function verifyCheckbox1() {
 function verifyCheckbox2() {
     if (document.getElementById("building2").checked === false &&
         document.getElementById("water2").checked === false &&
-        document.getElementById("land2").checked === false &&
-        document.getElementById("church2").checked === false &&
-        document.getElementById("oiltank2").checked === false) {
+        document.getElementById("land2").checked === false) {
         return false;
     }
     return true;
@@ -87,7 +83,7 @@ async function submitChallenge() {
                 'oiltank': oiltank2
             }]
     if (verifyCheckbox1() === false || verifyCheckbox2() === false) {
-        window.alert("A tile must have at least one label");
+        window.alert("A tile must have at least one land use label");
         document.getElementById("not_a_robot_checkbox").classList.remove("disable");
         document.getElementById("not_a_robot_checkbox").classList.add("enable");
         document.getElementById("loading").classList.toggle("loader");

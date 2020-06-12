@@ -8,6 +8,7 @@ from core.models import Tiles as TileTable
 from core.models import Objects as ObjectsTable
 from core.models import Dataset as DatasetTable
 from core.models import AI_Tiles as AITilesTable
+from core.models import AI_Characteristics as AICharsTable
 
 sys.path.append(os.path.join(os.path.dirname("src"), '..'))
 # pylint: disable=all
@@ -38,7 +39,6 @@ class TestRequests(TestCase):
         tile.year = 2014
         tile.save()
 
-
         obj = ObjectsTable()
         obj.tiles_id = tile
         obj.x_coord = 0
@@ -52,6 +52,26 @@ class TestRequests(TestCase):
         tile_ai.y_coord = 2
         tile_ai.year = 2010
         tile_ai.save()
+
+        tile_chars = AICharsTable()
+        tile_chars.tiles_id = tile_ai
+        tile_chars.land_prediction = 1
+        tile_chars.water_prediction = 0
+        tile_chars.buildings_prediction = 0
+        tile_chars.save()
+
+        tile_ai2 = AITilesTable()
+        tile_ai2.x_coord = 1
+        tile_ai2.y_coord = 1
+        tile_ai2.year = 2010
+        tile_ai2.save()
+
+        tile_chars2 = AICharsTable()
+        tile_chars2.tiles_id = tile_ai2
+        tile_chars2.land_prediction = 1
+        tile_chars2.water_prediction = 0
+        tile_chars2.buildings_prediction = 0
+        tile_chars2.save()
 
     def test_get_statistics(self):
         # Create an instance of a GET request.
