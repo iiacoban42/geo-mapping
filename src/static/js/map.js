@@ -1,10 +1,11 @@
 var map;
 var view;
 var graphics = [];
+var graphicsLayer;
 
-require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphic", 'esri/geometry/Extent',
-        'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
-    function (Map, MapView, TileLayer, Graphic, Extent, Search, Circle) {
+require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers/GraphicsLayer", "esri/Graphic", 'esri/geometry/Extent',
+        "esri/widgets/Editor", 'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
+    function (Map, MapView, TileLayer, GraphicsLayer, Graphic, Extent, Editor, Search, Circle) {
 
         // initial map
         var layer = new TileLayer({
@@ -15,6 +16,7 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
         });
 
         map.add(layer)
+        graphicsLayer = new GraphicsLayer();
 
         // map is added to the view
         view = new MapView({
@@ -22,122 +24,126 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
             map: map,
         });
 
-        // create a symbol for drawing the point
-        var pointSymbol = {
-            type: 'simple-marker',             // autocasts as new SimpleMarkerSymbol()
-            color: [226, 119, 40],
-            width: 8,
+        var symbol_building = {
+            type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+            color: [130, 130, 130, 0.3],
+            style: "solid",
+            outline: {  // autocasts as new SimpleLineSymbol()
+                color: [130, 130, 130, 0.15],
+                width: 10
+            }
+        };
+
+        var symbol_land = {
+            type: "simple-fill",
+            color: [227, 197, 89, 0.1],
+            style: "solid",
             outline: {
-                color: [255, 255, 255],
-                width: 4
+                color: [227, 197, 89, 0.15],
+                width: 5
+            }
+        };
+
+        var symbol_water = {
+            type: "simple-fill",
+            color: [10, 10, 204, 0.2],
+            style: "solid",
+            outline: {
+                color: [10, 10, 204, 0.25],
+                width: 2
             }
         };
 
         // template for points on map
         var template = {
-            title: '{Label}',
+            title: "{Title}",
             content: [
                 {
-                    type: 'fields',
+                    type: "fields",
                     fieldInfos: [
                         {
-                            fieldName: 'Name'
-                        },
-                        {
-                            fieldName: 'Other'
+                            Building: "something",
+                            Land: "something",
+                            Water: "something",
                         }
                     ]
                 }
             ]
         };
 
-        // get json with points
-        // document.onreadystatechange = load_labels()
-        // document.onreadystatechange ,
-
-        layer.on(["layerview-create", "layerview-destroy"], async function () {
-                let year = document.getElementById('current').innerHTML
-                const req_building = {"year": year, "label": "building"}
-                // console.log("bbbbbbbbbbbbbbbbbb")
-                const json_building = await getAllLabels(req_building);
-                const req_land = {"year": year, "label": "land"}
-                const json_land = await getAllLabels(req_land);
-                const req_water = {"year": year, "label": "water"}
-                const json_water = await getAllLabels(req_water);
-
-                // display points in view
-
-                // console.log(json_building)
-                // console.log(json_building.length)
-
-
-                var symbol_building = {
-                    type: "simple-fill",  // autocasts as new SimpleFillSymbol()
-                    color: [130, 130, 130, 0.2],
-                    style: "solid",
-                    outline: {  // autocasts as new SimpleLineSymbol()
-                        color: "black",
-                        width: 10
-                    }
-                };
-
-                var symbol_land = {
-                    type: "simple-fill",  // autocasts as new SimpleFillSymbol()
-                    color: [227, 197, 89, 0.2],
-                    style: "solid",
-                    outline: {  // autocasts as new SimpleLineSymbol()
-                        color: "orange",
-                        width: 5
-                    }
-                };
-
-                var symbol_water = {
-                    type: "simple-fill",  // autocasts as new SimpleFillSymbol()
-                    color: [10,10, 204, 0.2],
-                    style: "solid",
-                    outline: {  // autocasts as new SimpleLineSymbol()
-                        color: "blue",
-                        width: 1
-                    }
-                };
-
-                for (let i = 0; i < json_building.length; i++) {
-                    var x_coord = json_building[i].x_coord;
-                    var y_coord = json_building[i].y_coord;
-                    var circleGeometry = new Circle([y_coord,x_coord], {
-                        radius: 203,
-                        radiusUnit: "meters",
-                        spatialReference: {wkid: 28992},
-                        geodesic: true
-                    });
-                    graphics[graphics.length] = new Graphic({geometry: circleGeometry.extent, symbol: symbol_building});
-                }
-
-                 for (let i = 0; i < json_land.length; i++) {
-                    x_coord = json_land[i].x_coord;
-                    y_coord = json_land[i].y_coord;
-                    circleGeometry = new Circle([y_coord,x_coord], {
-                        radius: 203,
-                        radiusUnit: "meters",
-                        spatialReference: {wkid: 28992},
-                        geodesic: true
-                    });
-                    graphics[graphics.length] = new Graphic({geometry: circleGeometry.extent, symbol: symbol_land});
-                }
-
-                 for (let i = 0; i < json_water.length; i++) {
-                    x_coord = json_water[i].x_coord;
-                    y_coord = json_water[i].y_coord;
-                    circleGeometry = new Circle([y_coord,x_coord], {
-                        radius: 203,
-                        radiusUnit: "meters",
-                        spatialReference: {wkid: 28992},
-                        geodesic: true
-                    });
-                    graphics[graphics.length] = new Graphic({geometry: circleGeometry.extent, symbol: symbol_water});
-                }
+        // display tiles classified by the machine learning algorithm
+        $(predictions).click(async function load_labels(event) {
+            let label = event.target.id
+            // if user changes year, exit function
+            let abortController = new AbortController();
+            document.getElementById(label).innerHTML = "loading..."
+            let year = document.getElementById('current').innerHTML
+            $(menu).click(function () {
+                document.getElementById(label).innerHTML = label
+                abortController.abort()
             });
-        // add div element to show coords
+            const req = {"year": year, "label": label}
+            const response = await fetch('/get_all_labels/' + JSON.stringify(req), {signal: abortController.signal});
+            try {
+                var json = await response.json()
+                graphicsLayer = new GraphicsLayer();
+
+                console.log("Fetched " + json.length + " tiles")
+                // display points in view
+                for (let i = 0; i < json.length; i++) {
+                    var circleGeometry = new Circle([json[i].x_coord, json[i].y_coord], {
+                        radius: 203,
+                        radiusUnit: "meters",
+                        spatialReference: {wkid: 28992},
+                        geodesic: true
+                    });
+
+                    if (label == "building")
+                        graphic = new Graphic({
+                            geometry: circleGeometry.extent,
+                            symbol: symbol_building,
+                        });
+                    if (label == "land")
+                        graphic = new Graphic({geometry: circleGeometry.extent, symbol: symbol_land});
+                    if (label == "water")
+                        graphic = new Graphic({
+                            geometry: circleGeometry.extent,
+                            symbol: symbol_water
+                        });
+                    // graphic.popupTemplate = template
+                    // graphic.setAttribute('Building', "true")
+                    graphicsLayer.add(graphic)
+
+                }
+                map.add(graphicsLayer)
+            } catch (exception) {
+                alert("Not yet classified, do some CAPTCHA")
+            }
+            document.getElementById(label).innerHTML = label
+        });
+
+
+        // var editor = new Editor({
+        //     view: view,
+        //     layerInfos: [{
+        //         fieldConfig: [ // Specify which fields to configure
+        //             {
+        //                 name: "fulladdr",
+        //                 label: "Full Address"
+        //             },
+        //             {
+        //                 name: "neighborhood",
+        //                 label: "Neighborhood"
+        //             }],
+        //         enabled: true, // default is true, set to false to disable editing functionality
+        //         addEnabled: true, // default is true, set to false to disable the ability to add a new feature
+        //         updateEnabled: false, // default is true, set to false to disable the ability to edit an existing feature
+        //         deleteEnabled: false // default is true, set to false to disable the ability to delete features
+        //     }]
+        // });
+        // view.ui.add(editor, "bottom-right");
+
+
         var coordsWidget = document.createElement('div');
         coordsWidget.id = 'coordsWidget';
         coordsWidget.className = 'esri-widget esri-component';
@@ -147,9 +153,10 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
         // update lat, lon, zoom and scale
         // lat and lon are in other coord system for now (hopefully)
         function showCoordinates(event) {
-            var coords = 'Lat/Lon (wrong for now?) ' + event.y + ' ' + event.x +
+            var coords = 'Latititude: ' + event.y + ' | Longitude: ' + event.x +
                 ' | Scale 1:' + Math.round(view.scale * 1) / 1 +
-                ' | Zoom ' + view.zoom;
+                ' | Zoom ' + view.zoom +
+                ' | EPSG:28992';
             coordsWidget.innerHTML = coords;
         }
 
@@ -163,45 +170,16 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
             showCoordinates(view.toMap({x: evt.x, y: evt.y}));
         });
 
+        // view.on('click', function (event) {
+        //     event.stopPropagation(); // overwrite default click-for-popup behavior
+        //     // Get the coordinates of the click on the view
+        //     year = document.getElementById('current').innerHTML
+        //     coord_x_db = Math.round((event.mapPoint.x + 30527385.66843) / 406.55828)
+        //     coord_y_db = Math.round((event.mapPoint.y - 31113121.21698) / (-406.41038))
+        //     const req = {'year': year, 'x_coord': coord_x_db, 'y_coord': coord_y_db}
+        //
+        // });
 
-        view.on('click', function (event) {
-            event.stopPropagation(); // overwrite default click-for-popup behavior
-            // Get the coordinates of the click on the view
-            year = document.getElementById('current').innerHTML
-            coord_x_db = Math.round((event.mapPoint.x + 30527385.66843) / 406.55828)
-            coord_y_db = Math.round((event.mapPoint.y - 31113121.21698) / (-406.41038))
-            const req = {'year': year, 'x_coord': coord_x_db, 'y_coord': coord_y_db}
-
-            const json = getLabels(req);
-            console.log(json)
-
-
-            // template for labelled tiles on map
-            // if(json.building === true || json.land === true || json.water === true) {
-            view.popup.open({
-                title: 'Tile from year ' + year + ' with coords x= ' + coord_x_db + ', y= ' + coord_y_db + '!!!',
-                content: [
-                    {
-                        type: 'fields',
-                        fieldInfos: [
-                            {
-                                building: json.building
-                            },
-                            {
-                                land: json.land
-
-                            },
-                            {
-                                water: json.water
-                            },
-                        ]
-                    }
-                ],
-                location: event.mapPoint // Set the location of the popup to the clicked location
-            });
-            view.popup.content = view.spatialReference.wkid.toString();
-            // }
-        });
         var searchWidget = new Search({view: view});
         view.ui.add(searchWidget, 'top-right');
 
@@ -211,7 +189,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
                 $(menu).click(function (event) {
                     if (event.target.id !== 'menu') {
                         var year = event.target.id
-                        // console.log(year)
                         var yearLayer = new TileLayer({
                             url: 'https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_' + year + '/MapServer'
                         });
@@ -225,20 +202,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
     }
 );
 
-
-async function getLabels(req) {
-    const response = await fetch('/get_labels/' + JSON.stringify(req));
-    var data = await response.json()
-    view.popup.content += ('<br>Building: ' + Boolean(data.building))
-    view.popup.content += ('<br>Land: ' + Boolean(data.land))
-    view.popup.content += ('<br>Water: ' + Boolean(data.water))
-}
-
-async function getAllLabels(req) {
-    const response = await fetch('/get_all_labels/' + JSON.stringify(req));
-    var data = await response.json()
-    return data
-}
 
 // open when someone clicks on the span element
 function openNav() {
