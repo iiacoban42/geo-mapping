@@ -37,6 +37,8 @@ def tiles_overview(request):
     return render(request, 'tiles-overview/tiles_overview.html')
 
 def captcha_embed(request):
+    """render captcha_embed.html page"""
+
     return render(request, 'captcha/captcha_embed.html')
 
 @xframe_options_exempt

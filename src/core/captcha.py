@@ -64,7 +64,7 @@ def check_objects(control_sub, unid_sub, control_tile):
         if ((obj.type == "church" and not control_sub['church']) or
                 (obj.type == "oiltank" and not control_sub['oiltank'])):
             return None
- 
+
     return correct_captcha(unid_sub)
 
 
