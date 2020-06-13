@@ -61,31 +61,35 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
             let year = document.getElementById('current').innerHTML
             const req = {"year": year, "label": label}
             const response = await fetch('/get_all_labels/' + JSON.stringify(req));
-            console.log("response")
-            var json = await response.json()
+            try {
+                var json = await response.json()
 
-            console.log(json.length)
+                console.log(json.length)
 
-            // display points in view
-            for (let i = 0; i < json.length; i++) {
-                var circleGeometry = new Circle([json[i].x_coord, json[i].y_coord], {
-                    radius: 203,
-                    radiusUnit: "meters",
-                    spatialReference: {wkid: 28992},
-                    geodesic: true
-                });
-                console.log(json[i].x_coord + " " + json[i].y_coord)
+                // display points in view
+                for (let i = 0; i < json.length; i++) {
+                    var circleGeometry = new Circle([json[i].x_coord, json[i].y_coord], {
+                        radius: 203,
+                        radiusUnit: "meters",
+                        spatialReference: {wkid: 28992},
+                        geodesic: true
+                    });
+                    console.log(json[i].x_coord + " " + json[i].y_coord)
 
-                if (label == "building")
-                    view.graphics.add(new Graphic({geometry: circleGeometry.extent, symbol: symbol_building}));
-                if (label == "land")
-                    view.graphics.add(new Graphic({geometry: circleGeometry.extent, symbol: symbol_land}));
-
-                if (label == "water")
-                    view.graphics.add(new Graphic({geometry: circleGeometry.extent, symbol: symbol_water}));
+                    if (label == "building")
+                        graphics.add(new Graphic({geometry: circleGeometry.extent, symbol: symbol_building}));
+                    if (label == "land")
+                        graphics.add(new Graphic({geometry: circleGeometry.extent, symbol: symbol_land}));
+                    if (label == "water")
+                        graphics.add(new Graphic({geometry: circleGeometry.extent, symbol: symbol_water}));
+                    document.getElementById(label).innerHTML = label
+                    view.graphics.add(graphics)
+                }
+                console.log("DONE")
+            } catch (exception) {
+                alert("Not yet classified, do some CAPTCHA")
                 document.getElementById(label).innerHTML = label
             }
-            console.log("DONE")
 
         });
 
@@ -137,6 +141,7 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
                             url: 'https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_' + year + '/MapServer'
                         });
                         map.removeAll();
+                        view.ui.remove(graphics)
                         map.add(yearLayer);
                         document.getElementById('current').innerHTML = event.target.id;
                     }
