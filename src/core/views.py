@@ -10,8 +10,7 @@ from pyproj import Transformer
 
 from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles, check_characteristics, \
     check_objects
-from core.filter_ai_tiles import get_tiles_with_label
-from core.models import AI_Tiles as AITilesTable
+from core.models import AI_Tiles as AITilesTable, AI_Characteristics
 from core.models import Captcha_Tiles as CaptchaTable
 from core.models import Characteristics as CharacteristicsTable
 from core.models import Dataset as DatasetTable
@@ -97,16 +96,21 @@ def get_all_labels(request, requested_map):
     tiles = AITilesTable.objects.filter(year=query.get("year"))
     if len(tiles) == 0:
         return HttpResponseBadRequest("No tiles")
-    tile_list = get_tiles_with_label(query.get("label"), tiles)
-    if len(tile_list) == 0:
-        return HttpResponseBadRequest("No tiles")
     result = []
-    for tile in tile_list:
-        found = tile.tiles_id
-        x_28992 = found.x_coord * 406.55828 - 30527385.66843
-        y_28992 = found.y_coord * -406.41038 + 31113121.21698
+    label = str(query.get("label"))
+    if label == "building":
+        label += "s"
+    label += "_prediction"
+    print(label)
+    kwargs = {label: 1}
+    ids = AI_Characteristics.objects.filter(pk__in=tiles.all().values_list('id', flat=True), **kwargs)
+    for tile in tiles.filter(pk__in=ids.all()):
+        print(tile)
+        x_28992 = tile.x_coord * 406.55828 - 30527385.66843
+        y_28992 = tile.y_coord * -406.41038 + 31113121.21698
         espg_4326 = transformer.transform(x_28992, y_28992)
         result.append({"x_coord": espg_4326[1], "y_coord": espg_4326[0]})
+    print("I am speed")
     return JsonResponse(result, safe=False)
 
 

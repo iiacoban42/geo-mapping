@@ -2,9 +2,9 @@ var map;
 var view;
 var graphics = [];
 
-require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphic", 'esri/geometry/Extent',
+require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers/GraphicsLayer", "esri/Graphic", 'esri/geometry/Extent',
         'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
-    function (Map, MapView, TileLayer, Graphic, Extent, Search, Circle) {
+    function (Map, MapView, TileLayer, GraphicsLayer, Graphic, Extent, Search, Circle) {
 
         // initial map
         var layer = new TileLayer({
@@ -92,8 +92,10 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
                             symbol: symbol_water
                         });
                 }
+                var graphicsLayer = new GraphicsLayer();
                 for (let i = 0; i < graphics.length; i++)
-                    view.graphics.add(graphics[i])
+                    graphicsLayer.add(graphics[i])
+                map.add(graphicsLayer)
                 document.getElementById(label).innerHTML = label
             } catch (exception) {
                 alert("Not yet classified, do some CAPTCHA")
@@ -150,8 +152,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
                             url: 'https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_' + year + '/MapServer'
                         });
                         map.removeAll();
-                        for (let i = 0; i < graphics.length; i++)
-                            view.graphics.remove(graphics[i])
                         map.add(yearLayer);
                         document.getElementById('current').innerHTML = event.target.id;
                     }
