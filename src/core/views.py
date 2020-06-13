@@ -104,7 +104,6 @@ def get_all_labels(request, requested_map):
     if label == "building":
         label += "s"
     label += "_prediction"
-    print(label)
     kwargs = {label: 1}
     ids = AI_Characteristics.objects.filter(pk__in=tiles.all().values_list('id', flat=True), **kwargs)
     if len(ids) == 0:
