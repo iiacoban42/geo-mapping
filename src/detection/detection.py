@@ -227,10 +227,9 @@ class CNN:
             save_labels(x, y, year, building, land, water)
 
 
-#
-# get_images_train()
+get_images_train()
 cnn = CNN()
-# cnn.train()
+cnn.train()
 cnn.predict()
 
 print('############################## U DID IT ############################################################')

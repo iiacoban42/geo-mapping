@@ -54,26 +54,33 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             }
         };
 
-        // template for points on map
+         // template for points on map
         var template = {
-            title: "{Title}",
+            title: "Tile",
             content: [
                 {
                     type: "fields",
                     fieldInfos: [
                         {
-                            Building: "something",
-                            Land: "something",
-                            Water: "something",
+                            fieldName: "Building"
+                        },
+                        {
+                            fieldName: "Land"
+                        },
+                        {
+                            fieldName: "Water"
                         }
                     ]
                 }
             ]
         };
 
+
         // display tiles classified by the machine learning algorithm
         $(predictions).click(async function load_labels(event) {
             let label = event.target.id
+            if (view.zoom < 5)
+                view.zoom = 5
             // if user changes year, exit function
             let abortController = new AbortController();
             document.getElementById(label).innerHTML = "loading..."
@@ -86,11 +93,17 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             const response = await fetch('/get_all_labels/' + JSON.stringify(req), {signal: abortController.signal});
             try {
                 var json = await response.json()
-                graphicsLayer = new GraphicsLayer();
-
                 console.log("Fetched " + json.length + " tiles")
                 // display points in view
                 for (let i = 0; i < json.length; i++) {
+                    building = Boolean(!label.localeCompare('building'))
+                    land = Boolean(!label.localeCompare('land'))
+                    water = Boolean(!label.localeCompare('water'))
+                    var attr = JSON.parse("{\n" +
+                        "      \"Building\": \"" + building.toString() + "\",\n" +
+                        "      \"Land\": \"" + land.toString() + "\",\n" +
+                        "      \"Water\": \"" + water.toString() + "\"\n" +
+                        "    }");
                     var circleGeometry = new Circle([json[i].x_coord, json[i].y_coord], {
                         radius: 203,
                         radiusUnit: "meters",
@@ -102,20 +115,26 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                         graphic = new Graphic({
                             geometry: circleGeometry.extent,
                             symbol: symbol_building,
+                            attributes: attr
                         });
                     if (label == "land")
-                        graphic = new Graphic({geometry: circleGeometry.extent, symbol: symbol_land});
+                        graphic = new Graphic({
+                            geometry: circleGeometry.extent, symbol: symbol_land,
+                            attributes: attr
+                        });
                     if (label == "water")
                         graphic = new Graphic({
                             geometry: circleGeometry.extent,
-                            symbol: symbol_water
+                            symbol: symbol_water,
+                            attributes: attr
                         });
-                    // graphic.popupTemplate = template
-                    // graphic.setAttribute('Building', "true")
-                    graphicsLayer.add(graphic)
+                    graphic.popupTemplate = template
 
+                    graphicsLayer.add(graphic)
                 }
                 map.add(graphicsLayer)
+
+
             } catch (exception) {
                 alert("Not yet classified, do some CAPTCHA")
             }
