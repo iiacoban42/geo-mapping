@@ -99,7 +99,16 @@ async function submitChallenge() {
         if (response.status === 200) {
             //result.innerHTML = "Correct";
             clearCheckbox();
-            window.alert("Correct CAPTCHA. Tile registered.")
+
+            response.text().then(function (text) {
+                window.alert("Correct CAPTCHA. Tile registered.")
+                document.getElementById("checkmark").classList.add("checkmark_success")
+                
+                // If the CAPTCHA is embeded this will signal the website that it's completed.
+                var myEvent = new CustomEvent('captcha_uuid', { detail: {uuid: text}})       
+                window.parent.dispatchEvent(myEvent)
+            })
+            
         } else {
             console.log(response)
             //result.innerHTML = "Incorrect " + response.statusText;

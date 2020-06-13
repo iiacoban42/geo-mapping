@@ -6,6 +6,7 @@ import json
 
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.views.decorators.clickjacking import xframe_options_exempt
 
 from pyproj import Transformer
 
@@ -35,6 +36,14 @@ def tiles_overview(request):
 
     return render(request, 'tiles-overview/tiles_overview.html')
 
+def captcha_embed(request):
+    return render(request, 'captcha/captcha_embed.html')
+
+@xframe_options_exempt
+def embed_example(request):
+    """render embed_example.html page"""
+
+    return render(request, 'captcha/embed_example.html')
 
 def get_statistics(request):
     """send statistics json"""
@@ -183,6 +192,7 @@ def submit_captcha(request):
 
     # Check the characteristics
     if check_characteristics(control_sub, control_char):
-        if check_objects(control_sub, unid_sub, control_tile):
-            return HttpResponse()
+        result = check_objects(control_sub, unid_sub, control_tile)
+        if result is not None:
+            return HttpResponse(result)
     return HttpResponseBadRequest("Wrong answer")
