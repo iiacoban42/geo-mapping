@@ -27,7 +27,7 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
             color: [130, 130, 130, 0.3],
             style: "solid",
             outline: {  // autocasts as new SimpleLineSymbol()
-                color: [130, 130, 130, 0.5],
+                color: [130, 130, 130, 0.35],
                 width: 10
             }
         };
@@ -37,7 +37,7 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
             color: [227, 197, 89, 0.3],
             style: "solid",
             outline: {
-                color: [227, 197, 89, 0.5],
+                color: [227, 197, 89, 0.35],
                 width: 5
             }
         };
@@ -47,20 +47,24 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
             color: [10, 10, 204, 0.3],
             style: "solid",
             outline: {
-                color: [10, 10, 204, 0.5],
+                color: [10, 10, 204, 0.35],
                 width: 2
             }
         };
 
 
-        // get json with points
-        // document.onreadystatechange = load_labels()
-        $(predictions).click(async function (event) {
+        // display tiles classified by the machine learning algorithm
+        $(predictions).click(async function load_labels(event) {
             let label = event.target.id
+            let abortController = new AbortController();
             document.getElementById(label).innerHTML = "loading..."
             let year = document.getElementById('current').innerHTML
+            $(menu).click(function () {
+                document.getElementById(label).innerHTML = label
+                abortController.abort()
+            });
             const req = {"year": year, "label": label}
-            const response = await fetch('/get_all_labels/' + JSON.stringify(req));
+            const response = await fetch('/get_all_labels/' + JSON.stringify(req), {signal: abortController.signal});
             try {
                 var json = await response.json()
 
@@ -74,18 +78,23 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
                         spatialReference: {wkid: 28992},
                         geodesic: true
                     });
-                    console.log(json[i].x_coord + " " + json[i].y_coord)
 
                     if (label == "building")
-                        graphics.add(new Graphic({geometry: circleGeometry.extent, symbol: symbol_building}));
+                        graphics[graphics.length] = new Graphic({
+                            geometry: circleGeometry.extent,
+                            symbol: symbol_building
+                        });
                     if (label == "land")
-                        graphics.add(new Graphic({geometry: circleGeometry.extent, symbol: symbol_land}));
+                        graphics[graphics.length] = new Graphic({geometry: circleGeometry.extent, symbol: symbol_land});
                     if (label == "water")
-                        graphics.add(new Graphic({geometry: circleGeometry.extent, symbol: symbol_water}));
-                    document.getElementById(label).innerHTML = label
-                    view.graphics.add(graphics)
+                        graphics[graphics.length] = new Graphic({
+                            geometry: circleGeometry.extent,
+                            symbol: symbol_water
+                        });
                 }
-                console.log("DONE")
+                for (let i = 0; i < graphics.length; i++)
+                    view.graphics.add(graphics[i])
+                document.getElementById(label).innerHTML = label
             } catch (exception) {
                 alert("Not yet classified, do some CAPTCHA")
                 document.getElementById(label).innerHTML = label
@@ -118,7 +127,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
             showCoordinates(view.toMap({x: evt.x, y: evt.y}));
         });
 
-
         // view.on('click', function (event) {
         //     event.stopPropagation(); // overwrite default click-for-popup behavior
         //     // Get the coordinates of the click on the view
@@ -128,6 +136,7 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
         //     const req = {'year': year, 'x_coord': coord_x_db, 'y_coord': coord_y_db}
         //
         // });
+
         var searchWidget = new Search({view: view});
         view.ui.add(searchWidget, 'top-right');
 
@@ -141,7 +150,8 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/Graphi
                             url: 'https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_' + year + '/MapServer'
                         });
                         map.removeAll();
-                        view.ui.remove(graphics)
+                        for (let i = 0; i < graphics.length; i++)
+                            view.graphics.remove(graphics[i])
                         map.add(yearLayer);
                         document.getElementById('current').innerHTML = event.target.id;
                     }
