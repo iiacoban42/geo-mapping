@@ -105,7 +105,6 @@ def get_all_labels(request, requested_map):
     kwargs = {label: 1}
     ids = AI_Characteristics.objects.filter(pk__in=tiles.all().values_list('id', flat=True), **kwargs)
     for tile in tiles.filter(pk__in=ids.all()):
-        print(tile)
         x_28992 = tile.x_coord * 406.55828 - 30527385.66843
         y_28992 = tile.y_coord * -406.41038 + 31113121.21698
         espg_4326 = transformer.transform(x_28992, y_28992)

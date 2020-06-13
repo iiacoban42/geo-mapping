@@ -1,10 +1,11 @@
 var map;
 var view;
 var graphics = [];
+var graphicsLayer;
 
 require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers/GraphicsLayer", "esri/Graphic", 'esri/geometry/Extent',
-        'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
-    function (Map, MapView, TileLayer, GraphicsLayer, Graphic, Extent, Search, Circle) {
+        "esri/widgets/Editor", 'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
+    function (Map, MapView, TileLayer, GraphicsLayer, Graphic, Extent, Editor, Search, Circle) {
 
         // initial map
         var layer = new TileLayer({
@@ -15,6 +16,7 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
         });
 
         map.add(layer)
+        graphicsLayer = new GraphicsLayer();
 
         // map is added to the view
         view = new MapView({
@@ -27,35 +29,52 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             color: [130, 130, 130, 0.3],
             style: "solid",
             outline: {  // autocasts as new SimpleLineSymbol()
-                color: [130, 130, 130, 0.35],
+                color: [130, 130, 130, 0.15],
                 width: 10
             }
         };
 
         var symbol_land = {
             type: "simple-fill",
-            color: [227, 197, 89, 0.3],
+            color: [227, 197, 89, 0.1],
             style: "solid",
             outline: {
-                color: [227, 197, 89, 0.35],
+                color: [227, 197, 89, 0.15],
                 width: 5
             }
         };
 
         var symbol_water = {
             type: "simple-fill",
-            color: [10, 10, 204, 0.3],
+            color: [10, 10, 204, 0.2],
             style: "solid",
             outline: {
-                color: [10, 10, 204, 0.35],
+                color: [10, 10, 204, 0.25],
                 width: 2
             }
         };
 
+        // template for points on map
+        var template = {
+            title: "{Title}",
+            content: [
+                {
+                    type: "fields",
+                    fieldInfos: [
+                        {
+                            Building: "something",
+                            Land: "something",
+                            Water: "something",
+                        }
+                    ]
+                }
+            ]
+        };
 
         // display tiles classified by the machine learning algorithm
         $(predictions).click(async function load_labels(event) {
             let label = event.target.id
+            // if user changes year, exit function
             let abortController = new AbortController();
             document.getElementById(label).innerHTML = "loading..."
             let year = document.getElementById('current').innerHTML
@@ -67,9 +86,9 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             const response = await fetch('/get_all_labels/' + JSON.stringify(req), {signal: abortController.signal});
             try {
                 var json = await response.json()
+                graphicsLayer = new GraphicsLayer();
 
-                console.log(json.length)
-
+                console.log("Fetched " + json.length + " tiles")
                 // display points in view
                 for (let i = 0; i < json.length; i++) {
                     var circleGeometry = new Circle([json[i].x_coord, json[i].y_coord], {
@@ -80,29 +99,50 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                     });
 
                     if (label == "building")
-                        graphics[graphics.length] = new Graphic({
+                        graphic = new Graphic({
                             geometry: circleGeometry.extent,
-                            symbol: symbol_building
+                            symbol: symbol_building,
                         });
                     if (label == "land")
-                        graphics[graphics.length] = new Graphic({geometry: circleGeometry.extent, symbol: symbol_land});
+                        graphic = new Graphic({geometry: circleGeometry.extent, symbol: symbol_land});
                     if (label == "water")
-                        graphics[graphics.length] = new Graphic({
+                        graphic = new Graphic({
                             geometry: circleGeometry.extent,
                             symbol: symbol_water
                         });
+                    // graphic.popupTemplate = template
+                    // graphic.setAttribute('Building', "true")
+                    graphicsLayer.add(graphic)
+
                 }
-                var graphicsLayer = new GraphicsLayer();
-                for (let i = 0; i < graphics.length; i++)
-                    graphicsLayer.add(graphics[i])
                 map.add(graphicsLayer)
-                document.getElementById(label).innerHTML = label
             } catch (exception) {
                 alert("Not yet classified, do some CAPTCHA")
-                document.getElementById(label).innerHTML = label
             }
-
+            document.getElementById(label).innerHTML = label
         });
+
+
+        // var editor = new Editor({
+        //     view: view,
+        //     layerInfos: [{
+        //         fieldConfig: [ // Specify which fields to configure
+        //             {
+        //                 name: "fulladdr",
+        //                 label: "Full Address"
+        //             },
+        //             {
+        //                 name: "neighborhood",
+        //                 label: "Neighborhood"
+        //             }],
+        //         enabled: true, // default is true, set to false to disable editing functionality
+        //         addEnabled: true, // default is true, set to false to disable the ability to add a new feature
+        //         updateEnabled: false, // default is true, set to false to disable the ability to edit an existing feature
+        //         deleteEnabled: false // default is true, set to false to disable the ability to delete features
+        //     }]
+        // });
+        // view.ui.add(editor, "bottom-right");
+
 
         var coordsWidget = document.createElement('div');
         coordsWidget.id = 'coordsWidget';
@@ -113,9 +153,10 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
         // update lat, lon, zoom and scale
         // lat and lon are in other coord system for now (hopefully)
         function showCoordinates(event) {
-            var coords = 'Lat/Lon (wrong for now?) ' + event.y + ' ' + event.x +
+            var coords = 'Latititude: ' + event.y + ' | Longitude: ' + event.x +
                 ' | Scale 1:' + Math.round(view.scale * 1) / 1 +
-                ' | Zoom ' + view.zoom;
+                ' | Zoom ' + view.zoom +
+                ' | EPSG:28992';
             coordsWidget.innerHTML = coords;
         }
 
