@@ -6,10 +6,8 @@ import uuid
 from django.db.models import Avg, Count, Q
 from django.utils import timezone
 
-from core.models import CaptchaSubmissions as CaptchaTable
 from core.models import UsableTiles as UsableTilesTable
 from core.models import Tiles as TileTable
-from core.models import ConfirmedCaptchas as ConfirmedCaptchasTable
 from core.models import Objects as ObjectsTable
 from core.models import Captcha_Tiles as CaptchaTilesTable
 from core.models import Captcha_Characteristics as CaptchaCharsTable
@@ -189,9 +187,9 @@ def pick_unsolved_captcha():
     x_new = -1
     y_new = -1
 
-    for challenge in CaptchaTable.objects.order_by('?'):
-        tile_confirmed = ConfirmedCaptchasTable.objects.filter(x_coord=challenge.x_coord, y_coord=challenge.y_coord,
-                                                               year=challenge.year)
+    for challenge in CaptchaTilesTable.objects.order_by('?'):
+        tile_confirmed = ConfirmedCaptchaTiles.objects.filter(x_coord=challenge.x_coord, y_coord=challenge.y_coord,
+                                                              year=challenge.year)
 
         if len(tile_confirmed) > 0:
             continue
@@ -221,7 +219,7 @@ def pick_random_captcha():
         y_new = tile.y_coord
         year_new = tile.year
 
-        tile_confirmed = ConfirmedCaptchasTable.objects.filter(x_coord=x_new, y_coord=y_new, year=year_new)
+        tile_confirmed = ConfirmedCaptchaTiles.objects.filter(x_coord=x_new, y_coord=y_new, year=year_new)
 
         if len(tile_confirmed) > 0:
             continue
