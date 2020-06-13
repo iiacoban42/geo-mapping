@@ -1,7 +1,12 @@
 var map;
 var view;
-var graphics = [];
 var graphicsLayer;
+
+// please change if you find a better solution
+var attributes = [];
+attributes["building"] = [];
+attributes["land"] = [];
+attributes["water"] = [];
 
 require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers/GraphicsLayer", "esri/Graphic", 'esri/geometry/Extent',
         "esri/widgets/Editor", 'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
@@ -54,26 +59,39 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             }
         };
 
-        // template for points on map
+         // template for points on map
         var template = {
-            title: "{Title}",
+            title: "Tile | EPSG:4326",
             content: [
                 {
                     type: "fields",
                     fieldInfos: [
                         {
-                            Building: "something",
-                            Land: "something",
-                            Water: "something",
+                            fieldName: "Longitude"
+                        },
+                        {
+                            fieldName: "Latitude"
+                        },
+                        {
+                            fieldName: "Building"
+                        },
+                        {
+                            fieldName: "Land"
+                        },
+                        {
+                            fieldName: "Water"
                         }
                     ]
                 }
             ]
         };
 
+
         // display tiles classified by the machine learning algorithm
         $(predictions).click(async function load_labels(event) {
             let label = event.target.id
+            if (view.zoom < 5)
+                view.zoom = 5
             // if user changes year, exit function
             let abortController = new AbortController();
             document.getElementById(label).innerHTML = "loading..."
@@ -87,33 +105,59 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             try {
                 var json = await response.json()
                 graphicsLayer = new GraphicsLayer();
-
                 console.log("Fetched " + json.length + " tiles")
                 // display points in view
                 for (let i = 0; i < json.length; i++) {
+
+                    var building = Boolean(!label.localeCompare('building'))
+                    var land = Boolean(!label.localeCompare('land'))
+                    var water = Boolean(!label.localeCompare('water'))
+                    var attr = JSON.parse("{\n" +
+                        "      \"Longitude\": \"" + json[i].x_coord + "\",\n" +
+                        "      \"Latitude\": \"" + json[i].y_coord + "\",\n" +
+                        "      \"Building\": \"" + building.toString() + "\",\n" +
+                        "      \"Land\": \"" + land.toString() + "\",\n" +
+                        "      \"Water\": \"" + water.toString() + "\"\n" +
+                        "    }");
+
                     var circleGeometry = new Circle([json[i].x_coord, json[i].y_coord], {
                         radius: 203,
                         radiusUnit: "meters",
                         spatialReference: {wkid: 28992},
                         geodesic: true
                     });
-
                     if (label == "building")
                         graphic = new Graphic({
                             geometry: circleGeometry.extent,
                             symbol: symbol_building,
+                            attributes: attr
                         });
                     if (label == "land")
-                        graphic = new Graphic({geometry: circleGeometry.extent, symbol: symbol_land});
+                        graphic = new Graphic({
+                            geometry: circleGeometry.extent, symbol: symbol_land,
+                            attributes: attr
+                        });
                     if (label == "water")
                         graphic = new Graphic({
                             geometry: circleGeometry.extent,
-                            symbol: symbol_water
+                            symbol: symbol_water,
+                            attributes: attr
                         });
-                    // graphic.popupTemplate = template
-                    // graphic.setAttribute('Building', "true")
+                    if (find(attributes["building"], json[i].x_coord, json[i].y_coord).length > 0) {
+                        console.log("building" + " " + json[i].x_coord + " " + json[i].y_coord)
+                        graphic.setAttribute('Building', "true")
+                    }
+                    if (find(attributes["land"], json[i].x_coord, json[i].y_coord).length > 0) {
+                        console.log("land" + " " + json[i].x_coord + " " + json[i].y_coord)
+                        graphic.setAttribute('Land', "true")
+                    }
+                    if (find(attributes["water"], json[i].x_coord, json[i].y_coord).length > 0) {
+                        console.log("water" + " " + json[i].x_coord + " " + json[i].y_coord)
+                        graphic.setAttribute('Water', "true")
+                    }
+                    graphic.popupTemplate = template
                     graphicsLayer.add(graphic)
-
+                    attributes[label][attributes[label].length] = attr
                 }
                 map.add(graphicsLayer)
             } catch (exception) {
@@ -245,3 +289,10 @@ btn_overview.onclick = function () {
     location.assign('/tiles_overview/');
 }
 
+function find(array, x, y) {
+    return array.filter(
+        function (array) {
+            return (array.Longitude == x && array.Latitude == y)
+        }
+    );
+}
