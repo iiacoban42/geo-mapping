@@ -20,29 +20,29 @@ def save_labels():
             predictions = model.predict(image)
 
             # Save tile
-            tile = AITilesTable(x_coord=int(separated_name[0]), y_coord=int(separated_name[1]), year=2016)
+            tile = AITilesTable(x_coord=int(separated_name[1]), y_coord=int(separated_name[0]), year=2016)
             tile.save()
 
             # Save prediction
             score = int(predictions[2][0] * 100)
             prediction = AIObjectsTable(tiles_id=tile, type="church",prediction=score)
             prediction.save()
-            print(filename + "successfully saved & predicted")
+            print(filename + " successfully saved & predicted")
 
-    for filename in os.listdir("validation_data/church"):
+    for filename in os.listdir("validation-data/church"):
         separated_name = filename.split('_')
-        image = utils.read_image('validation_data/church/{}'.format(filename))
+        image = utils.read_image('validation-data/church/{}'.format(filename))
         predictions = model.predict(image)
 
         # Save tile
-        tile = AITilesTable(x_coord=int(separated_name[0]), y_coord=int(separated_name[1]), year=2016)
+        tile = AITilesTable(x_coord=int(separated_name[1]), y_coord=int(separated_name[0]), year=2016)
         tile.save()
 
         # Save prediction
         score = int(predictions[2][0] * 100)
         prediction = AIObjectsTable(tiles_id=tile, type="church", prediction=score)
         prediction.save()
-        print(filename + "successfully saved & predicted")
+        print(filename + " successfully saved & predicted")
 
 
 def main():
