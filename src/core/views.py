@@ -184,7 +184,7 @@ def get_accuracy(request):
 
 
 def train(request):
-    """Train CNN and return timestamp"""
+    """Return timestamp of the most recently classified tile"""
     print("###########################################")
     latest_forecast = AI_Characteristics.objects.latest('timestamp')
 
@@ -199,6 +199,7 @@ def train(request):
 
 
 def machine_learning(request):
+    """Train CNN and update timestamp"""
     # DO NOT FORGET TO CHANGE TO DAYS. LEFT MINUTES TO TEST
     a_week_ago = datetime.now(tz=pytz.utc) - timedelta(minutes=1)
     latest_forecast = AI_Characteristics.objects.latest('timestamp')
