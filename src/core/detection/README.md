@@ -17,4 +17,4 @@
 
 to be able to run detection.py, you need to configure Django, otherwise an error is raised:
 `django.core.exceptions.ImproperlyConfigured: Requested setting INSTALLED_APPS, but settings are not configured. You must either define the environment variable DJANGO_SETTINGS_MODULE or call settings.configure() before accessing settings.`
-![](./django_settings.png)
+![](django_settings.png)
