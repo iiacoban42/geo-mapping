@@ -1,15 +1,25 @@
 import os
 
 from detecto import core, utils
+from src.core.models import AI_Tiles as AITilesTable
 
 # Constants used for evaluation
 OBJECTS_TO_DETECT = ['church']
 DETECTION_THRESHOLD = 0.95
 
+# saves ai classification in the database
+def save_labels():
+    tile = AITilesTable(x_coord=75065, y_coord=75510, year=2016)
+    print(tile)
+    # tile.save()
+    # prediction = PredictionsTable(tiles_id=tile, water_prediction=water, land_prediction=land,
+    #                               buildings_prediction=building)
+    # prediction.save()
+
 
 def main():
     """Load model and evaluate it"""
-    print("Loading object-detection model...")
+    print("Loading object_detection model...")
     model = core.Model.load('model/model_weights.pth', OBJECTS_TO_DETECT)
 
     correct_classifications = 0
@@ -58,4 +68,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    save_labels()
