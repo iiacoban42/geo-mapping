@@ -104,10 +104,20 @@
     <div class="buttons">
         <button class="captcha" id="captcha">captcha</button>
         <button class="overview" id="overview">tiles data overview</button>
-        <button class="land" id="land">show land</button>
-        <button class="water" id="water">show water</button>
-        <button class="buildings" id="buildings">show buildings</button>
-
+        <div id="predictions">
+            <button class="land" id="land"
+                    {#                    onclick="toggle_graphics(id)"#}
+            >land
+            </button>
+            <button class="water" id="water"
+                    {#                    onclick="toggle_graphics(id)"#}
+            >water
+            </button>
+            <button class="buildings" id="building"
+                    {#                    onclick="toggle_graphics(id)"#}
+            >building
+            </button>
+        </div>
     </div>
 </div>
 <div id="map"></div>

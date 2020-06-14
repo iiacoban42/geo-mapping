@@ -1,24 +1,22 @@
 """Views module"""
 # pylint: disable=[line-too-long,import-error, unused-argument, no-name-in-module,wildcard-import, fixme]
 
-import random
 import json
+import random
 
-from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.views.decorators.clickjacking import xframe_options_exempt
-
+from django.shortcuts import render
 from pyproj import Transformer
 
-from core.models import Captcha_Tiles as CaptchaTable
-from core.models import Dataset as DatasetTable
-from core.models import Tiles as TileTable
-from core.models import Characteristics as CharacteristicsTable
-from core.models import Objects as ObjectsTable
-from core.models import AI_Tiles as AITilesTable
-from core.models import AI_Characteristics as AICharsTable
 from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles, check_characteristics, \
     check_objects
+from core.models import AI_Tiles as AITilesTable, AI_Characteristics
+from core.models import Captcha_Tiles as CaptchaTable
+from core.models import Characteristics as CharacteristicsTable
+from core.models import Dataset as DatasetTable
+from core.models import Objects as ObjectsTable
+from core.models import Tiles as TileTable
 
 
 def home(request):
@@ -104,46 +102,31 @@ def get_labels(request, tile):
 
 
 def get_all_labels(request, requested_map):
-    """Return json array of tile labels"""
+    """Return json array of tiles with a specific label"""
+    transformer = Transformer.from_crs("EPSG:28992", "EPSG:4326")
     query = json.loads(requested_map)
-    year = query.get("year")
-    label = query.get("label")
-    print(label)
-    tiles = AITilesTable.objects.filter(year=year)
+    tiles = AITilesTable.objects.filter(year=query.get("year"))
     if len(tiles) == 0:
         return HttpResponseBadRequest("No tiles")
-    print("no loop")
-    print(tiles)
-    tile_list = []
-    for tile in tiles:
-        print("loop")
-        print(tile)
-        if label == 'land':
-            res = AICharsTable.objects.filter(tiles_id=tile)
-            print("land")
-            print(res)
-            if len(res) > 0 and res[0].land_prediction == 1:
-                tile_list.append(res[0])
-        elif label == 'water':
-            res = AICharsTable.objects.filter(tiles_id=tile)
-            if len(res) > 0 and res[0].water_prediction == 1:
-                tile_list.append(res[0])
-        elif label == 'building':
-            res = AICharsTable.objects.filter(tiles_id=tile)
-            if len(res) > 0 and res[0].buildings_prediction == 1:
-                tile_list.append(res[0])
-
-    if len(tile_list) == 0:
-        return HttpResponseBadRequest("No tiles")
     result = []
-    print("loop done")
-    print(len(tile_list))
-    print(tile_list)
-    for tile in tile_list:
-        print()
-        found = tile.tiles_id
-        result.append({"x_coord": found.x_coord, "y_coord": found.y_coord})
-        print(result)
+    label = str(query.get("label"))
+    if label not in ("building", "water", "land"):
+        return HttpResponseBadRequest("Wrong Label")
+
+    if label == "building":
+        label += "s"
+    label += "_prediction"
+    kwargs = {label: 1}
+    ids = AI_Characteristics.objects.filter(pk__in=tiles.all().values_list('id', flat=True), **kwargs)
+    if len(ids) == 0:
+        return HttpResponseBadRequest("No tiles")
+
+    for tile in tiles.filter(pk__in=ids.all()):
+        x_28992 = tile.x_coord * 406.55828 - 30527385.66843
+        y_28992 = tile.y_coord * -406.41038 + 31113121.21698
+        espg_4326 = transformer.transform(x_28992, y_28992)
+        result.append({"x_coord": espg_4326[1], "y_coord": espg_4326[0]})
+    print("I am speed")
     return JsonResponse(result, safe=False)
 
 
