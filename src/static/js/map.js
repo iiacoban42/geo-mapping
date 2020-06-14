@@ -149,6 +149,11 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                             symbol: symbol_water,
                             attributes: attr
                         });
+                    if (label == "church")
+                      graphic = new Graphic({
+                            geometry: circleGeometry.extent,
+                            symbol: symbol_church
+                      });
                     if (find(attributes["building"], json[i].x_coord, json[i].y_coord).length > 0) {
                         console.log("building" + " " + json[i].x_coord + " " + json[i].y_coord)
                         graphic.setAttribute('Building', "true")
@@ -163,7 +168,8 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                     }
                     graphic.popupTemplate = template
                     graphicsLayer.add(graphic)
-                    attributes[label][attributes[label].length] = attr
+                    if (label != "church")
+                        attributes[label][attributes[label].length] = attr
                 }
                 map.add(graphicsLayer)
             } catch (exception) {
