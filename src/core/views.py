@@ -129,7 +129,6 @@ def get_all_labels(request, requested_map):
             y_28992 = tile.y_coord * -406.41038 + 31113121.21698
             espg_4326 = transformer.transform(x_28992, y_28992)
             result.append({"x_coord": espg_4326[1], "y_coord": espg_4326[0]})
-        return JsonResponse(result, safe=False)
     else:
         ids = AI_Objects.objects.filter(tiles_id__in=tiles.all().values_list('id', flat=True))
         if len(ids) == 0:
@@ -139,7 +138,8 @@ def get_all_labels(request, requested_map):
             y_28992 = tile.y_coord * -406.41038 + 31113121.21698
             espg_4326 = transformer.transform(x_28992, y_28992)
             result.append({"x_coord": espg_4326[1], "y_coord": espg_4326[0]})
-        return JsonResponse(result, safe=False)
+
+    return JsonResponse(result, safe=False)
 
 
 def get_tile(request):
