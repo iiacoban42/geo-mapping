@@ -13,7 +13,7 @@ from pyproj import Transformer
 
 from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles, check_characteristics, \
     check_objects
-from core.detection import detection
+from core.detection import detect
 from core.models import AI_Tiles as AITilesTable, AI_Characteristics
 from core.models import Captcha_Tiles as CaptchaTable
 from core.models import Characteristics as CharacteristicsTable
@@ -217,7 +217,7 @@ def machine_learning(request):
     a_week_ago = datetime.now(tz=pytz.utc) - timedelta(minutes=60)
     latest_forecast = AI_Characteristics.objects.latest('timestamp')
     if latest_forecast is None or (latest_forecast.timestamp < a_week_ago):
-        detection.run()
+        detect.run()
         latest_forecast = AI_Characteristics.objects.latest('timestamp')
         timestamp = "{t.year}/{t.month:02d}/{t.day:02d} - {t.hour:02d}:{t.minute:02d}:{t.second:02d}".format(
             t=latest_forecast.timestamp + timedelta(hours=2))

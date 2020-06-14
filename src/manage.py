@@ -24,7 +24,8 @@ if __name__ == '__main__':
         import coverage
 
         cov = coverage.coverage(source=['core', 'scripts'],
-                                omit=['*core/test/*', '*/migrations/*', '*core/apps.py*', '*core/__init__.py*', '*scripts/detection.py*'],
+                                omit=['*core/test/*', '*/migrations/*', '*core/apps.py*', '*core/__init__.py*',
+                                      '*core/detection/*'],
                                 branch=True)
         cov.erase()
         cov.start()
