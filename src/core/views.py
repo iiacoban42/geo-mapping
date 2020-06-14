@@ -214,7 +214,7 @@ def train(request):
 def machine_learning(request):
     """Train CNN and update timestamp"""
     # DO NOT FORGET TO CHANGE TO DAYS. LEFT MINUTES TO TEST
-    a_week_ago = datetime.now(tz=pytz.utc) - timedelta(minutes=1)
+    a_week_ago = datetime.now(tz=pytz.utc) - timedelta(minutes=60)
     latest_forecast = AI_Characteristics.objects.latest('timestamp')
     if latest_forecast is None or (latest_forecast.timestamp < a_week_ago):
         detection.run()
