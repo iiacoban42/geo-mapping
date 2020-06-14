@@ -189,7 +189,7 @@ def submit_captcha(request):
 
 def get_accuracy(request):
     """Get last accuracy of CNN"""
-    with open('detection/history.txt') as file:
+    with open('core/detection/history.txt') as file:
         read_data = {'accuracy': file.read()[1:-2]}
         print(read_data)
         file.close()
