@@ -54,6 +54,16 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             }
         };
 
+        var symbol_church = {
+            type: "simple-fill",
+            color: [255,0,0, 0.4],
+            style: "solid",
+            outline: {
+                color: [255,0,0, 0.4],
+                width: 2
+            }
+        };
+
         // template for points on map
         var template = {
             title: "{Title}",
@@ -110,6 +120,11 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                             geometry: circleGeometry.extent,
                             symbol: symbol_water
                         });
+                    if (label == "church")
+                      graphic = new Graphic({
+                            geometry: circleGeometry.extent,
+                            symbol: symbol_church
+                      });
                     // graphic.popupTemplate = template
                     // graphic.setAttribute('Building', "true")
                     graphicsLayer.add(graphic)

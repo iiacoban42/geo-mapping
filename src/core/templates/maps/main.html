@@ -102,22 +102,26 @@
                                                            id="open"> Timeline &nbsp;&nbsp;|&nbsp;&nbsp; </i></span>
     <span id="current" class="current">2016</span>
     <div class="buttons">
-        <button class="captcha" id="captcha">captcha</button>
-        <button class="overview" id="overview">tiles data overview</button>
         <div id="predictions">
-            <button class="land" id="land"
+            <button class="button" id="land"
                     {#                    onclick="toggle_graphics(id)"#}
             >land
             </button>
-            <button class="water" id="water"
+            <button class="button" id="water"
                     {#                    onclick="toggle_graphics(id)"#}
             >water
             </button>
-            <button class="buildings" id="building"
+            <button class="button" id="building"
                     {#                    onclick="toggle_graphics(id)"#}
             >building
             </button>
+            <button class="button" id="church"
+                    {#                    onclick="toggle_graphics(id)"#}
+            >church
+            </button>
         </div>
+        <button class="button" id="captcha">captcha</button>
+        <button class="button" id="overview">tiles data overview</button>
     </div>
 </div>
 <div id="map"></div>
