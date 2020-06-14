@@ -55,13 +55,10 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
         };
 
         var symbol_church = {
-            type: "simple-fill",
-            color: [255,0,0, 0.4],
-            style: "solid",
-            outline: {
-                color: [255,0,0, 0.4],
-                width: 2
-            }
+            type: "picture-marker",
+            url: "https://cdn.icon-icons.com/icons2/1741/PNG/512/church_113375.png",
+            height: 18,
+            width: 18
         };
 
         // template for points on map
