@@ -1,6 +1,6 @@
 describe('Captcha', function () {
     it('is working correctly', () => {
-        cy.visit('/captcha');
+        cy.visit('/captcha_embed');
 
         cy.get('#checkmark').click();
         cy.get('#water1').click();
@@ -13,7 +13,7 @@ describe('Captcha', function () {
     });
 
     it('has working info with legend', () => {
-        cy.visit('/captcha');
+        cy.visit('/captcha_embed');
 
         // Should be not visible before mouseover
         cy.get('#legend_info').should('be.not.visible');
