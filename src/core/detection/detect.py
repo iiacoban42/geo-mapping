@@ -251,11 +251,8 @@ class CNN:
 
 
 def run():
-    dr = os.getcwd()
-    os.chdir('detection')
     get_images_train()
     cnn = CNN()
     cnn.train()
     cnn.predict(True, PredictUsableTiles)
     print('############################## U DID IT ############################################################')
-    os.chdir(dr)
