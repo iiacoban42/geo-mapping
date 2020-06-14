@@ -45,7 +45,7 @@
         document.getElementById("ml").onclick = async function () {
             try {
                 document.getElementById("ml").innerHTML = "training..."
-                var response = await fetch("/ml")
+                var response = await fetch("/machine_learning")
                 response = await response.json()
                 console.log(response)
                 document.getElementById("time").innerHTML = response
