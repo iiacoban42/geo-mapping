@@ -137,23 +137,14 @@ def train_validation_split():
 #################################           B E W A R E            ####################################################
 #################################    CONVOLUTIAL NEURAL NETWORK    ####################################################
 class CNN:
-    def __init__(self, image_size=256, number_channels=3, number_epochs=1, batch_size=6):
+    def __init__(self, image_size=256, number_channels=3, number_epochs=5, batch_size=3):
         self.image_size = image_size
         self.number_channels = number_channels
         self.number_epochs = number_epochs
         self.batch_size = batch_size
-        self.processing_time = 0
-        try:
-            with open('history.txt') as f:
-                read_data = f.read()
-                print(read_data)
-                f.close()
-        except:
-            "no history"
-        self.history = None
         print('CNN will look for', labels, '\nBatch size:', self.batch_size, '\nNumber of epochs:', self.number_epochs)
         try:
-            self.model = keras.models.load_model('detection/model')
+            self.model = keras.models.load_model('model')
         except:
             "not loaded"
             self.model = Sequential()
@@ -185,7 +176,6 @@ class CNN:
     def train(self):
         # split and get number of images for train and validation
         number_train, number_validation = train_validation_split()
-
         train_datagen = ImageDataGenerator(horizontal_flip=True, rotation_range=90)
         validation_datagen = ImageDataGenerator(horizontal_flip=True, rotation_range=90)
 
@@ -210,18 +200,14 @@ class CNN:
             validation_steps=number_validation // self.batch_size,
             verbose=1)
         end = time.time()
-        self.model.save("detection/model")
-        self.history = history.history['accuracy']
-        print(self.history)
-        f = open("detection/history.txt", "w")
-        f.write(self.history.__str__())
+        self.model.save("model")
+        f = open("history.txt", "w")
+        print(history.history["accuracy"][:-1])
+        f.write(history.history["accuracy"][:-1].__str__())
         f.close()
-        self.processing_time = (end - start) / 60
-        print('Processing time:', self.processing_time)
+        print('Processing time:', (end - start) / 60)
         print('CNN is tired')
         remove_images(splits)
-        # list all data in history
-        self.history = history.history['accuracy']
         # summarize history for accuracy
         plt.plot(history.history['accuracy'])
         plt.plot(history.history['val_accuracy'])
@@ -229,7 +215,8 @@ class CNN:
         plt.ylabel('accuracy')
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper left')
-        plt.show()
+        plt.draw()
+        plt.savefig('../static/img/' + 'model_accuracy.png')
         # summarize history for loss
         plt.plot(history.history['loss'])
         plt.plot(history.history['val_loss'])
@@ -237,14 +224,14 @@ class CNN:
         plt.ylabel('loss')
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper left')
-        plt.show()
+        plt.draw()
+        plt.savefig('../static/img/' + 'model_loss.png')
 
     def predict(self, predict, table):
         if predict == True:
             tiles = table.objects.all()
             # DO NOT FORGET TO DELETE IF STATEMENT
             for i, row in enumerate(tiles):
-                # if i < 50:
                 x = str(row.x_coord)
                 y = str(row.y_coord)
                 year = str(row.year)
@@ -264,15 +251,11 @@ class CNN:
 
 
 def run():
+    dr = os.getcwd()
+    os.chdir('detection')
     get_images_train()
     cnn = CNN()
     cnn.train()
-    cnn.predict(True, PredictUsableTiles)
+    cnn.predict(False, PredictUsableTiles)
     print('############################## U DID IT ############################################################')
-
-# if (sys.argv[1].__contains__("runserver")):
-#     os.chdir('detection')
-#     from detection import update
-#
-#     update.start()
-#     print('############################## U DID IT ############################################################')
+    os.chdir(dr)

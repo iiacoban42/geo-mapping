@@ -12,7 +12,7 @@ from pyproj import Transformer
 
 from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles, check_characteristics, \
     check_objects
-from core.models import AI_Tiles as AITilesTable, AI_Characteristics, UsableTiles
+from core.models import AI_Tiles as AITilesTable, AI_Characteristics
 from core.models import Captcha_Tiles as CaptchaTable
 from core.models import Characteristics as CharacteristicsTable
 from core.models import Dataset as DatasetTable
@@ -174,27 +174,38 @@ def submit_captcha(request):
     return HttpResponseBadRequest("Wrong answer")
 
 
+def get_accuracy(request):
+    with open('detection/history.txt') as f:
+        read_data = {'accuracy': f.read()[1:-2]}
+        print(read_data)
+        f.close()
+        return JsonResponse(read_data, safe=False)
+
+
 def train(request):
-    latest_forecast = AI_Characteristics.objects.latest('timestamp')
     print("###########################################")
-    # DO NOT FORGET TO CHANGE TO DAYS. LEFT MINUTES TO TEST
-    a_week_ago = datetime.now(tz=pytz.utc) - timedelta(minutes=5)
+    latest_forecast = AI_Characteristics.objects.latest('timestamp')
 
-    print(latest_forecast, 'AAAAAAA\n\n\n\n')
-    cnn = detection.CNN()
-
-    if latest_forecast is None or (latest_forecast.timestamp < a_week_ago):
-        detection.get_images_train()
-        cnn.train()
-        cnn.predict(True, UsableTiles)
-        latest_forecast = AI_Characteristics.objects.latest('timestamp')
-        print("FORECAST UPDATED")
     timestamp = "{t.year}/{t.month:02d}/{t.day:02d} - {t.hour:02d}:{t.minute:02d}:{t.second:02d}".format(
         t=latest_forecast.timestamp + timedelta(hours=2))
-    accuracy = cnn.history
-
+    print(datetime.now(tz=pytz.utc))
     return render(
         request,
         'train/train.html',
-        {'accuracy': accuracy,
+        {'accuracy': None,
          'update_time': timestamp})
+
+
+def ml(request):
+    # DO NOT FORGET TO CHANGE TO DAYS. LEFT MINUTES TO TEST
+    a_week_ago = datetime.now(tz=pytz.utc) - timedelta(minutes=1)
+    latest_forecast = AI_Characteristics.objects.latest('timestamp')
+    if latest_forecast is None or (latest_forecast.timestamp < a_week_ago):
+        detection.run()
+        latest_forecast = AI_Characteristics.objects.latest('timestamp')
+        timestamp = "{t.year}/{t.month:02d}/{t.day:02d} - {t.hour:02d}:{t.minute:02d}:{t.second:02d}".format(
+            t=latest_forecast.timestamp + timedelta(hours=2))
+        print('FORECAST UPDATED', timestamp)
+        return JsonResponse(timestamp, safe=False)
+    else:
+        return HttpResponseBadRequest("Too little time passed")
