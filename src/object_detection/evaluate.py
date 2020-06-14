@@ -1,7 +1,7 @@
 import os
 
 from detecto import core, utils
-from src.core.models import AI_Tiles as AITilesTable
+from core.models import AI_Tiles as AITilesTable
 os.chdir('object_detection')
 
 # Constants used for evaluation
