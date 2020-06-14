@@ -1,9 +1,7 @@
 
- function resizeIframe(){
-    var iframe = document.getElementsByClassName("frame")[0];
-    
-    //iframe.style.height = '0 px';
-    iframe.style.height = (iframe.contentWindow.document.body.scrollHeight + 10) + 'px';
+ function resizeIframe(height){
+    var iframe = document.getElementsByClassName("frame")[0]; 
+    iframe.style.height = (height + 10) + 'px';
  }
 
 window.onload = function() {
@@ -15,7 +13,7 @@ window.onload = function() {
     uuid_input.setAttribute("type", "hidden");
 
     var iframe = document.createElement("iframe")
-    iframe.setAttribute("src", "/captcha_embed");
+    iframe.setAttribute("src", "https://timetravelmaps.herokuapp.com/captcha_embed");
     iframe.setAttribute("sandbox", "allow-forms allow-scripts allow-same-origin");
     iframe.setAttribute("frameBorder", "0");
     iframe.setAttribute("scrolling", "no");
@@ -27,14 +25,18 @@ window.onload = function() {
     captcha_div.appendChild( document.createElement("br"))
     captcha_div.appendChild(iframe)
 
-    iframe.onload = resizeIframe
-    setInterval(resizeIframe, 500);
+    // iframe.onload = resizeIframe
+    // setInterval(resizeIframe, 500);
 
  };
 
-window.addEventListener('captcha_uuid', function(e) {
-    uuid_input = document.getElementById("uuid_input");
-    uuid_input.value = e.detail.uuid
+window.addEventListener('message', function(e) {
+    if(e.data.startsWith("resize:")){ // IFrame resize message
+        resizeIframe(parseInt(e.data.substr(7)))
+    } else { // Captcha completed message
+        uuid_input = document.getElementById("uuid_input");
+        uuid_input.value = e.data
+    }
 }, false);
 
  
