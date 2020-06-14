@@ -139,7 +139,6 @@ def get_all_labels(request, requested_map):
             y_28992 = tile.y_coord * -406.41038 + 31113121.21698
             espg_4326 = transformer.transform(x_28992, y_28992)
             result.append({"x_coord": espg_4326[1], "y_coord": espg_4326[0]})
-        print(result)
         return JsonResponse(result, safe=False)
 
 

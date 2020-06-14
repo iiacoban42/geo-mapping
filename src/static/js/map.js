@@ -94,7 +94,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
         };
 
 
-        // display tiles classified by the machine learning algorithm
         $(predictions).click(async function load_labels(event) {
             let label = event.target.id
             if (view.zoom < 5)
@@ -150,13 +149,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                             symbol: symbol_water,
                             attributes: attr
                         });
-                    if (label == "church")
-                      graphic = new Graphic({
-                            geometry: circleGeometry.extent,
-                            symbol: symbol_church
-                      });
-                    // graphic.popupTemplate = template
-                    // graphic.setAttribute('Building', "true")
                     if (find(attributes["building"], json[i].x_coord, json[i].y_coord).length > 0) {
                         console.log("building" + " " + json[i].x_coord + " " + json[i].y_coord)
                         graphic.setAttribute('Building', "true")
@@ -168,10 +160,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                     if (find(attributes["water"], json[i].x_coord, json[i].y_coord).length > 0) {
                         console.log("water" + " " + json[i].x_coord + " " + json[i].y_coord)
                         graphic.setAttribute('Water', "true")
-                    }
-                    if (find(attributes["church"], json[i].x_coord, json[i].y_coord).length > 0) {
-                        console.log("water" + " " + json[i].x_coord + " " + json[i].y_coord)
-                        graphic.setAttribute('Church', "true")
                     }
                     graphic.popupTemplate = template
                     graphicsLayer.add(graphic)
