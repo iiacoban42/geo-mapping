@@ -256,6 +256,6 @@ def run():
     get_images_train()
     cnn = CNN()
     cnn.train()
-    cnn.predict(False, PredictUsableTiles)
+    cnn.predict(True, PredictUsableTiles)
     print('############################## U DID IT ############################################################')
     os.chdir(dr)
