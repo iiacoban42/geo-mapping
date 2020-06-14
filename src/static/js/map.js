@@ -59,7 +59,14 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             }
         };
 
-         // template for points on map
+        var symbol_church = {
+            type: "picture-marker",
+            url: "https://cdn.icon-icons.com/icons2/1741/PNG/512/church_113375.png",
+            height: 18,
+            width: 18
+        };
+
+        // template for points on map
         var template = {
             title: "Tile | EPSG:4326",
             content: [
@@ -87,7 +94,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
         };
 
 
-        // display tiles classified by the machine learning algorithm
         $(predictions).click(async function load_labels(event) {
             let label = event.target.id
             if (view.zoom < 5)
@@ -143,6 +149,11 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                             symbol: symbol_water,
                             attributes: attr
                         });
+                    if (label == "church")
+                      graphic = new Graphic({
+                            geometry: circleGeometry.extent,
+                            symbol: symbol_church
+                      });
                     if (find(attributes["building"], json[i].x_coord, json[i].y_coord).length > 0) {
                         console.log("building" + " " + json[i].x_coord + " " + json[i].y_coord)
                         graphic.setAttribute('Building', "true")
@@ -157,7 +168,8 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                     }
                     graphic.popupTemplate = template
                     graphicsLayer.add(graphic)
-                    attributes[label][attributes[label].length] = attr
+                    if (label != "church")
+                        attributes[label][attributes[label].length] = attr
                 }
                 map.add(graphicsLayer)
             } catch (exception) {

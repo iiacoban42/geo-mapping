@@ -13,8 +13,8 @@ from pyproj import Transformer
 
 from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles, check_characteristics, \
     check_objects
+from core.models import AI_Tiles as AITilesTable, AI_Characteristics, AI_Objects
 from core.detection import detect
-from core.models import AI_Tiles as AITilesTable, AI_Characteristics
 from core.models import Captcha_Tiles as CaptchaTable
 from core.models import Characteristics as CharacteristicsTable
 from core.models import Dataset as DatasetTable
@@ -113,23 +113,32 @@ def get_all_labels(request, requested_map):
         return HttpResponseBadRequest("No tiles")
     result = []
     label = str(query.get("label"))
-    if label not in ("building", "water", "land"):
+    if label not in ("building", "water", "land", "church"):
         return HttpResponseBadRequest("Wrong Label")
 
-    if label == "building":
-        label += "s"
-    label += "_prediction"
-    kwargs = {label: 1}
-    ids = AI_Characteristics.objects.filter(pk__in=tiles.all().values_list('id', flat=True), **kwargs)
-    if len(ids) == 0:
-        return HttpResponseBadRequest("No tiles")
+    if label not in ["church"]:
+        if label == "building":
+            label += "s"
+        label += "_prediction"
+        kwargs = {label: 1}
+        ids = AI_Characteristics.objects.filter(pk__in=tiles.all().values_list('id', flat=True), **kwargs)
+        if len(ids) == 0:
+            return HttpResponseBadRequest("No tiles")
+        for tile in tiles.filter(pk__in=ids.all()):
+            x_28992 = tile.x_coord * 406.55828 - 30527385.66843
+            y_28992 = tile.y_coord * -406.41038 + 31113121.21698
+            espg_4326 = transformer.transform(x_28992, y_28992)
+            result.append({"x_coord": espg_4326[1], "y_coord": espg_4326[0]})
+    else:
+        ids = AI_Objects.objects.filter(tiles_id__in=tiles.all().values_list('id', flat=True))
+        if len(ids) == 0:
+            return HttpResponseBadRequest("No tiles")
+        for tile in tiles.filter(pk__in=ids.values_list('tiles_id', flat=True)):
+            x_28992 = tile.x_coord * 406.55828 - 30527385.66843
+            y_28992 = tile.y_coord * -406.41038 + 31113121.21698
+            espg_4326 = transformer.transform(x_28992, y_28992)
+            result.append({"x_coord": espg_4326[1], "y_coord": espg_4326[0]})
 
-    for tile in tiles.filter(pk__in=ids.all()):
-        x_28992 = tile.x_coord * 406.55828 - 30527385.66843
-        y_28992 = tile.y_coord * -406.41038 + 31113121.21698
-        espg_4326 = transformer.transform(x_28992, y_28992)
-        result.append({"x_coord": espg_4326[1], "y_coord": espg_4326[0]})
-    print("I am speed")
     return JsonResponse(result, safe=False)
 
 
