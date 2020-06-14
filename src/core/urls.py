@@ -1,7 +1,8 @@
 """Core urls module"""
-from django.urls import path
-from . import views
+from django.urls import path, include
 from django.views.decorators.csrf import csrf_exempt
+
+from . import views
 
 # pylint: disable=all
 
@@ -15,5 +16,6 @@ urlpatterns = [
     path('get_statistics/', views.get_statistics, name='get_statistics'),
     path('get_markers/', views.get_markers, name='get_markers'),
     path('get_statistics_year/<requested_year>/', views.get_statistics_year, name='get_statistics_year'),
+    path('train/', views.train, name='train'),
     path('', views.home, name='index')
 ]

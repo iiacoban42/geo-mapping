@@ -3,19 +3,22 @@
 
 import json
 import random
+from datetime import datetime, timedelta
 
+import pytz
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from pyproj import Transformer
 
 from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles, check_characteristics, \
     check_objects
-from core.models import AI_Tiles as AITilesTable, AI_Characteristics
+from core.models import AI_Tiles as AITilesTable, AI_Characteristics, UsableTiles
 from core.models import Captcha_Tiles as CaptchaTable
 from core.models import Characteristics as CharacteristicsTable
 from core.models import Dataset as DatasetTable
 from core.models import Objects as ObjectsTable
 from core.models import Tiles as TileTable
+from detection import detection
 
 
 def home(request):
@@ -169,3 +172,29 @@ def submit_captcha(request):
         if check_objects(control_sub, unid_sub, control_tile):
             return HttpResponse()
     return HttpResponseBadRequest("Wrong answer")
+
+
+def train(request):
+    latest_forecast = AI_Characteristics.objects.latest('timestamp')
+    print("###########################################")
+    # DO NOT FORGET TO CHANGE TO DAYS. LEFT MINUTES TO TEST
+    a_week_ago = datetime.now(tz=pytz.utc) - timedelta(minutes=5)
+
+    print(latest_forecast, 'AAAAAAA\n\n\n\n')
+    cnn = detection.CNN()
+
+    if latest_forecast is None or (latest_forecast.timestamp < a_week_ago):
+        detection.get_images_train()
+        cnn.train()
+        cnn.predict(True, UsableTiles)
+        latest_forecast = AI_Characteristics.objects.latest('timestamp')
+        print("FORECAST UPDATED")
+    timestamp = "{t.year}/{t.month:02d}/{t.day:02d} - {t.hour:02d}:{t.minute:02d}:{t.second:02d}".format(
+        t=latest_forecast.timestamp + timedelta(hours=2))
+    accuracy = cnn.history
+
+    return render(
+        request,
+        'train/train.html',
+        {'accuracy': accuracy,
+         'update_time': timestamp})

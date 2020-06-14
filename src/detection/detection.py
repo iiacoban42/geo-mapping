@@ -9,7 +9,9 @@ import time
 import urllib
 
 import keras
+import matplotlib.pyplot as plt
 import numpy as np
+from django.utils import timezone
 from keras.layers import Activation, Flatten, Dense, Dropout
 from keras.layers import Conv2D, MaxPooling2D
 from keras.models import Sequential
@@ -21,8 +23,6 @@ from core.models import AI_Characteristics as PredictionsTable
 from core.models import AI_Tiles as AITilesTable
 from core.models import Dataset as DatasetTable
 from core.models import UsableTiles as PredictUsableTiles
-
-os.chdir('detection')
 
 labels = ['building', 'land', 'water']
 splits = ['train', 'validation']
@@ -41,7 +41,7 @@ def save_labels(tile_x, tile_y, tile_year, building, land, water):
         tile.save()
         print('New discovery such wow', tile)
     prediction = PredictionsTable(tiles_id=tile, water_prediction=water, land_prediction=land,
-                                  buildings_prediction=building)
+                                  buildings_prediction=building, timestamp=timezone.now())
     prediction.save()
 
 
@@ -76,7 +76,6 @@ def get_images_train(table=DatasetTable):
             label += 'water'
         if labels.__contains__(label):
             number[label] += 1
-            print(label, 'has', number[label])
             if not os.path.exists(label):
                 os.makedirs(label)
             try:
@@ -138,14 +137,23 @@ def train_validation_split():
 #################################           B E W A R E            ####################################################
 #################################    CONVOLUTIAL NEURAL NETWORK    ####################################################
 class CNN:
-    def __init__(self, image_size=256, number_channels=3, number_epochs=5, batch_size=6):
+    def __init__(self, image_size=256, number_channels=3, number_epochs=1, batch_size=6):
         self.image_size = image_size
         self.number_channels = number_channels
         self.number_epochs = number_epochs
         self.batch_size = batch_size
+        self.processing_time = 0
+        try:
+            with open('history.txt') as f:
+                read_data = f.read()
+                print(read_data)
+                f.close()
+        except:
+            "no history"
+        self.history = None
         print('CNN will look for', labels, '\nBatch size:', self.batch_size, '\nNumber of epochs:', self.number_epochs)
         try:
-            self.model = keras.models.load_model('model')
+            self.model = keras.models.load_model('detection/model')
         except:
             "not loaded"
             self.model = Sequential()
@@ -194,42 +202,77 @@ class CNN:
             batch_size=self.batch_size)
 
         start = time.time()
-        self.model.fit_generator(
+        history = self.model.fit_generator(
             train_generator,
             steps_per_epoch=number_train // self.batch_size,
             epochs=self.number_epochs,
             validation_data=validation_generator,
-            validation_steps=number_validation // self.batch_size)
+            validation_steps=number_validation // self.batch_size,
+            verbose=1)
         end = time.time()
-        self.model.save("model")
-
-        print('Processing time:', (end - start) / 60)
+        self.model.save("detection/model")
+        self.history = history.history['accuracy']
+        print(self.history)
+        f = open("detection/history.txt", "w")
+        f.write(self.history.__str__())
+        f.close()
+        self.processing_time = (end - start) / 60
+        print('Processing time:', self.processing_time)
         print('CNN is tired')
         remove_images(splits)
+        # list all data in history
+        self.history = history.history['accuracy']
+        # summarize history for accuracy
+        plt.plot(history.history['accuracy'])
+        plt.plot(history.history['val_accuracy'])
+        plt.title('model accuracy')
+        plt.ylabel('accuracy')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'], loc='upper left')
+        plt.show()
+        # summarize history for loss
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title('model loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'], loc='upper left')
+        plt.show()
 
-    def predict(self, table=PredictUsableTiles):
-        tiles = table.objects.all()
-        for row in tiles:
-            x = str(row.x_coord)
-            y = str(row.y_coord)
-            year = str(row.year)
-            URL = 'https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_' + year + '/MapServer/tile/11/' + y + '/' + x
-            img = io.imread(URL)
-            img = image.img_to_array(img)
-            img = img.reshape((1,) + img.shape)
+    def predict(self, predict, table):
+        if predict == True:
+            tiles = table.objects.all()
+            # DO NOT FORGET TO DELETE IF STATEMENT
+            for i, row in enumerate(tiles):
+                # if i < 50:
+                x = str(row.x_coord)
+                y = str(row.y_coord)
+                year = str(row.year)
+                URL = 'https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_' + year + '/MapServer/tile/11/' + y + '/' + x
+                img = io.imread(URL)
+                img = image.img_to_array(img)
+                img = img.reshape((1,) + img.shape)
 
-            # add 0.1 in case there might be 2 labels (softmax gives the sum of the labels = 1),
-            # therefore the chance of having a tile with 2 labels classified as 0.5, 0.5, 0 is quite rare
-            building = round(self.model.predict(img)[0][0] + 0.1)
-            land = round(self.model.predict(img)[0][1] + 0.1)
-            water = round(self.model.predict(img)[0][2] + 0.1)
-            print(URL, '\n', self.model.predict(img), labels[int(self.model.predict_classes(img))], '\n')
-            save_labels(x, y, year, building, land, water)
+                # add 0.1 in case there might be 2 labels (softmax gives the sum of the labels = 1),
+                # therefore the chance of having a tile with 2 labels classified as 0.5, 0.5, 0 is quite rare
+                building = round(self.model.predict(img)[0][0] + 0.1)
+                land = round(self.model.predict(img)[0][1] + 0.1)
+                water = round(self.model.predict(img)[0][2] + 0.1)
+
+                print(URL, '\n', self.model.predict(img), labels[int(self.model.predict_classes(img))], '\n')
+                save_labels(x, y, year, building, land, water)
 
 
-get_images_train()
-cnn = CNN()
-cnn.train()
-cnn.predict()
+def run():
+    get_images_train()
+    cnn = CNN()
+    cnn.train()
+    cnn.predict(True, PredictUsableTiles)
+    print('############################## U DID IT ############################################################')
 
-print('############################## U DID IT ############################################################')
+# if (sys.argv[1].__contains__("runserver")):
+#     os.chdir('detection')
+#     from detection import update
+#
+#     update.start()
+#     print('############################## U DID IT ############################################################')
