@@ -198,7 +198,7 @@ def submit_captcha(request):
 
 def get_accuracy(request):
     """Get last accuracy of CNN"""
-    with open('core/detection/history.txt') as file:
+    with open('../core/detection/history.txt') as file:
         read_data = {'accuracy': file.read()[1:-2]}
         print(read_data)
         file.close()
@@ -233,3 +233,4 @@ def machine_learning(request):
         print('FORECAST UPDATED', timestamp)
         return JsonResponse(timestamp, safe=False)
     return HttpResponseBadRequest("Too little time passed")
+
