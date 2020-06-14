@@ -289,6 +289,12 @@ btn_overview.onclick = function () {
     location.assign('/tiles_overview/');
 }
 
+var btn_train = document.getElementById('train');
+btn_train.onclick = function () {
+    console.log('train')
+    location.assign('/train/');
+}
+
 function find(array, x, y) {
     return array.filter(
         function (array) {

@@ -226,6 +226,7 @@ class AI_Characteristics(models.Model):
     land_prediction = models.IntegerField()
     buildings_prediction = models.IntegerField()
     objects = models.Manager()
+    timestamp = models.DateTimeField(auto_now_add=True, blank=True)
 
 
 class AI_Objects(models.Model):
