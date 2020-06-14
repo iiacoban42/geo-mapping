@@ -175,14 +175,16 @@ def submit_captcha(request):
 
 
 def get_accuracy(request):
-    with open('detection/history.txt') as f:
-        read_data = {'accuracy': f.read()[1:-2]}
+    """Get last accuracy of CNN"""
+    with open('detection/history.txt') as file:
+        read_data = {'accuracy': file.read()[1:-2]}
         print(read_data)
-        f.close()
+        file.close()
         return JsonResponse(read_data, safe=False)
 
 
 def train(request):
+    """Train CNN and return timestamp"""
     print("###########################################")
     latest_forecast = AI_Characteristics.objects.latest('timestamp')
 
@@ -196,7 +198,7 @@ def train(request):
          'update_time': timestamp})
 
 
-def ml(request):
+def machine_learning(request):
     # DO NOT FORGET TO CHANGE TO DAYS. LEFT MINUTES TO TEST
     a_week_ago = datetime.now(tz=pytz.utc) - timedelta(minutes=1)
     latest_forecast = AI_Characteristics.objects.latest('timestamp')
@@ -207,5 +209,4 @@ def ml(request):
             t=latest_forecast.timestamp + timedelta(hours=2))
         print('FORECAST UPDATED', timestamp)
         return JsonResponse(timestamp, safe=False)
-    else:
-        return HttpResponseBadRequest("Too little time passed")
+    return HttpResponseBadRequest("Too little time passed")

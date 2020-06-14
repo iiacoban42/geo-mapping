@@ -17,7 +17,7 @@ urlpatterns = [
     path('get_markers/', views.get_markers, name='get_markers'),
     path('get_statistics_year/<requested_year>/', views.get_statistics_year, name='get_statistics_year'),
     path('get_accuracy/', views.get_accuracy, name='get_accuracy'),
-    path('ml/', views.ml, name='ml'),
+    path('machine_learning/', views.machine_learning, name='machine_learning'),
     path('train/', views.train, name='train'),
     path('', views.home, name='index')
 ]
