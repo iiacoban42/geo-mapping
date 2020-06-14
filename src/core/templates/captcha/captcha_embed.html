@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{% static '/js/captcha.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static '/css/captcha.css' %}">
+</head>
+<body>
+<div id="box">
+    <div id="not_a_robot_checkbox" onclick="startChallenge()">
+        <img id="checkmark" class="checkmark" src="{% static '/img/checkmark.png' %}">
+        <div id="loading"></div>
+    </div>
+    <div id="not_a_robot_text">I am not a robot</div>
+</div>
+
+<button id="legend_btn" style="height: 50px; width: 50px;" onmouseover="show_legend()" onmouseout="hide_legend()"><i
+        class="fa fa-info"></i>
+</button>
+
+<div id="legend_info" onmouseover="show_legend()" onmouseout="hide_legend()">
+    <img id="legend" class="legend" src="{% static '/img/legend.png' %}">
+</div>
+
+
+<div id="challenge1" class="popup">
+    <img id="ch_img1" class="ch_img"> <br/>
+
+    Please select any features/objects that you see in the map: <br/>
+    <div id="check_boxes_div" , class="check_boxes">
+        <input id="building1" type="checkbox" autocomplete="off"/> Building <br/>
+        <input id="water1" type="checkbox" autocomplete="off"/> Water <br/>
+        <input id="land1" type="checkbox" autocomplete="off"/> Unbuilt Land <br/>
+        <br>
+        <input id="church1" type="checkbox" autocomplete="off"/> Church <br/>
+        <input id="oiltank1" type="checkbox" autocomplete="off"/> Oil Tank <br/>
+    </div>
+    <button id="nextChallenge" class="ch_submit" onclick="nextChallenge()">Next</button>
+</div>
+
+<div id="challenge2" class="popup">
+    <img id="ch_img2" class="ch_img"> <br/>
+
+    Please select any features/objects that you see in the map: <br/>
+    <div id="check_boxes_div2" , class="check_boxes2">
+        <input id="building2" type="checkbox" autocomplete="off"/> Building <br/>
+        <input id="water2" type="checkbox" autocomplete="off"/> Water <br/>
+        <input id="land2" type="checkbox" autocomplete="off"/> Unbuilt Land <br/>
+        <br>
+        <input id="church2" type="checkbox" autocomplete="off"/> Church <br/>
+        <input id="oiltank2" type="checkbox" autocomplete="off"/> Oil Tank <br/>
+    </div>
+    <button id="submit" class="ch_submit" onclick="submitChallenge()">Submit</button>
+</div>
+
+<div id="result"></div>
+</body>
+</html>

@@ -51,3 +51,4 @@ deploy_staging:
   - master
   - dev
   - heroku
+  - captcha_embed

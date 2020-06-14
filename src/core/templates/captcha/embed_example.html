@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://timetravelmaps.herokuapp.com/static/js/captcha_embed.js"></script>
+</head>
+
+<body>
+<form action="/submit_example" method="POST">
+    <label for="fname">First name:</label><br>
+    <input type="text" id="fname" name="fname" value="John"><br>
+    <label for="lname">Last name:</label><br>
+    <input type="text" id="lname" name="lname" value="Doe"><br><br>
+
+    <!--captcha_embed.js will place the captcha here-->
+    <div id="captcha" style="position: relative; height: 200px"></div>
+
+    <input type="submit" value="Submit">
+</form>
+</body>
