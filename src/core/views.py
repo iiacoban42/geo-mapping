@@ -7,19 +7,19 @@ from datetime import datetime, timedelta
 
 import pytz
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
-from django.views.decorators.clickjacking import xframe_options_exempt
 from django.shortcuts import render
+from django.views.decorators.clickjacking import xframe_options_exempt
 from pyproj import Transformer
 
 from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles, check_characteristics, \
     check_objects
+from core.detection import detection
 from core.models import AI_Tiles as AITilesTable, AI_Characteristics
 from core.models import Captcha_Tiles as CaptchaTable
 from core.models import Characteristics as CharacteristicsTable
 from core.models import Dataset as DatasetTable
 from core.models import Objects as ObjectsTable
 from core.models import Tiles as TileTable
-from detection import detection
 
 
 def home(request):
