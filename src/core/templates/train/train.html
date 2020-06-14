@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Train Keras Convolutional Neural Network</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<div style="text-align: center">
+    <h3>Last accuracy:</h3>
+    <div id="accuracy"></div>
+    <p id="text"></p>
+    <h4><br>You can run the algorithm once a week</h4>
+    <h5>(for now it's set to run more often.. for testing)</h5>
+    <h3>TODO: add scheduler...</h3>
+    <p><em><br>Last updated on</em></p>
+    <em>
+        <div id="time"> {{ update_time }}</div>
+    </em><br><br>
+    <button id="ml" style="width: 100px; height:30px">click to train</button>
+    <br><br>
+    <img id="acc" style="height: 300px" src="{% static '/img/model_accuracy.png' %}">
+    <img id="loss" style="height: 300px" src="{% static '/img/model_loss.png' %}">
+    <script>
+
+
+        async function accuracy() {
+            var img = document.getElementById("acc");
+            img.src = "{% static '/img/model_accuracy.png' %}";
+            var img = document.getElementById("loss");
+            img.src = "{% static '/img/model_loss.png' %}";
+            var response = await fetch("/get_accuracy")
+            response = await response.json()
+            try {
+                res = response.accuracy
+                res = res.split(",")
+                res = res[res.length - 1]
+                document.getElementById("accuracy").innerHTML = res
+            } catch (error) {
+            }
+        }
+
+        $(document).ready(accuracy())
+
+        document.getElementById("ml").onclick = async function () {
+            try {
+                document.getElementById("ml").innerHTML = "training..."
+                var response = await fetch("/ml")
+                response = await response.json()
+                console.log(response)
+                document.getElementById("time").innerHTML = response
+
+            } catch (exception) {
+                alert("Cannot run algorithm so often to avoid overfitting")
+            }
+            document.getElementById("ml").innerHTML = "done"
+            await accuracy()
+        }
+    </script>
+</div>
+</body>
+</html>

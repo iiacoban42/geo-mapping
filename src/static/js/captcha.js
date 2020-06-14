@@ -99,7 +99,18 @@ async function submitChallenge() {
         if (response.status === 200) {
             //result.innerHTML = "Correct";
             clearCheckbox();
-            window.alert("Correct CAPTCHA. Tile registered.")
+
+            response.text().then(function (text) {
+                window.alert("Correct CAPTCHA. Tile registered.")
+                document.getElementById("checkmark").classList.add("checkmark_success")
+                
+                // If the CAPTCHA is embeded this will signal the website that it's completed.
+                // var myEvent = new CustomEvent('captcha_uuid', { detail: {uuid: text}})       
+                // window.parent.dispatchEvent(myEvent)
+
+                window.postMessage(text, "*");
+            })
+            
         } else {
             console.log(response)
             //result.innerHTML = "Incorrect " + response.statusText;
@@ -182,3 +193,10 @@ function hide_legend() {
     document.getElementById("legend_info").style.display = "none";
 
 }
+
+function checkSize(){
+    var height = $('body').outerHeight(); // IMPORTANT: If body's height is set to 100% with CSS this will not work.
+    parent.postMessage("resize:" + height, "*");
+}
+
+setInterval(checkSize, 500);

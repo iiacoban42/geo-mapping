@@ -1,5 +1,6 @@
 image: "python:3.7"
-
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
 before_script:
   - python3 --version
   - pip3 install -r src/requirements.txt
@@ -51,3 +52,4 @@ deploy_staging:
   - master
   - dev
   - heroku
+  - captcha_embed

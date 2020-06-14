@@ -3,8 +3,11 @@
 
 import json
 import random
+from datetime import datetime, timedelta
 
+import pytz
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.shortcuts import render
 from pyproj import Transformer
 
@@ -16,6 +19,7 @@ from core.models import Characteristics as CharacteristicsTable
 from core.models import Dataset as DatasetTable
 from core.models import Objects as ObjectsTable
 from core.models import Tiles as TileTable
+from detection import detection
 
 
 def home(request):
@@ -33,6 +37,17 @@ def tiles_overview(request):
 
     return render(request, 'tiles-overview/tiles_overview.html')
 
+@xframe_options_exempt
+def captcha_embed(request):
+    """render captcha_embed.html page"""
+
+    return render(request, 'captcha/captcha_embed.html')
+
+@xframe_options_exempt
+def embed_example(request):
+    """render embed_example.html page"""
+
+    return render(request, 'captcha/embed_example.html')
 
 def get_statistics(request):
     """send statistics json"""
@@ -176,6 +191,46 @@ def submit_captcha(request):
 
     # Check the characteristics
     if check_characteristics(control_sub, control_char):
-        if check_objects(control_sub, unid_sub, control_tile):
-            return HttpResponse()
+        result = check_objects(control_sub, unid_sub, control_tile)
+        if result is not None:
+            return HttpResponse(result)
     return HttpResponseBadRequest("Wrong answer")
+
+
+def get_accuracy(request):
+    """Get last accuracy of CNN"""
+    with open('detection/history.txt') as file:
+        read_data = {'accuracy': file.read()[1:-2]}
+        print(read_data)
+        file.close()
+        return JsonResponse(read_data, safe=False)
+
+
+def train(request):
+    """Return timestamp of the most recently classified tile"""
+    print("###########################################")
+    latest_forecast = AI_Characteristics.objects.latest('timestamp')
+
+    timestamp = "{t.year}/{t.month:02d}/{t.day:02d} - {t.hour:02d}:{t.minute:02d}:{t.second:02d}".format(
+        t=latest_forecast.timestamp + timedelta(hours=2))
+    print(datetime.now(tz=pytz.utc))
+    return render(
+        request,
+        'train/train.html',
+        {'accuracy': None,
+         'update_time': timestamp})
+
+
+def machine_learning(request):
+    """Train CNN and update timestamp"""
+    # DO NOT FORGET TO CHANGE TO DAYS. LEFT MINUTES TO TEST
+    a_week_ago = datetime.now(tz=pytz.utc) - timedelta(minutes=1)
+    latest_forecast = AI_Characteristics.objects.latest('timestamp')
+    if latest_forecast is None or (latest_forecast.timestamp < a_week_ago):
+        detection.run()
+        latest_forecast = AI_Characteristics.objects.latest('timestamp')
+        timestamp = "{t.year}/{t.month:02d}/{t.day:02d} - {t.hour:02d}:{t.minute:02d}:{t.second:02d}".format(
+            t=latest_forecast.timestamp + timedelta(hours=2))
+        print('FORECAST UPDATED', timestamp)
+        return JsonResponse(timestamp, safe=False)
+    return HttpResponseBadRequest("Too little time passed")

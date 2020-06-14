@@ -55,17 +55,15 @@ def check_objects(control_sub, unid_sub, control_tile):
     obj_query = ObjectsTable.objects.filter(tiles_id=control_tile.id)
     if len(obj_query) == 0:
         if not control_sub['church'] and not control_sub['oiltank']:  # In case there are no objects
-            correct_captcha(unid_sub)
-            return True
-        return False
+            return correct_captcha(unid_sub)
+        return None
 
     for obj in obj_query.all():
         if ((obj.type == "church" and not control_sub['church']) or
                 (obj.type == "oiltank" and not control_sub['oiltank'])):
-            return False
+            return None
 
-    correct_captcha(unid_sub)
-    return True
+    return correct_captcha(unid_sub)
 
 
 def correct_captcha(sub):
@@ -101,6 +99,8 @@ def correct_captcha(sub):
         obj.save()
 
     check_submission(tile.year, tile.x_coord, tile.y_coord)
+
+    return tile.uuid
 
 
 def check_submission(year, x_coord, y_coord):

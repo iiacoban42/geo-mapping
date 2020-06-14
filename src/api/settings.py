@@ -138,4 +138,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 #django_heroku.settings(locals())
