@@ -4,9 +4,9 @@ var graphicsLayer;
 
 // please change if you find a better solution
 var attributes = [];
-attributes["building"] = [];
-attributes["land"] = [];
-attributes["water"] = [];
+attributes["building"] = new Set();
+attributes["land"] = new Set();
+attributes["water"] = new Set();
 
 require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers/GraphicsLayer", "esri/Graphic", 'esri/geometry/Extent',
         "esri/widgets/Editor", 'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
@@ -59,14 +59,7 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             }
         };
 
-        var symbol_church = {
-            type: "picture-marker",
-            url: "https://cdn.icon-icons.com/icons2/1741/PNG/512/church_113375.png",
-            height: 18,
-            width: 18
-        };
-
-        // template for points on map
+         // template for points on map
         var template = {
             title: "Tile | EPSG:4326",
             content: [
@@ -150,26 +143,28 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                             attributes: attr
                         });
                     if (label == "church")
-                      graphic = new Graphic({
-                            geometry: circleGeometry.extent,
-                            symbol: symbol_church
-                      });
-                    if (find(attributes["building"], json[i].x_coord, json[i].y_coord).length > 0) {
+                        graphic = new Graphic({
+                              geometry: circleGeometry.extent,
+                              symbol: symbol_church
+                        });
+                    setKey = json[i].x_coord + " " + json[i].y_coord;
+
+                    if (attributes["building"].has(setKey)) {
                         console.log("building" + " " + json[i].x_coord + " " + json[i].y_coord)
                         graphic.setAttribute('Building', "true")
                     }
-                    if (find(attributes["land"], json[i].x_coord, json[i].y_coord).length > 0) {
+                    if (attributes["land"].has(setKey)) {
                         console.log("land" + " " + json[i].x_coord + " " + json[i].y_coord)
                         graphic.setAttribute('Land', "true")
                     }
-                    if (find(attributes["water"], json[i].x_coord, json[i].y_coord).length > 0) {
+                    if (attributes["water"].has(setKey)) {
                         console.log("water" + " " + json[i].x_coord + " " + json[i].y_coord)
                         graphic.setAttribute('Water', "true")
                     }
                     graphic.popupTemplate = template
                     graphicsLayer.add(graphic)
                     if (label != "church")
-                        attributes[label][attributes[label].length] = attr
+                        attributes[label].add(setKey)
                 }
                 map.add(graphicsLayer)
             } catch (exception) {
