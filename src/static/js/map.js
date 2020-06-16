@@ -22,7 +22,7 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
         map.add(layer)
 
         // Create the feature layer, used for the overlay
-        setupFeatureLayer();
+        setupFeatureLayer(FeatureLayer);
         map.add(featureLayer)
 
         // map is added to the view
@@ -70,8 +70,7 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                     // If the tile graphic already exists (for another label) get it from the Map
                     if (graphics.has(mapKey)) {
                         graphic = graphics.get(mapKey)
-                        console.log(mapKey)
-                        console.log(graphic)
+                        console.log(mapKey + "->" + label)
                         newEntry = false;
                     } else { // If this tile doesn't have any labels yet
                         var attr = {
@@ -111,7 +110,7 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                     }
                 }
 
-                console.log(graphics.size)
+                console.log("Total tiles: " + graphics.size)
 
                 featureLayer.applyEdits(edits)
             } catch (exception) {
@@ -202,6 +201,103 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
     }
 );
 
+function setupFeatureLayer(FeatureLayer){
+    // template for points on map
+    var template = {
+        title: "Tile | EPSG:4326",
+        content: "<div>{Longitude}:{Latitude}<br>\
+                        Building: {Building}<br>\
+                        Land: {Land}<br>\
+                        Water: {Water}</div>"
+    };
+
+    var renderer = {
+        type: "unique-value",  // autocasts as new UniqueValueRenderer()
+        field: "Building",
+        field2: "Land",
+        field3: "Water",
+        fieldDelimiter: ":",
+        defaultSymbol: { type: "simple-fill" },  // autocasts as new SimpleFillSymbol()
+        uniqueValueInfos: [{
+            value: "true:false:false",
+            symbol: {
+                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                color: [130, 130, 130, 0.25]
+            }
+        }, {
+            value: "false:true:false",
+            symbol: {
+                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                color: [227, 197, 89, 0.25]
+            }
+        }, {
+            value: "false:false:true",
+            symbol: {
+                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                color: [10, 10, 204, 0.25]
+            }
+        },
+        {
+            value: "true:true:false",
+            symbol: {
+                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                color: [179, 164, 110, 0.25]
+            }
+        }, {
+            value: "true:false:true",
+            symbol: {
+                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                color: [70,70,167, 0.25]
+            }
+        }, {
+            value: "false:true:true",
+            symbol: {
+                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                color: [119, 104, 147, 0.25]
+            }
+        }, {
+            value: "true:true:true",
+            symbol: {
+                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                color: [255, 255, 255, 0.25]
+            }
+        }]
+    }
+
+    featureLayer = new FeatureLayer({
+        objectIdField: "objectid",
+        fields: [
+            {
+                name: "objectid",
+                type: "oid"
+            },
+            {
+                name: "Longitude",
+                type: "double"
+            },
+            {
+                name: "Latitude",
+                type: "double"
+            },
+            {
+                name: "Building",
+                type: "string"
+            },
+            {
+                name: "Land",
+                type: "string"
+            },
+            {
+                name: "Water",
+                type: "string"
+            }
+        ],
+        source: [],
+        popupTemplate: template,
+        renderer: renderer,
+        geometryType: "polygon"
+    });
+}
 
 // open when someone clicks on the span element
 function openNav() {
