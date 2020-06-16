@@ -8,7 +8,6 @@ import shutil
 import time
 import urllib
 
-import keras
 import matplotlib.pyplot as plt
 import numpy as np
 from django.utils import timezone
@@ -32,8 +31,8 @@ splits = ['train', 'validation']
 
 # saves ai classification in the database
 def save_labels(tile_x, tile_y, tile_year, building, land, water):
-    if AITilesTable.objects.filter(x_coord=tile_x, y_coord=tile_y).count() > 0:
-        tile = AITilesTable.objects.filter(x_coord=tile_x, y_coord=tile_y).first()
+    tile = AITilesTable.objects.filter(x_coord=tile_x, y_coord=tile_y, year=tile_year).first()
+    if tile is not None:
         print('Already existing ==> update', tile)
 
     else:
@@ -54,7 +53,7 @@ def remove_images(directory):
 
 # saves images from the db in folders based on their label
 # see @labels
-def get_images_train(table=DatasetTable):
+def get_images_train(table):
     print('This will take a while..')
     dataset = table.objects.all()
     number = {'building': 0, 'land': 0, 'water': 0}
@@ -79,8 +78,9 @@ def get_images_train(table=DatasetTable):
             if not os.path.exists(label):
                 os.makedirs(label)
             try:
-                # avoid being biased towards a label which has more images than the rest
-                if number[label] < max:
+                # avoid being biased towards a label which has more images than the rest...
+                # e.g.: lots of water, few buildings
+                if number[label] < max + (max * 0.15):
                     urllib.request.urlretrieve(res, label + '/' + y + '_' + x + '.png')
             except:
                 'not found'
@@ -137,41 +137,48 @@ def train_validation_split():
 #################################           B E W A R E            ####################################################
 #################################    CONVOLUTIAL NEURAL NETWORK    ####################################################
 class CNN:
-    def __init__(self, image_size=256, number_channels=3, number_epochs=5, batch_size=3):
+    def __init__(self, image_size=256, number_channels=3, number_epochs=30, batch_size=16):
         self.image_size = image_size
         self.number_channels = number_channels
         self.number_epochs = number_epochs
         self.batch_size = batch_size
+
         print('CNN will look for', labels, '\nBatch size:', self.batch_size, '\nNumber of epochs:', self.number_epochs)
+
+        self.model = Sequential()
+        self.model.add(Conv2D(filters=32,
+                              kernel_size=(2, 2),
+                              strides=(1, 1),
+                              padding='same',
+                              input_shape=(self.image_size, self.image_size, self.number_channels),
+                              data_format='channels_last'))
+        self.model.add(Activation('tanh'))
+        self.model.add(MaxPooling2D(pool_size=(2, 2),
+                                    strides=2))
+        self.model.add(Conv2D(filters=64,
+                              kernel_size=(2, 2),
+                              strides=(1, 1),
+                              padding='valid'))
+        self.model.add(Activation('tanh'))
+        self.model.add(MaxPooling2D(pool_size=(2, 2),
+                                    strides=2))
+        self.model.add(Flatten())
+        self.model.add(Dense(64))
+        self.model.add(Activation('relu'))
+        self.model.add(Dropout(0.25))
+        self.model.add(Dense(len(labels)))
+        self.model.add(Activation('softmax'))
+
+        # load previously stored weights
         try:
-            self.model = keras.models.load_model('model')
+            self.model.load_weights('cnn_baseline.h5')
+            print('Using previously stored weights. *beware, the CNN might have been trained on different labels*')
         except:
-            "not loaded"
-            self.model = Sequential()
-            self.model.add(Conv2D(filters=32,
-                                  kernel_size=(2, 2),
-                                  strides=(1, 1),
-                                  padding='same',
-                                  input_shape=(self.image_size, self.image_size, self.number_channels),
-                                  data_format='channels_last'))
-            self.model.add(Activation('relu'))
-            self.model.add(MaxPooling2D(pool_size=(2, 2),
-                                        strides=2))
-            self.model.add(Conv2D(filters=64,
-                                  kernel_size=(2, 2),
-                                  strides=(1, 1),
-                                  padding='valid'))
-            self.model.add(Activation('relu'))
-            self.model.add(MaxPooling2D(pool_size=(2, 2),
-                                        strides=2))
-            self.model.add(Flatten())
-            self.model.add(Dense(64))
-            self.model.add(Activation('relu'))
-            self.model.add(Dropout(0.2))
-            self.model.add(Dense(len(labels)))
-            self.model.add(Activation('softmax'))
-            self.model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-            self.model.summary()
+            'error'
+            print('Initialising weights')
+
+        self.model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+        self.model.summary()
 
     def train(self):
         # split and get number of images for train and validation
@@ -200,23 +207,30 @@ class CNN:
             validation_steps=number_validation // self.batch_size,
             verbose=1)
         end = time.time()
-        self.model.save("model")
+
+        self.model.save_weights('cnn_baseline.h5')
+
+        # print(self.model.metrics_names)
         file = open("history.txt", "w")
-        print(history.history["accuracy"][:-1])
-        file.write(history.history["accuracy"][:-1].__str__())
+        print(history.history["val_acc"])
+        file.write(history.history["val_acc"][:-1].__str__())
         file.close()
+
         print('Processing time:', (end - start) / 60)
         print('CNN is tired')
         remove_images(splits)
+
         # summarize history for accuracy
-        plt.plot(history.history['accuracy'])
-        plt.plot(history.history['val_accuracy'])
+        plt.plot(history.history['acc'])
+        plt.plot(history.history['val_acc'])
         plt.title('model accuracy')
         plt.ylabel('accuracy')
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper left')
         plt.draw()
-        plt.savefig('../static/img/' + 'model_accuracy.png')
+        plt.savefig('../../static/img/' + 'model_accuracy.png')
+        plt.show()
+
         # summarize history for loss
         plt.plot(history.history['loss'])
         plt.plot(history.history['val_loss'])
@@ -225,12 +239,12 @@ class CNN:
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper left')
         plt.draw()
-        plt.savefig('../static/img/' + 'model_loss.png')
+        plt.savefig('../../static/img/' + 'model_loss.png')
+        plt.show()
 
     def predict(self, predict, table):
-        if predict == True:
+        if predict is True:
             tiles = table.objects.all()
-            # DO NOT FORGET TO DELETE IF STATEMENT
             for i, row in enumerate(tiles):
                 x = str(row.x_coord)
                 y = str(row.y_coord)
@@ -242,17 +256,22 @@ class CNN:
 
                 # add 0.1 in case there might be 2 labels (softmax gives the sum of the labels = 1),
                 # therefore the chance of having a tile with 2 labels classified as 0.5, 0.5, 0 is quite rare
+                # BEWARE: predicting 3 times
                 building = round(self.model.predict(img)[0][0] + 0.1)
                 land = round(self.model.predict(img)[0][1] + 0.1)
                 water = round(self.model.predict(img)[0][2] + 0.1)
 
-                print(URL, '\n', self.model.predict(img), labels[int(self.model.predict_classes(img))], '\n')
+                # DO NOT FORGET TO DELETE IF. USED TO VERIFY FROM TIME TO TIME PREDICTION OF TILE
+                if i % 5 == 0:
+                    print(URL, '\n', ' building', building, ' land', land, ' water', water, '\n')
                 save_labels(x, y, year, building, land, water)
 
 
 def run():
-    get_images_train()
+    get_images_train(DatasetTable)
     cnn = CNN()
     cnn.train()
     cnn.predict(True, PredictUsableTiles)
     print('############################## U DID IT ############################################################')
+
+
