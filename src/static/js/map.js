@@ -1,16 +1,15 @@
 var map;
 var view;
-var graphicsLayer;
+var featureLayer;
 
-// please change if you find a better solution
-var attributes = [];
-attributes["building"] = new Set();
-attributes["land"] = new Set();
-attributes["water"] = new Set();
+graphics = new Map()
 
-require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers/GraphicsLayer", "esri/Graphic", 'esri/geometry/Extent',
-        "esri/widgets/Editor", 'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
-    function (Map, MapView, TileLayer, GraphicsLayer, Graphic, Extent, Editor, Search, Circle) {
+
+require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers/GraphicsLayer", "esri/layers/FeatureLayer", "esri/renderers/UniqueValueRenderer", "esri/Graphic", 'esri/geometry/Extent', "esri/geometry/Polygon",
+    "esri/symbols/SimpleFillSymbol",
+    "esri/widgets/Editor", 'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
+    function (Map, MapView, TileLayer, GraphicsLayer, FeatureLayer, UniqueValueRenderer, Graphic, Extent, Polygon, SimpleFillSymbol, Editor, Search, Circle) {
+
 
         // initial map
         var layer = new TileLayer({
@@ -21,71 +20,16 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
         });
 
         map.add(layer)
-        graphicsLayer = new GraphicsLayer();
+
+        // Create the feature layer, used for the overlay
+        setupFeatureLayer();
+        map.add(featureLayer)
 
         // map is added to the view
         view = new MapView({
             container: 'map',
             map: map,
         });
-
-        var symbol_building = {
-            type: "simple-fill",  // autocasts as new SimpleFillSymbol()
-            color: [130, 130, 130, 0.3],
-            style: "solid",
-            outline: {  // autocasts as new SimpleLineSymbol()
-                color: [130, 130, 130, 0.15],
-                width: 10
-            }
-        };
-
-        var symbol_land = {
-            type: "simple-fill",
-            color: [227, 197, 89, 0.1],
-            style: "solid",
-            outline: {
-                color: [227, 197, 89, 0.15],
-                width: 5
-            }
-        };
-
-        var symbol_water = {
-            type: "simple-fill",
-            color: [10, 10, 204, 0.2],
-            style: "solid",
-            outline: {
-                color: [10, 10, 204, 0.25],
-                width: 2
-            }
-        };
-
-         // template for points on map
-        var template = {
-            title: "Tile | EPSG:4326",
-            content: [
-                {
-                    type: "fields",
-                    fieldInfos: [
-                        {
-                            fieldName: "Longitude"
-                        },
-                        {
-                            fieldName: "Latitude"
-                        },
-                        {
-                            fieldName: "Building"
-                        },
-                        {
-                            fieldName: "Land"
-                        },
-                        {
-                            fieldName: "Water"
-                        }
-                    ]
-                }
-            ]
-        };
-
 
         $(predictions).click(async function load_labels(event) {
             let label = event.target.id
@@ -99,75 +43,80 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                 document.getElementById(label).innerHTML = label
                 abortController.abort()
             });
-            const req = {"year": year, "label": label}
-            const response = await fetch('/get_all_labels/' + JSON.stringify(req), {signal: abortController.signal});
+            const req = { "year": year, "label": label }
+            const response = await fetch('/get_all_labels/' + JSON.stringify(req), { signal: abortController.signal });
             try {
                 var json = await response.json()
-                graphicsLayer = new GraphicsLayer();
+
                 console.log("Fetched " + json.length + " tiles")
                 // display points in view
-                for (let i = 0; i < json.length; i++) {
 
-                    var building = Boolean(!label.localeCompare('building'))
-                    var land = Boolean(!label.localeCompare('land'))
-                    var water = Boolean(!label.localeCompare('water'))
-                    var attr = JSON.parse("{\n" +
-                        "      \"Longitude\": \"" + json[i].x_coord + "\",\n" +
-                        "      \"Latitude\": \"" + json[i].y_coord + "\",\n" +
-                        "      \"Building\": \"" + building.toString() + "\",\n" +
-                        "      \"Land\": \"" + land.toString() + "\",\n" +
-                        "      \"Water\": \"" + water.toString() + "\"\n" +
-                        "    }");
-
-                    var circleGeometry = new Circle([json[i].x_coord, json[i].y_coord], {
-                        radius: 203,
-                        radiusUnit: "meters",
-                        spatialReference: {wkid: 28992},
-                        geodesic: true
-                    });
-                    if (label == "building")
-                        graphic = new Graphic({
-                            geometry: circleGeometry.extent,
-                            symbol: symbol_building,
-                            attributes: attr
-                        });
-                    if (label == "land")
-                        graphic = new Graphic({
-                            geometry: circleGeometry.extent, symbol: symbol_land,
-                            attributes: attr
-                        });
-                    if (label == "water")
-                        graphic = new Graphic({
-                            geometry: circleGeometry.extent,
-                            symbol: symbol_water,
-                            attributes: attr
-                        });
-                    if (label == "church")
-                        graphic = new Graphic({
-                              geometry: circleGeometry.extent,
-                              symbol: symbol_church
-                        });
-                    setKey = json[i].x_coord + " " + json[i].y_coord;
-
-                    if (attributes["building"].has(setKey)) {
-                        console.log("building" + " " + json[i].x_coord + " " + json[i].y_coord)
-                        graphic.setAttribute('Building', "true")
-                    }
-                    if (attributes["land"].has(setKey)) {
-                        console.log("land" + " " + json[i].x_coord + " " + json[i].y_coord)
-                        graphic.setAttribute('Land', "true")
-                    }
-                    if (attributes["water"].has(setKey)) {
-                        console.log("water" + " " + json[i].x_coord + " " + json[i].y_coord)
-                        graphic.setAttribute('Water', "true")
-                    }
-                    graphic.popupTemplate = template
-                    graphicsLayer.add(graphic)
-                    if (label != "church")
-                        attributes[label].add(setKey)
+                circleProperties = {
+                    radius: 203,
+                    radiusUnit: "meters",
+                    spatialReference: { wkid: 28992 },
+                    geodesic: true
                 }
-                map.add(graphicsLayer)
+
+                edits = {
+                    addFeatures: [],
+                    updateFeatures: []
+                }
+
+                for (let i = 0; i < json.length; i++) {
+                    mapKey = json[i].x_coord + " " + json[i].y_coord;
+
+                    var newEntry = true;
+                    // If the tile graphic already exists (for another label) get it from the Map
+                    if (graphics.has(mapKey)) {
+                        graphic = graphics.get(mapKey)
+                        console.log(mapKey)
+                        console.log(graphic)
+                        newEntry = false;
+                    } else { // If this tile doesn't have any labels yet
+                        var attr = {
+                            Longitude: json[i].x_coord,
+                            Latitude: json[i].y_coord,
+                            Building: "false",
+                            Land: "false",
+                            Water: "false",
+                        }
+
+                        var circleGeometry = new Circle([json[i].x_coord, json[i].y_coord], circleProperties);
+                        graphic = new Graphic({
+                            geometry: Polygon.fromExtent(circleGeometry.extent),
+                            attributes: attr
+                        });
+                    }
+
+                    if (label == "building")
+                        graphic.setAttribute('Building', "true")
+
+                    if (label == "land")
+                        graphic.setAttribute('Land', "true")
+
+                    if (label == "water")
+                        graphic.setAttribute('Water', "true")
+
+                    if (label == "church")
+                        graphic.setAttribute('Church', "true")
+
+
+                    graphics.set(mapKey, graphic)
+
+                    if (newEntry) {
+                        edits.addFeatures.push(graphic)
+                    } else {
+                        edits.updateFeatures.push(graphic)
+                    }
+                }
+
+                console.log(graphics.size)
+
+                featureLayer.applyEdits(edits)
             } catch (exception) {
+                console.error(exception);
+                console.error(exception.lineNumber);
                 alert("Not yet classified, do some CAPTCHA")
             }
             document.getElementById(label).innerHTML = label
@@ -218,7 +167,7 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
 
         // add event to show mouse coordinates on click and move
         view.on(['pointer-down'], function (evt) {
-            showCoordinates(view.toMap({x: evt.x, y: evt.y}));
+            showCoordinates(view.toMap({ x: evt.x, y: evt.y }));
         });
 
         // view.on('click', function (event) {
@@ -231,24 +180,24 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
         //
         // });
 
-        var searchWidget = new Search({view: view});
+        var searchWidget = new Search({ view: view });
         view.ui.add(searchWidget, 'top-right');
 
 
         // change years based on the selection from the menu
         $(document).ready(function () {
-                $(menu).click(function (event) {
-                    if (event.target.id !== 'menu') {
-                        var year = event.target.id
-                        var yearLayer = new TileLayer({
-                            url: 'https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_' + year + '/MapServer'
-                        });
-                        map.removeAll();
-                        map.add(yearLayer);
-                        document.getElementById('current').innerHTML = event.target.id;
-                    }
-                });
-            }
+            $(menu).click(function (event) {
+                if (event.target.id !== 'menu') {
+                    var year = event.target.id
+                    var yearLayer = new TileLayer({
+                        url: 'https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_' + year + '/MapServer'
+                    });
+                    map.removeAll();
+                    map.add(yearLayer);
+                    document.getElementById('current').innerHTML = event.target.id;
+                }
+            });
+        }
         );
     }
 );
