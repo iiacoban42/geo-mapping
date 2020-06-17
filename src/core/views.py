@@ -37,17 +37,20 @@ def tiles_overview(request):
 
     return render(request, 'tiles-overview/tiles_overview.html')
 
+
 @xframe_options_exempt
 def captcha_embed(request):
     """render captcha_embed.html page"""
 
     return render(request, 'captcha/captcha_embed.html')
 
+
 @xframe_options_exempt
 def embed_example(request):
     """render embed_example.html page"""
 
     return render(request, 'captcha/embed_example.html')
+
 
 def get_statistics(request):
     """send statistics json"""

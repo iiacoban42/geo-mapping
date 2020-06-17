@@ -1,14 +1,15 @@
 {% load static %}
 <!DOCTYPE html>
 
-<html>
+<html style="overflow-x: hidden;">
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'js/nav_bar.js' %}" type="text/javascript"></script>
     <script src="{% static '/js/captcha_embed.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static '/css/captcha_website.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static '/css/captcha.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static '/css/overlay.css' %}">
+
 </head>
 <body>
 <input type="hidden" id="uuid" value="1234">
@@ -28,7 +29,7 @@
 </div>
 
 <!--captcha_embed.js will place the captcha here-->
-<div id="captcha" style="position: relative; left: 50%; margin-left: -125px;"></div>
+<div id="captcha" style="position: relative; left: 30%; margin-left: -100px;"></div>
 
 
 </body>
