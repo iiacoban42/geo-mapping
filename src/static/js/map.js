@@ -318,27 +318,6 @@ function setupFeatureLayer(FeatureLayer) {
     });
 }
 
-document.onclick = function (e) {
-    let elem = e.target.parentElement.id
-    let menu = document.getElementById('myNav')
-    if (elem === 'nav' && menu.style.width !== '5%')
-        openNav();
-    else if (menu.style.width === '5%')
-        closeNav();
-};
-
-// open when someone clicks on the span element
-function openNav() {
-    document.getElementById('open').classList.replace("fa-bars", "fa-times")
-    document.getElementById('myNav').style.width = '5%';
-}
-
-// close when someone clicks on the 'x' symbol inside the overlay
-function closeNav() {
-    document.getElementById('open').classList.replace("fa-times", "fa-bars")
-    document.getElementById('myNav').style.width = '0%';
-
-}
 
 function toggle_graphics(id) {
     if (document.getElementById(id).classList.contains("hide_graphics")) {
