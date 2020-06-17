@@ -4,11 +4,9 @@ from django.contrib.auth.models import AnonymousUser
 import sys
 import os
 
-from core.models import Tiles as TileTable
-from core.models import Objects as ObjectsTable
-from core.models import Dataset as DatasetTable
 from core.models import AI_Tiles as AITilesTable
 from core.models import AI_Characteristics as AICharsTable
+from core.models import AI_Objects as AIObjTable
 
 sys.path.append(os.path.join(os.path.dirname("src"), '..'))
 # pylint: disable=all
@@ -49,6 +47,12 @@ class TestRequests(TestCase):
         tile_chars2.water_prediction = 1
         tile_chars2.buildings_prediction = 1
         tile_chars2.save()
+
+        tile_obj = AIObjTable()
+        tile_obj.tiles_id = tile_ai2
+        tile_obj.type = "church"
+        tile_obj.prediction = 1
+        tile_obj.save()
 
     def test_ai_tiles_land(self):
         submission = '{"year": 2010, "label": "land"}'
@@ -133,6 +137,30 @@ class TestRequests(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_ai_tiles_wrong_label(self):
+        submission = '{"year": 2010, "label": "windmill"}'
+
+        sub = json.loads(submission)
+        # Create an instance of a GET request.
+        request = self.factory.get('get_all_labels')
+
+        # an AnonymousUser instance.
+        request.user = AnonymousUser()
+        response = get_all_labels(request, submission)
+        self.assertEqual(response.status_code, 400)
+
+    def test_ai_tiles_object(self):
+        submission = '{"year": 2011, "label": "church"}'
+
+        sub = json.loads(submission)
+        # Create an instance of a GET request.
+        request = self.factory.get('get_all_labels')
+
+        # an AnonymousUser instance.
+        request.user = AnonymousUser()
+        response = get_all_labels(request, submission)
+        self.assertEqual(response.status_code, 200)
+
+    def test_ai_tiles_no_object(self):
         submission = '{"year": 2010, "label": "church"}'
 
         sub = json.loads(submission)

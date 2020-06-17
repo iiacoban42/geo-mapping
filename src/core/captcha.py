@@ -121,7 +121,6 @@ def check_submission(year, x_coord, y_coord):
     submissions['avg_church'] = submissions['cnt_church'] / submissions['cnt']
     submissions['avg_oiltank'] = submissions['cnt_oiltank'] / submissions['cnt']
 
-    print(submissions)
 
     low_bound = 0.2
     high_bound = 0.8
@@ -137,19 +136,6 @@ def check_submission(year, x_coord, y_coord):
             (not (submissions['avg_oiltank'] <= low_bound or submissions['avg_oiltank'] >= high_bound))):
         print("Votes are too different to classify tile")
         return
-
-    # confirmed = ConfirmedCaptchasTable()
-    # confirmed.x_coord = x_coord
-    # confirmed.y_coord = y_coord
-    # confirmed.year = year
-    #
-    # confirmed.water_prediction = (submissions['avg_water']) * 100
-    # confirmed.land_prediction = (submissions['avg_land']) * 100
-    # confirmed.buildings_prediction = (submissions['avg_building']) * 100
-    # confirmed.church_prediction = (submissions['avg_church']) * 100
-    # confirmed.oiltank_prediction = (submissions['avg_oiltank']) * 100
-    #
-    # confirmed.save()
 
     confirmed_tile = ConfirmedCaptchaTiles()
     confirmed_tile.x_coord = x_coord

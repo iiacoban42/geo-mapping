@@ -60,7 +60,7 @@ class TestCaptcha(TestCase):
 
     def test_valid_captcha(self):
         submission = '[{"year":2010, "x":0, "y":0, "building":false, "water":true, "land":false, "church":false, "oiltank":false},' \
-                     ' {"year":2010, "x":1, "y":1, "building":true, "water":false, "land":true, "church":false, "oiltank":false}]'
+                     ' {"year":2010, "x":1, "y":1, "building":true, "water":false, "land":true, "church":true, "oiltank":true}]'
 
         sub = json.loads(submission)
         # Create an instance of a POST request.

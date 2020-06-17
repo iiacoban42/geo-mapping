@@ -23,11 +23,23 @@ class TestViews(SimpleTestCase):
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, 'captcha/captcha.html')
 
+    def test_captcha_embed(self):
+        self.client = Client()
+        self.list_url = reverse('captcha_embed')
+        response = self.client.get(self.list_url)
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, 'captcha/captcha_embed.html')
+
+    def test_captcha_embed_example(self):
+        self.client = Client()
+        self.list_url = reverse('embed_example')
+        response = self.client.get(self.list_url)
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, 'captcha/embed_example.html')
+
     def test_tiles_overview(self):
         self.client = Client()
         self.list_url = reverse('tiles_overview')
         response = self.client.get(self.list_url)
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, 'tiles-overview/tiles_overview.html')
-
-

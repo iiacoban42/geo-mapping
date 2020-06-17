@@ -175,7 +175,6 @@ def submit_captcha(request):
     """Verify captcha challenge"""
     # NOTE: Terrible code ahead. I'll try to make it prettier later on. -Georgi
     submission = json.loads(request.body)
-    print(submission)
 
     # Find which tile is the control
     control = find_tiles(submission)
