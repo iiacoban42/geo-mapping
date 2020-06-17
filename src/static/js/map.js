@@ -1,16 +1,15 @@
 var map;
 var view;
-var graphicsLayer;
+var featureLayer;
 
-// please change if you find a better solution
-var attributes = [];
-attributes["building"] = [];
-attributes["land"] = [];
-attributes["water"] = [];
+graphics = new Map()
 
-require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers/GraphicsLayer", "esri/Graphic", 'esri/geometry/Extent',
+
+require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers/GraphicsLayer", "esri/layers/FeatureLayer", "esri/renderers/UniqueValueRenderer", "esri/Graphic", 'esri/geometry/Extent', "esri/geometry/Polygon",
+        "esri/symbols/SimpleFillSymbol",
         "esri/widgets/Editor", 'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
-    function (Map, MapView, TileLayer, GraphicsLayer, Graphic, Extent, Editor, Search, Circle) {
+    function (Map, MapView, TileLayer, GraphicsLayer, FeatureLayer, UniqueValueRenderer, Graphic, Extent, Polygon, SimpleFillSymbol, Editor, Search, Circle) {
+
 
         // initial map
         var layer = new TileLayer({
@@ -21,7 +20,10 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
         });
 
         map.add(layer)
-        graphicsLayer = new GraphicsLayer();
+
+        // Create the feature layer, used for the overlay
+        setupFeatureLayer(FeatureLayer);
+        map.add(featureLayer)
 
         // map is added to the view
         view = new MapView({
@@ -29,75 +31,8 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             map: map,
         });
 
-        var symbol_building = {
-            type: "simple-fill",  // autocasts as new SimpleFillSymbol()
-            color: [130, 130, 130, 0.3],
-            style: "solid",
-            outline: {  // autocasts as new SimpleLineSymbol()
-                color: [130, 130, 130, 0.15],
-                width: 10
-            }
-        };
-
-        var symbol_land = {
-            type: "simple-fill",
-            color: [227, 197, 89, 0.1],
-            style: "solid",
-            outline: {
-                color: [227, 197, 89, 0.15],
-                width: 5
-            }
-        };
-
-        var symbol_water = {
-            type: "simple-fill",
-            color: [10, 10, 204, 0.2],
-            style: "solid",
-            outline: {
-                color: [10, 10, 204, 0.25],
-                width: 2
-            }
-        };
-
-        var symbol_church = {
-            type: "picture-marker",
-            url: "https://cdn.icon-icons.com/icons2/1741/PNG/512/church_113375.png",
-            height: 18,
-            width: 18
-        };
-
-        // template for points on map
-        var template = {
-            title: "Tile | EPSG:4326",
-            content: [
-                {
-                    type: "fields",
-                    fieldInfos: [
-                        {
-                            fieldName: "Longitude"
-                        },
-                        {
-                            fieldName: "Latitude"
-                        },
-                        {
-                            fieldName: "Building"
-                        },
-                        {
-                            fieldName: "Land"
-                        },
-                        {
-                            fieldName: "Water"
-                        }
-                    ]
-                }
-            ]
-        };
-
-
         $(predictions).click(async function load_labels(event) {
             let label = event.target.id
-            if (view.zoom < 5)
-                view.zoom = 5
             // if user changes year, exit function
             let abortController = new AbortController();
             document.getElementById(label).innerHTML = "loading..."
@@ -110,69 +45,75 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             const response = await fetch('/get_all_labels/' + JSON.stringify(req), {signal: abortController.signal});
             try {
                 var json = await response.json()
-                graphicsLayer = new GraphicsLayer();
+
                 console.log("Fetched " + json.length + " tiles")
                 // display points in view
-                for (let i = 0; i < json.length; i++) {
 
-                    var building = Boolean(!label.localeCompare('building'))
-                    var land = Boolean(!label.localeCompare('land'))
-                    var water = Boolean(!label.localeCompare('water'))
-                    var attr = JSON.parse("{\n" +
-                        "      \"Longitude\": \"" + json[i].x_coord + "\",\n" +
-                        "      \"Latitude\": \"" + json[i].y_coord + "\",\n" +
-                        "      \"Building\": \"" + building.toString() + "\",\n" +
-                        "      \"Land\": \"" + land.toString() + "\",\n" +
-                        "      \"Water\": \"" + water.toString() + "\"\n" +
-                        "    }");
-
-                    var circleGeometry = new Circle([json[i].x_coord, json[i].y_coord], {
-                        radius: 203,
-                        radiusUnit: "meters",
-                        spatialReference: {wkid: 28992},
-                        geodesic: true
-                    });
-                    if (label == "building")
-                        graphic = new Graphic({
-                            geometry: circleGeometry.extent,
-                            symbol: symbol_building,
-                            attributes: attr
-                        });
-                    if (label == "land")
-                        graphic = new Graphic({
-                            geometry: circleGeometry.extent, symbol: symbol_land,
-                            attributes: attr
-                        });
-                    if (label == "water")
-                        graphic = new Graphic({
-                            geometry: circleGeometry.extent,
-                            symbol: symbol_water,
-                            attributes: attr
-                        });
-                    if (label == "church")
-                      graphic = new Graphic({
-                            geometry: circleGeometry.extent,
-                            symbol: symbol_church
-                      });
-                    if (find(attributes["building"], json[i].x_coord, json[i].y_coord).length > 0) {
-                        console.log("building" + " " + json[i].x_coord + " " + json[i].y_coord)
-                        graphic.setAttribute('Building', "true")
-                    }
-                    if (find(attributes["land"], json[i].x_coord, json[i].y_coord).length > 0) {
-                        console.log("land" + " " + json[i].x_coord + " " + json[i].y_coord)
-                        graphic.setAttribute('Land', "true")
-                    }
-                    if (find(attributes["water"], json[i].x_coord, json[i].y_coord).length > 0) {
-                        console.log("water" + " " + json[i].x_coord + " " + json[i].y_coord)
-                        graphic.setAttribute('Water', "true")
-                    }
-                    graphic.popupTemplate = template
-                    graphicsLayer.add(graphic)
-                    if (label != "church")
-                        attributes[label][attributes[label].length] = attr
+                circleProperties = {
+                    radius: 203,
+                    radiusUnit: "meters",
+                    spatialReference: {wkid: 28992},
+                    geodesic: true
                 }
-                map.add(graphicsLayer)
+
+                edits = {
+                    addFeatures: [],
+                    updateFeatures: []
+                }
+
+                for (let i = 0; i < json.length; i++) {
+                    mapKey = json[i].x_coord + " " + json[i].y_coord;
+
+                    var newEntry = true;
+                    // If the tile graphic already exists (for another label) get it from the Map
+                    if (graphics.has(mapKey)) {
+                        graphic = graphics.get(mapKey)
+                        console.log(mapKey + "->" + label)
+                        newEntry = false;
+                    } else { // If this tile doesn't have any labels yet
+                        var attr = {
+                            Longitude: json[i].x_coord,
+                            Latitude: json[i].y_coord,
+                            Building: "false",
+                            Land: "false",
+                            Water: "false",
+                        }
+
+                        var circleGeometry = new Circle([json[i].x_coord, json[i].y_coord], circleProperties);
+                        graphic = new Graphic({
+                            geometry: Polygon.fromExtent(circleGeometry.extent),
+                            attributes: attr
+                        });
+                    }
+
+                    if (label == "building")
+                        graphic.setAttribute('Building', "true")
+
+                    if (label == "land")
+                        graphic.setAttribute('Land', "true")
+
+                    if (label == "water")
+                        graphic.setAttribute('Water', "true")
+
+                    if (label == "church")
+                        graphic.setAttribute('Church', "true")
+
+
+                    graphics.set(mapKey, graphic)
+
+                    if (newEntry) {
+                        edits.addFeatures.push(graphic)
+                    } else {
+                        edits.updateFeatures.push(graphic)
+                    }
+                }
+
+                console.log("Total tiles: " + graphics.size)
+
+                featureLayer.applyEdits(edits)
             } catch (exception) {
+                console.error(exception);
+                console.error(exception.lineNumber);
                 alert("Not yet classified, do some CAPTCHA")
             }
             document.getElementById(label).innerHTML = label
@@ -226,16 +167,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             showCoordinates(view.toMap({x: evt.x, y: evt.y}));
         });
 
-        // view.on('click', function (event) {
-        //     event.stopPropagation(); // overwrite default click-for-popup behavior
-        //     // Get the coordinates of the click on the view
-        //     year = document.getElementById('current').innerHTML
-        //     coord_x_db = Math.round((event.mapPoint.x + 30527385.66843) / 406.55828)
-        //     coord_y_db = Math.round((event.mapPoint.y - 31113121.21698) / (-406.41038))
-        //     const req = {'year': year, 'x_coord': coord_x_db, 'y_coord': coord_y_db}
-        //
-        // });
-
         var searchWidget = new Search({view: view});
         view.ui.add(searchWidget, 'top-right');
 
@@ -250,7 +181,10 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                         });
                         map.removeAll();
                         map.add(yearLayer);
+                        setupFeatureLayer(FeatureLayer);
+                        map.add(featureLayer);
                         document.getElementById('current').innerHTML = event.target.id;
+                        closeNav();
                     }
                 });
             }
@@ -258,11 +192,151 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
     }
 );
 
+function setupFeatureLayer(FeatureLayer) {
+    // template for points on map
+    var template = {
+        title: "Tile | EPSG:4326",
+        content: "<div>{Longitude}:{Latitude}<br>\
+                        Building: {Building}<br>\
+                        Land: {Land}<br>\
+                        Water: {Water}</div>"
+    };
+
+    var renderer = {
+        type: "unique-value",  // autocasts as new UniqueValueRenderer()
+        field: "Building",
+        field2: "Land",
+        field3: "Water",
+        fieldDelimiter: ":",
+        defaultSymbol: {type: "simple-fill"},  // autocasts as new SimpleFillSymbol()
+        uniqueValueInfos: [{
+            value: "true:false:false",
+            symbol: {
+                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                color: [79, 71, 72, 0.7],
+                style: "solid",
+                outline: {
+                    style: "none"
+                }
+            }
+        }, {
+            value: "false:true:false",
+            symbol: {
+                type: "simple-fill",
+                color: [130, 189, 121, 0.9],
+                style: "solid",
+                outline: {
+                    style: "none"
+                }
+            }
+        }, {
+            value: "false:false:true",
+            symbol: {
+                type: "simple-fill",
+                color: [113, 199, 245, 0.8],
+                style: "solid",
+                outline: {
+                    style: "none"
+                }
+            }
+        },
+            {
+                value: "true:true:false",
+                symbol: {
+                    type: "simple-fill",
+                    color: [199, 182, 125, 0.7],
+                    style: "solid",
+                    outline: {
+                        style: "none"
+                    }
+                }
+            }, {
+                value: "true:false:true",
+                symbol: {
+                    type: "simple-fill",
+                    color: [67, 102, 125, 0.6],
+                    style: "solid",
+                    outline: {
+                        style: "none"
+                    }
+                }
+            }, {
+                value: "false:true:true",
+                symbol: {
+                    type: "simple-fill",
+                    color: [113, 163, 168, 0.7],
+                    style: "solid",
+                    outline: {
+                        style: "none"
+                    }
+                }
+            }, {
+                value: "true:true:true",
+                symbol: {
+                    type: "simple-fill",
+                    color: [150, 90, 78, 0.7],
+                    style: "solid",
+                    outline: {
+                        style: "none"
+                    }
+                }
+            }]
+    }
+
+    featureLayer = new FeatureLayer({
+        objectIdField: "objectid",
+        fields: [
+            {
+                name: "objectid",
+                type: "oid"
+            },
+            {
+                name: "Longitude",
+                type: "double"
+            },
+            {
+                name: "Latitude",
+                type: "double"
+            },
+            {
+                name: "Building",
+                type: "string"
+            },
+            {
+                name: "Land",
+                type: "string"
+            },
+            {
+                name: "Water",
+                type: "string"
+            }
+        ],
+        source: [],
+        popupTemplate: template,
+        renderer: renderer,
+        geometryType: "polygon"
+    });
+}
+
+document.onclick = function (e) {
+    let elem = e.target.parentElement.id
+    let menu = document.getElementById('myNav')
+    if (elem === 'nav' && menu.style.width !== '5%')
+        openNav();
+    else if (menu.style.width === '5%')
+        closeNav();
+};
 
 // open when someone clicks on the span element
 function openNav() {
-    document.getElementById('open').style.visibility = 'hidden';
-    document.getElementById('myNav').style.width = '7%';
+    document.getElementById('open').classList.replace("fa-bars", "fa-times")
+    document.getElementById('myNav').style.width = '5%';
+}
+
+// close when someone clicks on the 'x' symbol inside the overlay
+function closeNav() {
+    document.getElementById('open').classList.replace("fa-times", "fa-bars")
+    document.getElementById('myNav').style.width = '0%';
 
 }
 
@@ -283,12 +357,6 @@ function toggle_graphics(id) {
     }
 }
 
-// close when someone clicks on the 'x' symbol inside the overlay
-function closeNav() {
-    document.getElementById('open').style.visibility = 'visible';
-    document.getElementById('myNav').style.width = '0%';
-}
-
 var btn_captcha = document.getElementById('captcha');
 btn_captcha.onclick = function () {
     console.log('captcha')
@@ -305,12 +373,4 @@ var btn_train = document.getElementById('train');
 btn_train.onclick = function () {
     console.log('train')
     location.assign('/train/');
-}
-
-function find(array, x, y) {
-    return array.filter(
-        function (array) {
-            return (array.Longitude == x && array.Latitude == y)
-        }
-    );
 }

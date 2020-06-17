@@ -244,7 +244,12 @@ class CNN:
 
     def predict(self, predict, table):
         if predict is True:
-            tiles = table.objects.all()
+            # tiles = table.objects.all()
+            tiles = table.objects.raw(
+                'SELECT * FROM core_usabletiles WHERE '
+                '(core_usabletiles.x_coord, core_usabletiles.y_coord, core_usabletiles.year) NOT'
+                ' IN (SELECT core_ai_tiles.x_coord, core_ai_tiles.y_coord, core_ai_tiles.year FROM core_ai_tiles)')
+
             for i, row in enumerate(tiles):
                 x = str(row.x_coord)
                 y = str(row.y_coord)
@@ -261,9 +266,7 @@ class CNN:
                 land = round(self.model.predict(img)[0][1] + 0.1)
                 water = round(self.model.predict(img)[0][2] + 0.1)
 
-                # DO NOT FORGET TO DELETE IF. USED TO VERIFY FROM TIME TO TIME PREDICTION OF TILE
-                if i % 5 == 0:
-                    print(URL, '\n', ' building', building, ' land', land, ' water', water, '\n')
+                # print(URL, '\n', ' building', building, ' land', land, ' water', water, '\n')
                 save_labels(x, y, year, building, land, water)
 
 
@@ -274,4 +277,4 @@ def run():
     cnn.predict(True, PredictUsableTiles)
     print('############################## U DID IT ############################################################')
 
-
+# run()

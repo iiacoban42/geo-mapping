@@ -51,6 +51,10 @@ html, body {
     visibility: hidden;
 }
 
+.menu {
+    z-index: 5;
+}
+
 .open {
     font-size: 30px;
     color: var(--main-white);

@@ -20,6 +20,7 @@ html, body, #map {
     color: var(--main-white);
 }
 
+
 /* The navigation links inside the overlay */
 .overlay a {
     padding: 8px;
