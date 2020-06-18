@@ -1,15 +1,15 @@
+
 var map;
 var view;
 var featureLayer;
 
 graphics = new Map()
 
-
-require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers/GraphicsLayer", "esri/layers/FeatureLayer", "esri/renderers/UniqueValueRenderer", "esri/Graphic", 'esri/geometry/Extent', "esri/geometry/Polygon",
-        "esri/symbols/SimpleFillSymbol",
-        "esri/widgets/Editor", 'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
-    function (Map, MapView, TileLayer, GraphicsLayer, FeatureLayer, UniqueValueRenderer, Graphic, Extent, Polygon, SimpleFillSymbol, Editor, Search, Circle) {
-
+require(["esri/Map", "esri/views/MapView", "esri/widgets/Legend/LegendViewModel", "esri/widgets/LayerList", "esri/widgets/Legend",
+        "esri/layers/TileLayer", "esri/layers/GraphicsLayer", "esri/layers/FeatureLayer", "esri/renderers/UniqueValueRenderer",
+        "esri/Graphic", 'esri/geometry/Extent', "esri/geometry/Polygon", "esri/geometry/Circle", "esri/symbols/SimpleFillSymbol",
+        "esri/widgets/Editor", "esri/views/layers/FeatureLayerView", "esri/widgets/Editor/EditorViewModel", "dojo/domReady!"],
+    function (Map, MapView, LegendViewModel, LayerList, Legend, TileLayer, GraphicsLayer, FeatureLayer, UniqueValueRenderer, Graphic, Extent, Polygon, Circle, SimpleFillSymbol, Editor) {
 
         // initial map
         var layer = new TileLayer({
@@ -30,6 +30,19 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             container: 'map',
             map: map,
         });
+
+        const editor = new Editor({
+            layerInfos: [{
+                enabled: true, // default is true, set to false to disable editing functionality
+                addEnabled: true, // default is true, set to false to disable the ability to add a new feature
+                updateEnabled: true, // default is true, set to false to disable the ability to edit an existing feature
+                deleteEnabled: true, // default is true, set to false to disable the ability to delete features
+                featureLayer: featureLayer
+            }],
+            view: view,
+        });
+        view.ui.add(editor, 'top-right')
+
 
         $(predictions).click(async function load_labels(event) {
             let label = event.target.id
@@ -85,7 +98,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                             attributes: attr
                         });
                     }
-
                     if (label == "building")
                         graphic.setAttribute('Building', "true")
 
@@ -98,9 +110,7 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                     if (label == "church")
                         graphic.setAttribute('Church', "true")
 
-
                     graphics.set(mapKey, graphic)
-
                     if (newEntry) {
                         edits.addFeatures.push(graphic)
                     } else {
@@ -109,7 +119,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                 }
 
                 console.log("Total tiles: " + graphics.size)
-
                 featureLayer.applyEdits(edits)
             } catch (exception) {
                 console.error(exception);
@@ -118,34 +127,96 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             }
             document.getElementById(label).innerHTML = label
         });
+//         layerWidget = new LayerList({
+//             map: map,
+//             subLayers: false,
+//             layers: [
+//                 // {layer: ortho2013Layer,
+//                 // visibility: false
+//                 // },
+//                 {
+//                     layer: "Building",
+//                     subLayers: false,
+//                     visbility: true,
+//                     id: "Milepost Labels"
+//                 },
+//                 {
+//                     layer: "Land",
+//                     visibility: false
+//                 },
+//                 {
+//                     layer: "Water",
+//                     visibility: false
+//                 },
+//                 {
+//                     layer: "streamLayer",
+//                     visibility: false
+//                 },
+//
+//             ]
+//         }, "layerList");
+//
+//         var layerList = new LayerList({
+//             map: map,
+//             showLegend: false,
+//             showSubLayers: false,
+//             showOpacitySlider: true,
+//             layer: featureLayer
+//         })
+//         // view.ui.add(legend, 'bottom-right')
+//         var legend = new Legend({
+//             view: view,
+//             content: [{
+//                 layer: featureLayer,
+//                 title: "Legend"
+//             }],
+//
+//
+//         });// Add a legend instance to the panel of a
 
 
-        // var editor = new Editor({
-        //     view: view,
-        //     layerInfos: [{
-        //         fieldConfig: [ // Specify which fields to configure
-        //             {
-        //                 name: "fulladdr",
-        //                 label: "Full Address"
-        //             },
-        //             {
-        //                 name: "neighborhood",
-        //                 label: "Neighborhood"
-        //             }],
-        //         enabled: true, // default is true, set to false to disable editing functionality
-        //         addEnabled: true, // default is true, set to false to disable the ability to add a new feature
-        //         updateEnabled: false, // default is true, set to false to disable the ability to edit an existing feature
-        //         deleteEnabled: false // default is true, set to false to disable the ability to delete features
-        //     }]
-        // });
-        // view.ui.add(editor, "bottom-right");
+        const legend = new Legend({
+            view: view,
+            showLegend: true,
+            showSubLayers: true,
+            showOpacitySlider: true,
+            viewModel: new LegendViewModel({
+                view: view,
+            }), content: [{
+                layer: featureLayer,
+                title: "Legend",
 
+            }],
+        });
 
+        // ListItem in a LayerList instance
+        const layerList = new LayerList({
+            view: view,
+            listItemCreatedFunction: function (event) {
+                const item = event.item;
+                // console.log(item.layer.layerId)
+                //console.log(item.layer.operationalLayerType)
+                //console.log(item.__accessorMetadata__)
+                //console.log(item.layer.innerHTML)
+                //console.log(item.layer.outFields)
+                if (item.layer.geometryType === "polygon") {
+                    // don't show legend twice
+                    item.panel = legend,
+                        open = 'false',
+                        caption = "Labels",
+                        item.title = "Classification Legend",
+
+                        // Text with building does not disappear??
+                        item.caption = "Labels"
+                }
+            }
+        });
+        view.ui.add(layerList, "bottom-right");
         var coordsWidget = document.createElement('div');
         coordsWidget.id = 'coordsWidget';
         coordsWidget.className = 'esri-widget esri-component';
         coordsWidget.style.padding = '7px 15px 5px';
-        view.ui.add(coordsWidget, 'bottom-right');
+        view.ui.add(coordsWidget, 'bottom-left');
 
         // update lat, lon, zoom and scale
         // lat and lon are in other coord system for now (hopefully)
@@ -166,10 +237,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
         view.on(['pointer-down'], function (evt) {
             showCoordinates(view.toMap({x: evt.x, y: evt.y}));
         });
-
-        var searchWidget = new Search({view: view});
-        view.ui.add(searchWidget, 'top-right');
-
 
         // change years based on the selection from the menu
         $(document).ready(function () {
@@ -211,6 +278,7 @@ function setupFeatureLayer(FeatureLayer) {
         defaultSymbol: {type: "simple-fill"},  // autocasts as new SimpleFillSymbol()
         uniqueValueInfos: [{
             value: "true:false:false",
+            label: "Building",
             symbol: {
                 type: "simple-fill",  // autocasts as new SimpleFillSymbol()
                 color: [79, 71, 72, 0.7],
@@ -221,6 +289,7 @@ function setupFeatureLayer(FeatureLayer) {
             }
         }, {
             value: "false:true:false",
+            label: "Land",
             symbol: {
                 type: "simple-fill",
                 color: [130, 189, 121, 0.9],
@@ -231,6 +300,7 @@ function setupFeatureLayer(FeatureLayer) {
             }
         }, {
             value: "false:false:true",
+            label: "Water",
             symbol: {
                 type: "simple-fill",
                 color: [113, 199, 245, 0.8],
@@ -242,6 +312,7 @@ function setupFeatureLayer(FeatureLayer) {
         },
             {
                 value: "true:true:false",
+                label: "Building & Land",
                 symbol: {
                     type: "simple-fill",
                     color: [199, 182, 125, 0.7],
@@ -252,6 +323,7 @@ function setupFeatureLayer(FeatureLayer) {
                 }
             }, {
                 value: "true:false:true",
+                label: "Building & Water",
                 symbol: {
                     type: "simple-fill",
                     color: [67, 102, 125, 0.6],
@@ -262,6 +334,7 @@ function setupFeatureLayer(FeatureLayer) {
                 }
             }, {
                 value: "false:true:true",
+                label: "Land & Water",
                 symbol: {
                     type: "simple-fill",
                     color: [113, 163, 168, 0.7],
@@ -272,6 +345,7 @@ function setupFeatureLayer(FeatureLayer) {
                 }
             }, {
                 value: "true:true:true",
+                label: "Building & Land & Water",
                 symbol: {
                     type: "simple-fill",
                     color: [150, 90, 78, 0.7],
@@ -279,10 +353,24 @@ function setupFeatureLayer(FeatureLayer) {
                     outline: {
                         style: "none"
                     }
-                }
-            }]
-    }
+                },
+                outFields: ["label"],
+            }],
+        outFields: ["*"],
 
+    }
+// opacity with minDataVal and maxDataVal defined
+    for (let x = 0; x < 8; x++)
+        console.log(renderer[x])
+    // real-world size for 2D tree canopies
+    var colorVisVar = {
+        // The type must be set to size
+        type: "color",
+        // Assign the field name to visualize with size
+        field: "label",
+        colors: [79, 71, 72, 0.7]
+    };
+    //renderer.visualVariables = [colorVisVar];
     featureLayer = new FeatureLayer({
         objectIdField: "objectid",
         fields: [
@@ -314,8 +402,12 @@ function setupFeatureLayer(FeatureLayer) {
         source: [],
         popupTemplate: template,
         renderer: renderer,
-        geometryType: "polygon"
+        geometryType: "polygon",
+        spatialReference: {wkid: 28992},
+        outFields: ["objectid"],
+        labelsVisible: 'true',
     });
+
 }
 
 
@@ -353,3 +445,25 @@ btn_train.onclick = function () {
     console.log('train')
     location.assign('/train/');
 }
+//
+// if (labels.includes(label)) {
+//                view.whenLayerView(featureLayer).then(function (layerView) {
+//                    layerView.queryFeatures({
+//                        outFields: layerView.availableFields
+//                    })
+//                        .then(function (results) {
+//                            console.log(results.features.length, " features returned");
+//                        })
+//                        .catch(function (error) {
+//                            console.log("query failed: ", error);
+//                        });
+//                })
+//            }
+
+// view.ui.add(legend, "bottom-right");
+// editor.viewModel.on(['awaiting-feature-creation-info', 'awaiting-feature-to-update'], function (event) {
+//     console.log("SearchViewModel says: 'Search started'.");
+// });
+// edit.on("click", function () {
+//     console.log("AAA")
+// });
