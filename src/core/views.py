@@ -200,7 +200,7 @@ def submit_captcha(request):
 
 def get_accuracy(request):
     """Get last accuracy of CNN"""
-    with open('../core/detection/history.txt') as file:
+    with open('static/history.txt') as file:
         read_data = {'accuracy': file.read()[1:-2]}
         print(read_data)
         file.close()
@@ -209,7 +209,6 @@ def get_accuracy(request):
 
 def train(request):
     """Return timestamp of the most recently classified tile"""
-    print("###########################################")
     latest_forecast = AI_Characteristics.objects.latest('timestamp')
 
     timestamp = "{t.year}/{t.month:02d}/{t.day:02d} - {t.hour:02d}:{t.minute:02d}:{t.second:02d}".format(
@@ -224,8 +223,11 @@ def train(request):
 
 def machine_learning(request):
     """Train CNN and update timestamp"""
-    # DO NOT FORGET TO CHANGE TO DAYS. LEFT MINUTES TO TEST
-    a_week_ago = datetime.now(tz=pytz.utc) - timedelta(minutes=60)
+
+    # !!!!!!! LEFT MINUTES TO TEST
+    a_week_ago = datetime.now(tz=pytz.utc) - timedelta(minutes=0)
+    # UNCOMMENT TO BE ABLE TO RUN THE ML BY PRESSING THE BUTTON (AT /train) ONCE EVERY 7 DAYS
+    # a_week_ago = datetime.now(tz=pytz.utc) - timedelta(days=7)
     latest_forecast = AI_Characteristics.objects.latest('timestamp')
     if latest_forecast is None or (latest_forecast.timestamp < a_week_ago):
         detect.run()
