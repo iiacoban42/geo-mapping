@@ -1,7 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 
-<html>
+<html style="overflow-x: hidden;">
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -9,17 +9,15 @@
     <script src="{% static '/js/captcha_embed.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static '/css/captcha.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static '/css/overlay.css' %}">
+
 </head>
 <body>
 <input type="hidden" id="uuid" value="1234">
 <div class="top">
-    <span class="open" onclick="openNav()">  &nbsp;&nbsp<i class="fa fa-bars"
-                                                           id="open"> Menu &nbsp;&nbsp;|&nbsp; </i></span>
+    <span class="open" id="nav">  &nbsp;&nbsp<i class="fa fa-bars"
+                                                id="open"> Menu &nbsp;&nbsp;|&nbsp;&nbsp; </i></span>
 </div>
 <div id="myNav" class="overlay">
-
-    <!-- Button to close the overlay navigation -->
-    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 
     <!-- Overlay content -->
     <div class="menu" id="menu">
@@ -31,7 +29,7 @@
 </div>
 
 <!--captcha_embed.js will place the captcha here-->
-<div id="captcha" style="position: relative; left: 50%; margin-left: -125px;"></div>
+<div id="captcha" style="position: relative; left: 30%; margin-left: -100px;"></div>
 
 
 </body>

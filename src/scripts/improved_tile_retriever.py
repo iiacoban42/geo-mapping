@@ -1,4 +1,5 @@
 import urllib.request
+
 from PIL import Image
 
 from core.models import UsableTiles as UsableTilesTable

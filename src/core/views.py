@@ -13,8 +13,8 @@ from pyproj import Transformer
 
 from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles, check_characteristics, \
     check_objects
-from core.models import AI_Tiles as AITilesTable, AI_Characteristics, AI_Objects
 from core.detection import detect
+from core.models import AI_Tiles as AITilesTable, AI_Characteristics, AI_Objects
 from core.models import Captcha_Tiles as CaptchaTable
 from core.models import Characteristics as CharacteristicsTable
 from core.models import Dataset as DatasetTable
@@ -37,17 +37,20 @@ def tiles_overview(request):
 
     return render(request, 'tiles-overview/tiles_overview.html')
 
+
 @xframe_options_exempt
 def captcha_embed(request):
     """render captcha_embed.html page"""
 
     return render(request, 'captcha/captcha_embed.html')
 
+
 @xframe_options_exempt
 def embed_example(request):
     """render embed_example.html page"""
 
     return render(request, 'captcha/embed_example.html')
+
 
 def get_statistics(request):
     """send statistics json"""
@@ -172,7 +175,6 @@ def submit_captcha(request):
     """Verify captcha challenge"""
     # NOTE: Terrible code ahead. I'll try to make it prettier later on. -Georgi
     submission = json.loads(request.body)
-    print(submission)
 
     # Find which tile is the control
     control = find_tiles(submission)
@@ -233,4 +235,3 @@ def machine_learning(request):
         print('FORECAST UPDATED', timestamp)
         return JsonResponse(timestamp, safe=False)
     return HttpResponseBadRequest("Too little time passed")
-

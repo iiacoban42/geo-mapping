@@ -1,16 +1,15 @@
+
 var map;
 var view;
-var graphicsLayer;
+var featureLayer;
 
-// please change if you find a better solution
-var attributes = [];
-attributes["building"] = [];
-attributes["land"] = [];
-attributes["water"] = [];
+graphics = new Map()
 
-require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers/GraphicsLayer", "esri/Graphic", 'esri/geometry/Extent',
-        "esri/widgets/Editor", 'esri/widgets/Search', "esri/geometry/Circle", "dojo/domReady!"],
-    function (Map, MapView, TileLayer, GraphicsLayer, Graphic, Extent, Editor, Search, Circle) {
+require(["esri/Map", "esri/views/MapView", "esri/widgets/Legend/LegendViewModel", "esri/widgets/LayerList", "esri/widgets/Legend",
+        "esri/layers/TileLayer", "esri/layers/GraphicsLayer", "esri/layers/FeatureLayer", "esri/renderers/UniqueValueRenderer",
+        "esri/Graphic", 'esri/geometry/Extent', "esri/geometry/Polygon", "esri/geometry/Circle", "esri/symbols/SimpleFillSymbol",
+        "esri/widgets/Editor", "esri/views/layers/FeatureLayerView", "esri/widgets/Editor/EditorViewModel", "dojo/domReady!"],
+    function (Map, MapView, LegendViewModel, LayerList, Legend, TileLayer, GraphicsLayer, FeatureLayer, UniqueValueRenderer, Graphic, Extent, Polygon, Circle, SimpleFillSymbol, Editor) {
 
         // initial map
         var layer = new TileLayer({
@@ -21,7 +20,10 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
         });
 
         map.add(layer)
-        graphicsLayer = new GraphicsLayer();
+
+        // Create the feature layer, used for the overlay
+        setupFeatureLayer(FeatureLayer);
+        map.add(featureLayer)
 
         // map is added to the view
         view = new MapView({
@@ -29,75 +31,21 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             map: map,
         });
 
-        var symbol_building = {
-            type: "simple-fill",  // autocasts as new SimpleFillSymbol()
-            color: [130, 130, 130, 0.3],
-            style: "solid",
-            outline: {  // autocasts as new SimpleLineSymbol()
-                color: [130, 130, 130, 0.15],
-                width: 10
-            }
-        };
-
-        var symbol_land = {
-            type: "simple-fill",
-            color: [227, 197, 89, 0.1],
-            style: "solid",
-            outline: {
-                color: [227, 197, 89, 0.15],
-                width: 5
-            }
-        };
-
-        var symbol_water = {
-            type: "simple-fill",
-            color: [10, 10, 204, 0.2],
-            style: "solid",
-            outline: {
-                color: [10, 10, 204, 0.25],
-                width: 2
-            }
-        };
-
-        var symbol_church = {
-            type: "picture-marker",
-            url: "https://cdn.icon-icons.com/icons2/1741/PNG/512/church_113375.png",
-            height: 18,
-            width: 18
-        };
-
-        // template for points on map
-        var template = {
-            title: "Tile | EPSG:4326",
-            content: [
-                {
-                    type: "fields",
-                    fieldInfos: [
-                        {
-                            fieldName: "Longitude"
-                        },
-                        {
-                            fieldName: "Latitude"
-                        },
-                        {
-                            fieldName: "Building"
-                        },
-                        {
-                            fieldName: "Land"
-                        },
-                        {
-                            fieldName: "Water"
-                        }
-                    ]
-                }
-            ]
-        };
+        const editor = new Editor({
+            layerInfos: [{
+                enabled: true, // default is true, set to false to disable editing functionality
+                addEnabled: true, // default is true, set to false to disable the ability to add a new feature
+                updateEnabled: true, // default is true, set to false to disable the ability to edit an existing feature
+                deleteEnabled: true, // default is true, set to false to disable the ability to delete features
+                featureLayer: featureLayer
+            }],
+            view: view,
+        });
+        view.ui.add(editor, 'top-right')
 
 
         $(predictions).click(async function load_labels(event) {
             let label = event.target.id
-            if (view.zoom < 5)
-                view.zoom = 5
             // if user changes year, exit function
             let abortController = new AbortController();
             document.getElementById(label).innerHTML = "loading..."
@@ -110,101 +58,165 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             const response = await fetch('/get_all_labels/' + JSON.stringify(req), {signal: abortController.signal});
             try {
                 var json = await response.json()
-                graphicsLayer = new GraphicsLayer();
+
                 console.log("Fetched " + json.length + " tiles")
                 // display points in view
-                for (let i = 0; i < json.length; i++) {
 
-                    var building = Boolean(!label.localeCompare('building'))
-                    var land = Boolean(!label.localeCompare('land'))
-                    var water = Boolean(!label.localeCompare('water'))
-                    var attr = JSON.parse("{\n" +
-                        "      \"Longitude\": \"" + json[i].x_coord + "\",\n" +
-                        "      \"Latitude\": \"" + json[i].y_coord + "\",\n" +
-                        "      \"Building\": \"" + building.toString() + "\",\n" +
-                        "      \"Land\": \"" + land.toString() + "\",\n" +
-                        "      \"Water\": \"" + water.toString() + "\"\n" +
-                        "    }");
-
-                    var circleGeometry = new Circle([json[i].x_coord, json[i].y_coord], {
-                        radius: 203,
-                        radiusUnit: "meters",
-                        spatialReference: {wkid: 28992},
-                        geodesic: true
-                    });
-                    if (label == "building")
-                        graphic = new Graphic({
-                            geometry: circleGeometry.extent,
-                            symbol: symbol_building,
-                            attributes: attr
-                        });
-                    if (label == "land")
-                        graphic = new Graphic({
-                            geometry: circleGeometry.extent, symbol: symbol_land,
-                            attributes: attr
-                        });
-                    if (label == "water")
-                        graphic = new Graphic({
-                            geometry: circleGeometry.extent,
-                            symbol: symbol_water,
-                            attributes: attr
-                        });
-                    if (label == "church")
-                      graphic = new Graphic({
-                            geometry: circleGeometry.extent,
-                            symbol: symbol_church
-                      });
-                    if (find(attributes["building"], json[i].x_coord, json[i].y_coord).length > 0) {
-                        console.log("building" + " " + json[i].x_coord + " " + json[i].y_coord)
-                        graphic.setAttribute('Building', "true")
-                    }
-                    if (find(attributes["land"], json[i].x_coord, json[i].y_coord).length > 0) {
-                        console.log("land" + " " + json[i].x_coord + " " + json[i].y_coord)
-                        graphic.setAttribute('Land', "true")
-                    }
-                    if (find(attributes["water"], json[i].x_coord, json[i].y_coord).length > 0) {
-                        console.log("water" + " " + json[i].x_coord + " " + json[i].y_coord)
-                        graphic.setAttribute('Water', "true")
-                    }
-                    graphic.popupTemplate = template
-                    graphicsLayer.add(graphic)
-                    if (label != "church")
-                        attributes[label][attributes[label].length] = attr
+                circleProperties = {
+                    radius: 203,
+                    radiusUnit: "meters",
+                    spatialReference: {wkid: 28992},
+                    geodesic: true
                 }
-                map.add(graphicsLayer)
+
+                edits = {
+                    addFeatures: [],
+                    updateFeatures: []
+                }
+
+                for (let i = 0; i < json.length; i++) {
+                    mapKey = json[i].x_coord + " " + json[i].y_coord;
+
+                    var newEntry = true;
+                    // If the tile graphic already exists (for another label) get it from the Map
+                    if (graphics.has(mapKey)) {
+                        graphic = graphics.get(mapKey)
+                        console.log(mapKey + "->" + label)
+                        newEntry = false;
+                    } else { // If this tile doesn't have any labels yet
+                        var attr = {
+                            Longitude: json[i].x_coord,
+                            Latitude: json[i].y_coord,
+                            Building: "false",
+                            Land: "false",
+                            Water: "false",
+                        }
+
+                        var circleGeometry = new Circle([json[i].x_coord, json[i].y_coord], circleProperties);
+                        graphic = new Graphic({
+                            geometry: Polygon.fromExtent(circleGeometry.extent),
+                            attributes: attr
+                        });
+                    }
+                    if (label == "building")
+                        graphic.setAttribute('Building', "true")
+
+                    if (label == "land")
+                        graphic.setAttribute('Land', "true")
+
+                    if (label == "water")
+                        graphic.setAttribute('Water', "true")
+
+                    if (label == "church")
+                        graphic.setAttribute('Church', "true")
+
+                    graphics.set(mapKey, graphic)
+                    if (newEntry) {
+                        edits.addFeatures.push(graphic)
+                    } else {
+                        edits.updateFeatures.push(graphic)
+                    }
+                }
+
+                console.log("Total tiles: " + graphics.size)
+                featureLayer.applyEdits(edits)
             } catch (exception) {
+                console.error(exception);
+                console.error(exception.lineNumber);
                 alert("Not yet classified, do some CAPTCHA")
             }
             document.getElementById(label).innerHTML = label
         });
+//         layerWidget = new LayerList({
+//             map: map,
+//             subLayers: false,
+//             layers: [
+//                 // {layer: ortho2013Layer,
+//                 // visibility: false
+//                 // },
+//                 {
+//                     layer: "Building",
+//                     subLayers: false,
+//                     visbility: true,
+//                     id: "Milepost Labels"
+//                 },
+//                 {
+//                     layer: "Land",
+//                     visibility: false
+//                 },
+//                 {
+//                     layer: "Water",
+//                     visibility: false
+//                 },
+//                 {
+//                     layer: "streamLayer",
+//                     visibility: false
+//                 },
+//
+//             ]
+//         }, "layerList");
+//
+//         var layerList = new LayerList({
+//             map: map,
+//             showLegend: false,
+//             showSubLayers: false,
+//             showOpacitySlider: true,
+//             layer: featureLayer
+//         })
+//         // view.ui.add(legend, 'bottom-right')
+//         var legend = new Legend({
+//             view: view,
+//             content: [{
+//                 layer: featureLayer,
+//                 title: "Legend"
+//             }],
+//
+//
+//         });// Add a legend instance to the panel of a
 
 
-        // var editor = new Editor({
-        //     view: view,
-        //     layerInfos: [{
-        //         fieldConfig: [ // Specify which fields to configure
-        //             {
-        //                 name: "fulladdr",
-        //                 label: "Full Address"
-        //             },
-        //             {
-        //                 name: "neighborhood",
-        //                 label: "Neighborhood"
-        //             }],
-        //         enabled: true, // default is true, set to false to disable editing functionality
-        //         addEnabled: true, // default is true, set to false to disable the ability to add a new feature
-        //         updateEnabled: false, // default is true, set to false to disable the ability to edit an existing feature
-        //         deleteEnabled: false // default is true, set to false to disable the ability to delete features
-        //     }]
-        // });
-        // view.ui.add(editor, "bottom-right");
+        const legend = new Legend({
+            view: view,
+            showLegend: true,
+            showSubLayers: true,
+            showOpacitySlider: true,
+            viewModel: new LegendViewModel({
+                view: view,
+            }), content: [{
+                layer: featureLayer,
+                title: "Legend",
 
+            }],
+        });
 
+        // ListItem in a LayerList instance
+        const layerList = new LayerList({
+            view: view,
+            listItemCreatedFunction: function (event) {
+                const item = event.item;
+                // console.log(item.layer.layerId)
+                //console.log(item.layer.operationalLayerType)
+                //console.log(item.__accessorMetadata__)
+                //console.log(item.layer.innerHTML)
+                //console.log(item.layer.outFields)
+                if (item.layer.geometryType === "polygon") {
+                    // don't show legend twice
+                    item.panel = legend,
+                        open = 'false',
+                        caption = "Labels",
+                        item.title = "Classification Legend",
+
+                        // Text with building does not disappear??
+                        item.caption = "Labels"
+                }
+            }
+        });
+        view.ui.add(layerList, "bottom-right");
         var coordsWidget = document.createElement('div');
         coordsWidget.id = 'coordsWidget';
         coordsWidget.className = 'esri-widget esri-component';
         coordsWidget.style.padding = '7px 15px 5px';
-        view.ui.add(coordsWidget, 'bottom-right');
+        view.ui.add(coordsWidget, 'bottom-left');
 
         // update lat, lon, zoom and scale
         // lat and lon are in other coord system for now (hopefully)
@@ -226,20 +238,6 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
             showCoordinates(view.toMap({x: evt.x, y: evt.y}));
         });
 
-        // view.on('click', function (event) {
-        //     event.stopPropagation(); // overwrite default click-for-popup behavior
-        //     // Get the coordinates of the click on the view
-        //     year = document.getElementById('current').innerHTML
-        //     coord_x_db = Math.round((event.mapPoint.x + 30527385.66843) / 406.55828)
-        //     coord_y_db = Math.round((event.mapPoint.y - 31113121.21698) / (-406.41038))
-        //     const req = {'year': year, 'x_coord': coord_x_db, 'y_coord': coord_y_db}
-        //
-        // });
-
-        var searchWidget = new Search({view: view});
-        view.ui.add(searchWidget, 'top-right');
-
-
         // change years based on the selection from the menu
         $(document).ready(function () {
                 $(menu).click(function (event) {
@@ -250,7 +248,10 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
                         });
                         map.removeAll();
                         map.add(yearLayer);
+                        setupFeatureLayer(FeatureLayer);
+                        map.add(featureLayer);
                         document.getElementById('current').innerHTML = event.target.id;
+                        closeNav();
                     }
                 });
             }
@@ -258,13 +259,157 @@ require(["esri/Map", "esri/views/MapView", "esri/layers/TileLayer", "esri/layers
     }
 );
 
+function setupFeatureLayer(FeatureLayer) {
+    // template for points on map
+    var template = {
+        title: "Tile | EPSG:4326",
+        content: "<div>{Longitude}:{Latitude}<br>\
+                        Building: {Building}<br>\
+                        Land: {Land}<br>\
+                        Water: {Water}</div>"
+    };
 
-// open when someone clicks on the span element
-function openNav() {
-    document.getElementById('open').style.visibility = 'hidden';
-    document.getElementById('myNav').style.width = '7%';
+    var renderer = {
+        type: "unique-value",  // autocasts as new UniqueValueRenderer()
+        field: "Building",
+        field2: "Land",
+        field3: "Water",
+        fieldDelimiter: ":",
+        defaultSymbol: {type: "simple-fill"},  // autocasts as new SimpleFillSymbol()
+        uniqueValueInfos: [{
+            value: "true:false:false",
+            label: "Building",
+            symbol: {
+                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                color: [79, 71, 72, 0.7],
+                style: "solid",
+                outline: {
+                    style: "none"
+                }
+            }
+        }, {
+            value: "false:true:false",
+            label: "Land",
+            symbol: {
+                type: "simple-fill",
+                color: [130, 189, 121, 0.9],
+                style: "solid",
+                outline: {
+                    style: "none"
+                }
+            }
+        }, {
+            value: "false:false:true",
+            label: "Water",
+            symbol: {
+                type: "simple-fill",
+                color: [113, 199, 245, 0.8],
+                style: "solid",
+                outline: {
+                    style: "none"
+                }
+            }
+        },
+            {
+                value: "true:true:false",
+                label: "Building & Land",
+                symbol: {
+                    type: "simple-fill",
+                    color: [199, 182, 125, 0.7],
+                    style: "solid",
+                    outline: {
+                        style: "none"
+                    }
+                }
+            }, {
+                value: "true:false:true",
+                label: "Building & Water",
+                symbol: {
+                    type: "simple-fill",
+                    color: [67, 102, 125, 0.6],
+                    style: "solid",
+                    outline: {
+                        style: "none"
+                    }
+                }
+            }, {
+                value: "false:true:true",
+                label: "Land & Water",
+                symbol: {
+                    type: "simple-fill",
+                    color: [113, 163, 168, 0.7],
+                    style: "solid",
+                    outline: {
+                        style: "none"
+                    }
+                }
+            }, {
+                value: "true:true:true",
+                label: "Building & Land & Water",
+                symbol: {
+                    type: "simple-fill",
+                    color: [150, 90, 78, 0.7],
+                    style: "solid",
+                    outline: {
+                        style: "none"
+                    }
+                },
+                outFields: ["label"],
+            }],
+        outFields: ["*"],
+
+    }
+// opacity with minDataVal and maxDataVal defined
+    for (let x = 0; x < 8; x++)
+        console.log(renderer[x])
+    // real-world size for 2D tree canopies
+    var colorVisVar = {
+        // The type must be set to size
+        type: "color",
+        // Assign the field name to visualize with size
+        field: "label",
+        colors: [79, 71, 72, 0.7]
+    };
+    //renderer.visualVariables = [colorVisVar];
+    featureLayer = new FeatureLayer({
+        objectIdField: "objectid",
+        fields: [
+            {
+                name: "objectid",
+                type: "oid"
+            },
+            {
+                name: "Longitude",
+                type: "double"
+            },
+            {
+                name: "Latitude",
+                type: "double"
+            },
+            {
+                name: "Building",
+                type: "string"
+            },
+            {
+                name: "Land",
+                type: "string"
+            },
+            {
+                name: "Water",
+                type: "string"
+            }
+        ],
+        source: [],
+        popupTemplate: template,
+        renderer: renderer,
+        geometryType: "polygon",
+        spatialReference: {wkid: 28992},
+        outFields: ["objectid"],
+        labelsVisible: 'true',
+    });
 
 }
+
 
 function toggle_graphics(id) {
     if (document.getElementById(id).classList.contains("hide_graphics")) {
@@ -281,12 +426,6 @@ function toggle_graphics(id) {
         document.getElementById(id).classList.remove("show_graphics")
         document.getElementById(id).classList.add("hide_graphics")
     }
-}
-
-// close when someone clicks on the 'x' symbol inside the overlay
-function closeNav() {
-    document.getElementById('open').style.visibility = 'visible';
-    document.getElementById('myNav').style.width = '0%';
 }
 
 var btn_captcha = document.getElementById('captcha');
@@ -306,11 +445,25 @@ btn_train.onclick = function () {
     console.log('train')
     location.assign('/train/');
 }
+//
+// if (labels.includes(label)) {
+//                view.whenLayerView(featureLayer).then(function (layerView) {
+//                    layerView.queryFeatures({
+//                        outFields: layerView.availableFields
+//                    })
+//                        .then(function (results) {
+//                            console.log(results.features.length, " features returned");
+//                        })
+//                        .catch(function (error) {
+//                            console.log("query failed: ", error);
+//                        });
+//                })
+//            }
 
-function find(array, x, y) {
-    return array.filter(
-        function (array) {
-            return (array.Longitude == x && array.Latitude == y)
-        }
-    );
-}
+// view.ui.add(legend, "bottom-right");
+// editor.viewModel.on(['awaiting-feature-creation-info', 'awaiting-feature-to-update'], function (event) {
+//     console.log("SearchViewModel says: 'Search started'.");
+// });
+// edit.on("click", function () {
+//     console.log("AAA")
+// });

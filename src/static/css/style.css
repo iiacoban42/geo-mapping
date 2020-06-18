@@ -1,4 +1,10 @@
+.esri-ui {
+    bottom: 0 !important;
+    height: 95%;
+}
+
 html, body, #map {
+    position: fixed;
     height: 100%;
     width: 100%;
     margin: 0;
@@ -11,14 +17,27 @@ html, body, #map {
 }
 
 .esri-ui-top-left {
-    margin-left: 97.7%;
-    margin-top: 3%;
+    margin-top: 30%;
 }
+
+.esri-view-root {
+    margin: 0 !important;
+}
+
+.esri-ui-list, .esri-editor, .esri-ui-top-left {
+    margin-left: 97.7%;
+}
+
+.esri-layer-list__list, .esri-zoom, .esri-editor, #coordsWidget {
+    opacity: 95%;
+}
+
 
 #current {
     font-size: 30px;
     color: var(--main-white);
 }
+
 
 /* The navigation links inside the overlay */
 .overlay a {
