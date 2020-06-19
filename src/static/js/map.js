@@ -2,6 +2,7 @@
 var map;
 var view;
 var featureLayer;
+var objectLayer;
 
 graphics = new Map()
 
@@ -24,6 +25,10 @@ require(["esri/Map", "esri/views/MapView", "esri/widgets/Legend/LegendViewModel"
         // Create the feature layer, used for the overlay
         setupFeatureLayer(FeatureLayer);
         map.add(featureLayer)
+
+        // Create the feature layer for objects
+        objectLayer = new FeatureLayer();
+        map.add(objectLayer)
 
         // map is added to the view
         view = new MapView({
@@ -107,8 +112,19 @@ require(["esri/Map", "esri/views/MapView", "esri/widgets/Legend/LegendViewModel"
                     if (label == "water")
                         graphic.setAttribute('Water', "true")
 
-                    if (label == "church")
-                        graphic.setAttribute('Church', "true")
+                    if (label == "church") {
+                        var symbol_church = {
+                            type: "picture-marker",
+                            url: "https://cdn.icon-icons.com/icons2/1741/PNG/512/church_113375.png",
+                            height: 18,
+                            width: 18
+                        };
+                        graphic = new Graphic({
+                          geometry: circleGeometry.extent,
+                          symbol: symbol_church
+                        });
+                        objectLayer.add(graphic)
+                    }
 
                     graphics.set(mapKey, graphic)
                     if (newEntry) {
