@@ -8,28 +8,6 @@ from django.db import models
 # Mapping to the database tables
 
 # CAPTCHA tables ################################################
-class CaptchaSubmissions(models.Model):
-    """Submitted CAPTCHAs"""
-
-    class Meta:
-        """Meta CaptchaSubmissions"""
-        app_label = 'core'
-
-    id = models.AutoField(primary_key=True)
-
-    # We cannot just reference a tile as it's not yet identified, so it doesn't exist in the DB
-    x_coord = models.IntegerField(blank=False)
-    y_coord = models.IntegerField(blank=False)
-    year = models.IntegerField(blank=False)
-
-    water = models.BooleanField()
-    land = models.BooleanField()
-    building = models.BooleanField()
-
-    church = models.BooleanField()
-    oiltank = models.BooleanField()
-    objects = models.Manager()
-
 
 class Tiles(models.Model):
     """Tiles Table used to verify CAPTCHA user input"""
@@ -74,28 +52,6 @@ class Characteristics(models.Model):
     water_prediction = models.IntegerField()
     land_prediction = models.IntegerField()
     buildings_prediction = models.IntegerField()
-    objects = models.Manager()
-
-
-class ConfirmedCaptchas(models.Model):
-    """Confirmed CAPTCHAs"""
-
-    class Meta:
-        """Meta ConfirmedCaptchas"""
-        app_label = 'core'
-
-    id = models.AutoField(primary_key=True)
-
-    x_coord = models.IntegerField(blank=False)
-    y_coord = models.IntegerField(blank=False)
-    year = models.IntegerField(blank=False)
-
-    water_prediction = models.IntegerField()
-    land_prediction = models.IntegerField()
-    buildings_prediction = models.IntegerField()
-
-    church_prediction = models.IntegerField()
-    oiltank_prediction = models.IntegerField()
     objects = models.Manager()
 
 
