@@ -36,8 +36,8 @@ def save_labels(tile_x, tile_y, tile_year, building, land, water):
         print('Already existing in the database', tile)
     else:
         tile = AITilesTable(x_coord=tile_x, y_coord=tile_y, year=tile_year)
-        # delete indentation from the following line to update existing tiles from database
-        tile.save()
+
+    tile.save()
     prediction = PredictionsTable(tiles_id=tile, water_prediction=water, land_prediction=land,
                                   buildings_prediction=building, timestamp=timezone.now())
     prediction.save()
@@ -79,7 +79,7 @@ def get_images_train(table):
             try:
                 # avoid being biased towards a label which has more images than the rest...
                 # e.g.: lots of water, few buildings
-                if number[label] < max + (max * 0.2):
+                if number[label] < max + (max * 0.25):
                     urllib.request.urlretrieve(res, label + '/' + y + '_' + x + '.png')
             except:
                 'not found'
@@ -136,7 +136,7 @@ def train_validation_split():
 #################################           B E W A R E            ####################################################
 #################################    CONVOLUTIAL NEURAL NETWORK    ####################################################
 class CNN:
-    def __init__(self, image_size=256, number_channels=3, number_epochs=25, batch_size=4):
+    def __init__(self, image_size=256, number_channels=3, number_epochs=20, batch_size=16):
         self.image_size = image_size
         self.number_channels = number_channels
         self.number_epochs = number_epochs
@@ -154,8 +154,16 @@ class CNN:
         self.model.add(Activation('relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2),
                                     strides=2))
-
         self.model.add(Conv2D(filters=64,
+                              kernel_size=(2, 2),
+                              strides=(1, 1),
+                              padding='same',
+                              input_shape=(self.image_size, self.image_size, self.number_channels),
+                              data_format='channels_last'))
+        self.model.add(Activation('relu'))
+        self.model.add(MaxPooling2D(pool_size=(2, 2),
+                                    strides=2))
+        self.model.add(Conv2D(filters=128,
                               kernel_size=(2, 2),
                               strides=(1, 1),
                               padding='valid'))
@@ -163,9 +171,9 @@ class CNN:
         self.model.add(MaxPooling2D(pool_size=(2, 2),
                                     strides=2))
         self.model.add(Flatten())
-        self.model.add(Dense(64))
+        self.model.add(Dense(128))
         self.model.add(Activation('relu'))
-        self.model.add(Dropout(0.2))
+        self.model.add(Dropout(0.3))
         self.model.add(Dense(len(labels)))
         self.model.add(Activation('softmax'))
 
@@ -177,13 +185,13 @@ class CNN:
             'error'
             print('Initialising weights')
 
-        self.model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+        self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
         self.model.summary()
 
     def train(self):
         # split and get number of images for train and validation
         number_train, number_validation = train_validation_split()
-        train_datagen = ImageDataGenerator(horizontal_flip=False, rescale=1. / 255, zoom_range=0.1)
+        train_datagen = ImageDataGenerator(rescale=1. / 255, zoom_range=0.2)
 
         validation_datagen = ImageDataGenerator(rescale=1. / 255)
 
@@ -247,6 +255,7 @@ class CNN:
 
     def predict(self, predict, table):
         if predict is True:
+            # take ALL tiles from the database
             tiles = table.objects.all()
 
             for i, row in enumerate(tiles):
@@ -264,8 +273,6 @@ class CNN:
                 building = round(self.model.predict(img)[0][0] + 0.1)
                 land = round(self.model.predict(img)[0][1] + 0.1)
                 water = round(self.model.predict(img)[0][2] + 0.1)
-
-                # print(URL, '\n', ' building', building, ' land', land, ' water', water, '\n')
                 save_labels(x, y, year, building, land, water)
 
 
