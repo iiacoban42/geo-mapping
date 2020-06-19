@@ -10,7 +10,7 @@ from django.db import models
 # CAPTCHA tables ################################################
 
 class Tiles(models.Model):
-    """Tiles Table used to verify CAPTCHA user input"""
+    """Classified Tiles Table used to verify CAPTCHA user input"""
 
     class Meta:
         """Meta Tiles"""
@@ -24,7 +24,7 @@ class Tiles(models.Model):
 
 
 class Objects(models.Model):
-    """Objects Table used to verify CAPTCHA user input"""
+    """Classified Objects Table used to verify CAPTCHA user input"""
 
     class Meta:
         """Meta Object"""
@@ -38,7 +38,7 @@ class Objects(models.Model):
 
 
 class Characteristics(models.Model):
-    """Characteristics Table used to verify CAPTCHA user input"""
+    """Classified Characteristics Table used to verify CAPTCHA user input"""
 
     class Meta:
         """Meta Characteristics"""
