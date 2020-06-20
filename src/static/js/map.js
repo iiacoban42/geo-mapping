@@ -27,7 +27,28 @@ require(["esri/Map", "esri/views/MapView", "esri/widgets/Legend/LegendViewModel"
         map.add(featureLayer)
 
         // Create the feature layer for objects
-        objectLayer = new FeatureLayer();
+        var objectRenderer = {
+            type: "simple",
+            symbol: {
+                type: "picture-marker",
+                url: "/static/img/church.png",
+                height: 18,
+                width: 18
+            }
+          }
+
+        objectLayer = new FeatureLayer({
+            source: [],
+            geometryType: "polygon",
+            renderer: objectRenderer,
+            objectIdField: "objectid",
+            fields: [
+                {
+                    name: "objectid",
+                    type: "oid"
+                }
+            ]
+        });
         map.add(objectLayer)
 
         // map is added to the view
@@ -79,6 +100,11 @@ require(["esri/Map", "esri/views/MapView", "esri/widgets/Legend/LegendViewModel"
                     updateFeatures: []
                 }
 
+                objectEdits = {
+                    addFeatures: [],
+                    updateFeatures: []
+                }
+
                 for (let i = 0; i < json.length; i++) {
                     mapKey = json[i].x_coord + " " + json[i].y_coord;
 
@@ -113,29 +139,25 @@ require(["esri/Map", "esri/views/MapView", "esri/widgets/Legend/LegendViewModel"
                         graphic.setAttribute('Water', "true")
 
                     if (label == "church") {
-                        var symbol_church = {
-                            type: "picture-marker",
-                            url: "https://cdn.icon-icons.com/icons2/1741/PNG/512/church_113375.png",
-                            height: 18,
-                            width: 18
-                        };
                         graphic = new Graphic({
                           geometry: circleGeometry.extent,
-                          symbol: symbol_church
                         });
-                        objectLayer.add(graphic)
+                        objectEdits.addFeatures.push(graphic)
                     }
 
-                    graphics.set(mapKey, graphic)
-                    if (newEntry) {
-                        edits.addFeatures.push(graphic)
-                    } else {
-                        edits.updateFeatures.push(graphic)
+                    if(label != "church"){
+                        graphics.set(mapKey, graphic)
+                        if (newEntry) {
+                            edits.addFeatures.push(graphic)
+                        } else {
+                            edits.updateFeatures.push(graphic)
+                        }
                     }
                 }
 
                 console.log("Total tiles: " + graphics.size)
                 featureLayer.applyEdits(edits)
+                objectLayer.applyEdits(objectEdits)
             } catch (exception) {
                 console.error(exception);
                 console.error(exception.lineNumber);
