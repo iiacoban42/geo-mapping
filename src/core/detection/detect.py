@@ -180,7 +180,7 @@ def train_validation_split():
 #################################           B E W A R E            ####################################################
 #################################    CONVOLUTIAL NEURAL NETWORK    ####################################################
 class CNN:
-    def __init__(self, image_size=256, number_channels=3, number_epochs=7, batch_size=12):
+    def __init__(self, image_size=256, number_channels=3, number_epochs=5, batch_size=9):
         self.image_size = image_size
         self.number_channels = number_channels
         self.number_epochs = number_epochs
@@ -209,7 +209,7 @@ class CNN:
         self.model.add(Flatten())
         self.model.add(Dense(64))
         self.model.add(Activation('relu'))
-        self.model.add(Dropout(0.3))
+        self.model.add(Dropout(0.2))
         self.model.add(Dense(len(labels)))
         # using sigmoid to get the probability for each label
         self.model.add(Activation('sigmoid'))
@@ -222,8 +222,11 @@ class CNN:
             'error'
             print('Initialising weights')
 
-        self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=["binary_accuracy",
-                                                                                  "categorical_accuracy", 'accuracy'])
+        self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=["categorical_accuracy",
+                                                                                  "binary_accuracy",
+                                                                                  'accuracy',
+                                                                                  'binary_crossentropy',
+                                                                                  'mean_squared_error'])
         self.model.summary()
 
     def train(self):
@@ -251,7 +254,8 @@ class CNN:
             steps_per_epoch=number_train // self.batch_size,
             epochs=self.number_epochs,
             validation_data=validation_generator,
-            validation_steps=number_validation // self.batch_size)
+            validation_steps=number_validation // self.batch_size,
+            verbose=1)
         end = time.time()
 
         self.model.save_weights('core/detection/cnn_baseline.h5')
@@ -308,14 +312,9 @@ class CNN:
                 # BEWARE, predicting three times
                 predictions = []
                 for k in range(0, len(labels)):
-                    predictions.append(self.model.predict(img)[0][k])
-                    # if the probability is not 0, then there is a trace of that specific feature on the tile
-                    # but the labels which are not present in the image might look like: {0.00000312} (lots of decimals)
-                    if predictions[k] > 0:
-                        predictions[k] = 1
-                    else:
-                        predictions[k] = 0
-                print(URL, 'building', predictions[0], 'land', predictions[1], 'water', predictions[2], '\n')
+                    predictions.append(np.round(self.model.predict(img)[0][k]))
+                # if i % 20 == 0:
+                # print('building', predictiwons[0], 'land', predictions[1], 'water', predictions[2], URL, '\n')
                 save_labels(x, y, year, predictions[0], predictions[1], predictions[2])
 
 
