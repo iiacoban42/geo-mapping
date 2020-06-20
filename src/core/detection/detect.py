@@ -22,6 +22,8 @@ from core.models import AI_Characteristics as PredictionsTable
 from core.models import AI_Tiles as AITilesTable
 from core.models import Dataset as DatasetTable
 from core.models import UsableTiles as PredictUsableTiles
+from core.models import Confirmed_Captcha_Tiles as ConfirmedCaptchaTiles
+from core.models import Confirmed_Captcha_Characteristics as ConfirmedCaptchaChars
 
 labels = ['building', 'land', 'water']
 splits = ['train', 'validation']
@@ -52,14 +54,21 @@ def remove_images(directory):
 
 # saves images from the db in folders based on their label
 # see @labels
-def get_images_train(table):
+def get_images_train():
     print('This will take a while..')
+    
+    get_images_captcha(ConfirmedCaptchaChars)
+    get_images_dataset(DatasetTable)
+
+    print('\ndatabase hacked\n')
+
+def get_images_dataset(table):
     dataset = table.objects.all().order_by('?')
     number = {'building': 0, 'land': 0, 'water': 0}
-    max = min(DatasetTable.objects.filter(building=1, land=0, water=0).count(),
-              DatasetTable.objects.filter(building=0, land=1, water=0).count(),
-              DatasetTable.objects.filter(building=0, land=0, water=1).count())
-    print('Maximum', max, "images for each label")
+    max_img = min(table.objects.filter(building=1, land=0, water=0).count(),
+              table.objects.filter(building=0, land=1, water=0).count(),
+              table.objects.filter(building=0, land=0, water=1).count())
+    print('Maximum', max_img, "images for each dataset label")
     for row in dataset:
         x = str(row.x_coord)
         y = str(row.y_coord)
@@ -79,13 +88,47 @@ def get_images_train(table):
             try:
                 # avoid being biased towards a label which has more images than the rest...
                 # e.g.: lots of water, few buildings
-                if number[label] < max + (max * 0.25):
+                if number[label] < max_img + (max_img * 0.25):
                     urllib.request.urlretrieve(res, label + '/' + y + '_' + x + '.png')
             except:
                 'not found'
                 print('Tile from', year, 'having x=', x, 'and y=', y, 'is not on the website. Delete it.\n')
-    print('\ndatabase hacked\n')
 
+def get_images_captcha(table):
+    dataset = ConfirmedCaptchaChars.objects.select_related('tiles_id').all().order_by('?')
+    number = {'building': 0, 'land': 0, 'water': 0}
+
+    low_bound = 20
+    high_bound = 80
+
+    max_img = min(ConfirmedCaptchaChars.objects.filter(buildings_prediction__gte=high_bound, land_prediction__lte=low_bound, water_prediction__lte=low_bound).count(),
+              ConfirmedCaptchaChars.objects.filter(buildings_prediction__lte=low_bound, land_prediction__gte=high_bound, water_prediction__lte=low_bound).count(),
+              ConfirmedCaptchaChars.objects.filter(buildings_prediction__lte=low_bound, land_prediction__lte=low_bound, water_prediction__gte=high_bound).count())
+    print('Maximum', max_img, "images for each captcha label")
+    for row in dataset:
+        x = str(row.tiles_id.x_coord)
+        y = str(row.tiles_id.y_coord)
+        year = str(row.tiles_id.year)
+        res = 'https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_' + year + '/MapServer/tile/11/' + y + '/' + x
+        label = ''
+        if row.buildings_prediction >= high_bound:
+            label += 'building'
+        if row.land_prediction >= high_bound:
+            label += 'land'
+        if row.water_prediction >= high_bound:
+            label += 'water'
+        if labels.__contains__(label):
+            number[label] += 1
+            if not os.path.exists(label):
+                os.makedirs(label)
+            try:
+                # avoid being biased towards a label which has more images than the rest...
+                # e.g.: lots of water, few buildings
+                if number[label] < max_img + (max_img * 0.25):
+                    urllib.request.urlretrieve(res, label + '/' + y + '_' + x + '.png')
+            except:
+                'not found'
+                print('Tile from', year, 'having x=', x, 'and y=', y, 'is not on the website. Delete it.\n')
 
 # split the images in two sets: train and validation
 # result: train/building, train/water, train/buildingwater... (same for validation)
