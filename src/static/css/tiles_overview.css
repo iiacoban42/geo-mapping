@@ -42,33 +42,39 @@
 }
 
 #ai {
-    position: relative;
-    left: -100%;
+    position: absolute;
+    float: left;
+    left: -76%;
 }
 
 #cap {
-    position: relative;
-    left: -5%;
+    position: absolute;
+    float: none;
+    left: 42%;
 }
 
 #dataset {
-    position: relative;
-    left: 87%;
+    position: absolute;
+    float: right;
+    left: 137%;
 }
 
 #dataset_year {
-    position: relative;
-    left: 123%;
+    position: absolute;
+    float: right;
+    left: 137%;
 }
 
 #cap_year {
-    position: relative;
-    left: 31%;
+    position: absolute;
+    float: none;
+    left: 42%;
 }
 
 #ai_year {
-    position: relative;
-    left: -64%;
+    position: absolute;
+    float: left;
+    left: -76%;
 }
 
 #current {
