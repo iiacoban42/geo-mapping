@@ -21,12 +21,6 @@ import os
 def save_tiles(name, data_base, cur):
     temp = 0
     """Save tiles to db"""
-    # creating a cursor object
-    # data_base = MySQLdb.connect(host="projects-db.ewi.tudelft.nl",  # host
-    #                             user="pu_OkT0nkRGlc62l",  # username
-    #                             passwd="TFmzM7V8ihH9",  # password
-    #                             db="projects_TimeTravelMaps")  # name of the database
-    # cur = database.cursor()
 
     for root, dirs, files in os.walk(name, topdown=False):
         # assign the label of the folder that the image is placed in
