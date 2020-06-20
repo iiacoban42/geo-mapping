@@ -19,6 +19,7 @@ Python with Django - Back-end API, testing
 HTML, CSS, JavaScript - Front-end, CAPTCHAs  
 Pip, npm - Dependency Management  
 MySQL - Database  
+ArcGIS - Map viewer
 ## Details
 Python has been a strong candidate from the very beginning, since machine learning was involved. The need for a framework that could build a website and handle the security pushed us towards using Django. The fact that Django can also manage test suites was a welcome bonus. On the topic of testing, even though several static analysis tools were used, the main contribution in terms of code quality came from pylint and its high customizability. GitLab's Continuous Integration / Continuous Delivery pipeline helped us make sure that we were not introducing new bugs when we made a commit.  
 
