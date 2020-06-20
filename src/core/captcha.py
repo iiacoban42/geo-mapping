@@ -17,9 +17,9 @@ from core.models import Confimed_Captcha_Objects as ConfirmedCaptchaObj
 
 def find_tiles(submission):
     """Find which tile is in control"""
-    tile1_query = ConfirmedCaptchaTiles.objects.filter(x_coord=submission[0]['x'], y_coord=submission[0]['y'],
-                                           year=submission[0]['year'])
-    tile2_query = ConfirmedCaptchaTiles.objects.filter(x_coord=submission[1]['x'], y_coord=submission[1]['y'],
+    tile1_query = ConfirmedCaptchaTiles.objects.filter(x_coord=submission[0]['x'], y_coord=submission[0]['y'], \
+                                            year=submission[0]['year'])
+    tile2_query = ConfirmedCaptchaTiles.objects.filter(x_coord=submission[1]['x'], y_coord=submission[1]['y'], \
                                            year=submission[1]['year'])
     if len(tile1_query) > 0:
         # Tile #1 is control, verify it's data

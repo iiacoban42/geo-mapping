@@ -19,8 +19,6 @@ from core.models import Captcha_Tiles as CaptchaTable
 from core.models import Dataset as DatasetTable
 from core.models import Confirmed_Captcha_Tiles as ConfirmedCaptchaTiles
 from core.models import Confirmed_Captcha_Characteristics as ConfirmedCaptchaChars
-from core.models import Confimed_Captcha_Objects as ConfirmedCaptchaObj
-
 
 def home(request):
     """render index.html page"""
@@ -76,7 +74,7 @@ def get_markers(request):
     data = {}
     data['labels'] = []
     data['points'] = []
-    for obj in ObjectsTable.objects.all():
+    for obj in AI_Objects.objects.all():
         data['labels'].append({"Label": "Label", "Name": obj.type, "Other": "-"})
 
         # Linear regression magic (can be a few meters off, might improve with more data later)
