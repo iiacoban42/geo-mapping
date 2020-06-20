@@ -16,9 +16,10 @@ from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles,
 from core.detection import detect
 from core.models import AI_Tiles as AITilesTable, AI_Characteristics, AI_Objects
 from core.models import Captcha_Tiles as CaptchaTable
-from core.models import Dataset as DatasetTable
-from core.models import Confirmed_Captcha_Tiles as ConfirmedCaptchaTiles
 from core.models import Confirmed_Captcha_Characteristics as ConfirmedCaptchaChars
+from core.models import Confirmed_Captcha_Tiles as ConfirmedCaptchaTiles
+from core.models import Dataset as DatasetTable
+
 
 def home(request):
     """render index.html page"""
@@ -198,7 +199,7 @@ def submit_captcha(request):
 def get_accuracy(request):
     """Get last accuracy of CNN"""
     with open('static/history.txt') as file:
-        read_data = {'accuracy': file.read()[1:-2]}
+        read_data = {'accuracy': file.read()[1:-1]}
         print(read_data)
         file.close()
         return JsonResponse(read_data, safe=False)

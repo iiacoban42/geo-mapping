@@ -33,9 +33,7 @@ splits = ['train', 'validation']
 # saves ai classification in the database
 def save_labels(tile_x, tile_y, tile_year, building, land, water):
     tile = AITilesTable.objects.filter(x_coord=tile_x, y_coord=tile_y, year=tile_year).first()
-    if tile is not None:
-        print('Already existing in the database', tile)
-    else:
+    if tile is None:
         tile = AITilesTable(x_coord=tile_x, y_coord=tile_y, year=tile_year)
 
     tile.save()
@@ -53,17 +51,10 @@ def remove_images(directory):
 
 # saves images from the db in folders based on their label
 # see @labels
-def get_images_train(table):
+def get_images_train():
     print('This will take a while..')
-    if table == ConfirmedCaptchaChars:
-        print("training on ConfirmedCaptchaChars")
-        get_images_captcha()
-    elif table == DatasetTable:
-        print("training on Dataset")
-        get_images_dataset()
-    else:
-        print("table not found in the database; pick ConfirmedCaptchaChars or DatasetTable")
-    print('\ndatabase hacked\n')
+    get_images_captcha()
+    get_images_dataset()
 
 
 def get_images_dataset():
@@ -133,11 +124,12 @@ def get_images_captcha():
             try:
                 # avoid being biased towards a label which has more images than the rest...
                 # e.g.: lots of water, few buildings
-                if number[label] < max_img + (max_img * 0.25):
+                if number[label] < max_img + (max_img * 0.3):
                     urllib.request.urlretrieve(res, label + '/' + y + '_' + x + '.png')
             except:
                 'not found'
                 print('Tile from', year, 'having x=', x, 'and y=', y, 'is not on the website. Delete it.\n')
+
 
 # split the images in two sets: train and validation
 # result: train/building, train/water, train/buildingwater... (same for validation)
@@ -188,7 +180,7 @@ def train_validation_split():
 #################################           B E W A R E            ####################################################
 #################################    CONVOLUTIAL NEURAL NETWORK    ####################################################
 class CNN:
-    def __init__(self, image_size=256, number_channels=3, number_epochs=5, batch_size=9):
+    def __init__(self, image_size=256, number_channels=3, number_epochs=7, batch_size=12):
         self.image_size = image_size
         self.number_channels = number_channels
         self.number_epochs = number_epochs
@@ -211,6 +203,7 @@ class CNN:
                               strides=(1, 1),
                               padding='valid'))
         self.model.add(Activation('relu'))
+        self.model.add(Dropout(0.2))
         self.model.add(MaxPooling2D(pool_size=(2, 2),
                                     strides=2))
         self.model.add(Flatten())
@@ -266,8 +259,8 @@ class CNN:
         # print(self.model.metrics_names)
         try:
             file = open("static/history.txt", "w")
-            print(history.history["val_acc"])
-            file.write(history.history["val_acc"][:-1].__str__())
+            print(history.history["acc"])
+            file.write(history.history["acc"].__str__())
             file.close()
         except:
             print('no history??')
@@ -301,7 +294,7 @@ class CNN:
     def predict(self, predict, table):
         if predict is True:
             # take ALL tiles from the database
-            tiles = table.objects.all().order_by('?')
+            tiles = table.objects.all()
 
             for i, row in enumerate(tiles):
                 x = str(row.x_coord)
@@ -322,18 +315,13 @@ class CNN:
                         predictions[k] = 1
                     else:
                         predictions[k] = 0
-                    a = predictions
-
-                print(URL, 'building', np.round(a[0] * 100, 5), 'land', np.round(a[1] * 100, 5), 'water',
-                      np.round(a[2] * 100, 5))
-                print('building', predictions[0], 'land', predictions[1], 'water', predictions[2], '\n')
-                # save_labels(x, y, year, 0, 0, 0)
+                print(URL, 'building', predictions[0], 'land', predictions[1], 'water', predictions[2], '\n')
+                save_labels(x, y, year, predictions[0], predictions[1], predictions[2])
 
 
 def run():
-    get_images_train(DatasetTable)
+    get_images_train()
     cnn = CNN()
     cnn.train()
     cnn.predict(True, PredictUsableTiles)
     print('############################## U DID IT ############################################################')
-
