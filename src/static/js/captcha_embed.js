@@ -13,7 +13,16 @@ window.onload = function() {
     uuid_input.setAttribute("type", "hidden");
 
     var iframe = document.createElement("iframe")
-    iframe.setAttribute("src", "https://timetravelmaps.herokuapp.com/captcha_embed");
+
+    console.log(window.location.pathname)
+    if(window.location.pathname === "/captcha/") // We are on our own server
+    {
+        iframe.setAttribute("src", "/captcha_embed/");
+    } else  // We are embedding on another domain
+    {
+        iframe.setAttribute("src", "https://timetravelmaps.herokuapp.com/captcha_embed/");
+    }
+
     iframe.setAttribute("sandbox", "allow-forms allow-scripts allow-same-origin");
     iframe.setAttribute("frameBorder", "0");
     iframe.setAttribute("scrolling", "no");

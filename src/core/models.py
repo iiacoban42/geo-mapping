@@ -30,53 +30,6 @@ class CaptchaSubmissions(models.Model):
     oiltank = models.BooleanField()
     objects = models.Manager()
 
-
-class Tiles(models.Model):
-    """Tiles Table used to verify CAPTCHA user input"""
-
-    class Meta:
-        """Meta Tiles"""
-        app_label = 'core'
-
-    id = models.AutoField(primary_key=True)
-    x_coord = models.IntegerField(blank=False)
-    y_coord = models.IntegerField(blank=False)
-    year = models.IntegerField(blank=False)
-    objects = models.Manager()
-
-
-class Objects(models.Model):
-    """Objects Table used to verify CAPTCHA user input"""
-
-    class Meta:
-        """Meta Object"""
-        app_label = 'core'
-
-    id = models.AutoField(primary_key=True)
-    tiles_id = models.ForeignKey(Tiles, on_delete=models.CASCADE)
-    type = models.CharField(max_length=30)
-    prediction = models.IntegerField()
-    objects = models.Manager()
-
-
-class Characteristics(models.Model):
-    """Characteristics Table used to verify CAPTCHA user input"""
-
-    class Meta:
-        """Meta Characteristics"""
-        app_label = 'core'
-
-    tiles_id = models.OneToOneField(
-        Tiles,
-        on_delete=models.CASCADE,
-        primary_key=True,
-    )
-    water_prediction = models.IntegerField()
-    land_prediction = models.IntegerField()
-    buildings_prediction = models.IntegerField()
-    objects = models.Manager()
-
-
 class ConfirmedCaptchas(models.Model):
     """Confirmed CAPTCHAs"""
 

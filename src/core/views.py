@@ -16,10 +16,10 @@ from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles,
 from core.detection import detect
 from core.models import AI_Tiles as AITilesTable, AI_Characteristics, AI_Objects
 from core.models import Captcha_Tiles as CaptchaTable
-from core.models import Characteristics as CharacteristicsTable
 from core.models import Dataset as DatasetTable
-from core.models import Objects as ObjectsTable
-from core.models import Tiles as TileTable
+from core.models import Confirmed_Captcha_Tiles as ConfirmedCaptchaTiles
+from core.models import Confirmed_Captcha_Characteristics as ConfirmedCaptchaChars
+from core.models import Confimed_Captcha_Objects as ConfirmedCaptchaObj
 
 
 def home(request):
@@ -158,7 +158,7 @@ def get_tile(request):
         return HttpResponse()
 
     # Pick a known tile
-    tile = random.choice(TileTable.objects.all())
+    tile = random.choice(ConfirmedCaptchaTiles.objects.all())
 
     year_known = tile.year
     x_known = tile.x_coord
@@ -173,7 +173,6 @@ def get_tile(request):
 
 def submit_captcha(request):
     """Verify captcha challenge"""
-    # NOTE: Terrible code ahead. I'll try to make it prettier later on. -Georgi
     submission = json.loads(request.body)
 
     # Find which tile is the control
@@ -185,7 +184,7 @@ def submit_captcha(request):
     control_sub = control[1]
     unid_sub = control[2]
 
-    char_query = CharacteristicsTable.objects.filter(tiles_id=control_tile.id)
+    char_query = ConfirmedCaptchaChars.objects.filter(tiles_id=control_tile.id)
     if len(char_query) == 0:
         return HttpResponseBadRequest("No characteristics")
     control_char = char_query[0]
