@@ -20,10 +20,9 @@ from skimage import io
 
 from core.models import AI_Characteristics as PredictionsTable
 from core.models import AI_Tiles as AITilesTable
+from core.models import Confirmed_Captcha_Characteristics as ConfirmedCaptchaChars
 from core.models import Dataset as DatasetTable
 from core.models import UsableTiles as PredictUsableTiles
-from core.models import Confirmed_Captcha_Tiles as ConfirmedCaptchaTiles
-from core.models import Confirmed_Captcha_Characteristics as ConfirmedCaptchaChars
 
 labels = ['building', 'land', 'water']
 splits = ['train', 'validation']
@@ -54,20 +53,25 @@ def remove_images(directory):
 
 # saves images from the db in folders based on their label
 # see @labels
-def get_images_train():
+def get_images_train(table):
     print('This will take a while..')
-    
-    get_images_captcha(ConfirmedCaptchaChars)
-    get_images_dataset(DatasetTable)
-
+    if table == ConfirmedCaptchaChars:
+        print("training on ConfirmedCaptchaChars")
+        get_images_captcha()
+    elif table == DatasetTable:
+        print("training on Dataset")
+        get_images_dataset()
+    else:
+        print("table not found in the database; pick ConfirmedCaptchaChars or DatasetTable")
     print('\ndatabase hacked\n')
 
-def get_images_dataset(table):
-    dataset = table.objects.all().order_by('?')
+
+def get_images_dataset():
+    dataset = DatasetTable.objects.all().order_by('?')
     number = {'building': 0, 'land': 0, 'water': 0}
-    max_img = min(table.objects.filter(building=1, land=0, water=0).count(),
-              table.objects.filter(building=0, land=1, water=0).count(),
-              table.objects.filter(building=0, land=0, water=1).count())
+    max_img = min(DatasetTable.objects.filter(building=1, land=0, water=0).count(),
+                  DatasetTable.objects.filter(building=0, land=1, water=0).count(),
+                  DatasetTable.objects.filter(building=0, land=0, water=1).count())
     print('Maximum', max_img, "images for each dataset label")
     for row in dataset:
         x = str(row.x_coord)
@@ -88,22 +92,27 @@ def get_images_dataset(table):
             try:
                 # avoid being biased towards a label which has more images than the rest...
                 # e.g.: lots of water, few buildings
-                if number[label] < max_img + (max_img * 0.25):
+                if number[label] < max_img + (max_img * 0.3):
                     urllib.request.urlretrieve(res, label + '/' + y + '_' + x + '.png')
             except:
                 'not found'
                 print('Tile from', year, 'having x=', x, 'and y=', y, 'is not on the website. Delete it.\n')
 
-def get_images_captcha(table):
+
+def get_images_captcha():
     dataset = ConfirmedCaptchaChars.objects.select_related('tiles_id').all().order_by('?')
     number = {'building': 0, 'land': 0, 'water': 0}
 
     low_bound = 20
     high_bound = 80
 
-    max_img = min(ConfirmedCaptchaChars.objects.filter(buildings_prediction__gte=high_bound, land_prediction__lte=low_bound, water_prediction__lte=low_bound).count(),
-              ConfirmedCaptchaChars.objects.filter(buildings_prediction__lte=low_bound, land_prediction__gte=high_bound, water_prediction__lte=low_bound).count(),
-              ConfirmedCaptchaChars.objects.filter(buildings_prediction__lte=low_bound, land_prediction__lte=low_bound, water_prediction__gte=high_bound).count())
+    max_img = min(
+        ConfirmedCaptchaChars.objects.filter(buildings_prediction__gte=high_bound, land_prediction__lte=low_bound,
+                                             water_prediction__lte=low_bound).count(),
+        ConfirmedCaptchaChars.objects.filter(buildings_prediction__lte=low_bound, land_prediction__gte=high_bound,
+                                             water_prediction__lte=low_bound).count(),
+        ConfirmedCaptchaChars.objects.filter(buildings_prediction__lte=low_bound, land_prediction__lte=low_bound,
+                                             water_prediction__gte=high_bound).count())
     print('Maximum', max_img, "images for each captcha label")
     for row in dataset:
         x = str(row.tiles_id.x_coord)
@@ -179,7 +188,7 @@ def train_validation_split():
 #################################           B E W A R E            ####################################################
 #################################    CONVOLUTIAL NEURAL NETWORK    ####################################################
 class CNN:
-    def __init__(self, image_size=256, number_channels=3, number_epochs=20, batch_size=16):
+    def __init__(self, image_size=256, number_channels=3, number_epochs=5, batch_size=9):
         self.image_size = image_size
         self.number_channels = number_channels
         self.number_epochs = number_epochs
@@ -198,27 +207,19 @@ class CNN:
         self.model.add(MaxPooling2D(pool_size=(2, 2),
                                     strides=2))
         self.model.add(Conv2D(filters=64,
-                              kernel_size=(2, 2),
-                              strides=(1, 1),
-                              padding='same',
-                              input_shape=(self.image_size, self.image_size, self.number_channels),
-                              data_format='channels_last'))
-        self.model.add(Activation('relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2),
-                                    strides=2))
-        self.model.add(Conv2D(filters=128,
-                              kernel_size=(2, 2),
+                              kernel_size=(4, 4),
                               strides=(1, 1),
                               padding='valid'))
         self.model.add(Activation('relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2),
                                     strides=2))
         self.model.add(Flatten())
-        self.model.add(Dense(128))
+        self.model.add(Dense(64))
         self.model.add(Activation('relu'))
         self.model.add(Dropout(0.3))
         self.model.add(Dense(len(labels)))
-        self.model.add(Activation('softmax'))
+        # using sigmoid to get the probability for each label
+        self.model.add(Activation('sigmoid'))
 
         # load previously stored weights
         try:
@@ -228,13 +229,14 @@ class CNN:
             'error'
             print('Initialising weights')
 
-        self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=["binary_accuracy",
+                                                                                  "categorical_accuracy", 'accuracy'])
         self.model.summary()
 
     def train(self):
         # split and get number of images for train and validation
         number_train, number_validation = train_validation_split()
-        train_datagen = ImageDataGenerator(rescale=1. / 255, zoom_range=0.2)
+        train_datagen = ImageDataGenerator(rescale=1. / 255, zoom_range=0.2, rotation_range=90)
 
         validation_datagen = ImageDataGenerator(rescale=1. / 255)
 
@@ -299,7 +301,7 @@ class CNN:
     def predict(self, predict, table):
         if predict is True:
             # take ALL tiles from the database
-            tiles = table.objects.all()
+            tiles = table.objects.all().order_by('?')
 
             for i, row in enumerate(tiles):
                 x = str(row.x_coord)
@@ -310,13 +312,22 @@ class CNN:
                 img = image.img_to_array(img) / 255
                 img = np.expand_dims(img, axis=0)
 
-                # add 0.1 in case there might be 2 labels (softmax gives the sum of the labels = 1),
-                # therefore the chance of having a tile with 2 labels classified as 0.5, 0.5, 0 is quite rare
-                # BEWARE: predicting 3 times
-                building = round(self.model.predict(img)[0][0] + 0.1)
-                land = round(self.model.predict(img)[0][1] + 0.1)
-                water = round(self.model.predict(img)[0][2] + 0.1)
-                save_labels(x, y, year, building, land, water)
+                # BEWARE, predicting three times
+                predictions = []
+                for k in range(0, len(labels)):
+                    predictions.append(self.model.predict(img)[0][k])
+                    # if the probability is not 0, then there is a trace of that specific feature on the tile
+                    # but the labels which are not present in the image might look like: {0.00000312} (lots of decimals)
+                    if predictions[k] > 0:
+                        predictions[k] = 1
+                    else:
+                        predictions[k] = 0
+                    a = predictions
+
+                print(URL, 'building', np.round(a[0] * 100, 5), 'land', np.round(a[1] * 100, 5), 'water',
+                      np.round(a[2] * 100, 5))
+                print('building', predictions[0], 'land', predictions[1], 'water', predictions[2], '\n')
+                # save_labels(x, y, year, 0, 0, 0)
 
 
 def run():
