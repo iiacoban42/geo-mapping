@@ -4,8 +4,8 @@ from django.contrib.auth.models import AnonymousUser
 import sys
 import os
 
-from core.models import Tiles as TileTable
-from core.models import Characteristics as CharacteristicsTable
+from core.models import Confirmed_Captcha_Tiles as ConfirmedCaptchaTiles
+from core.models import Confirmed_Captcha_Characteristics as ConfirmedCaptchaChars
 
 sys.path.append(os.path.join(os.path.dirname("src"), '..'))
 # pylint: disable=all
@@ -20,16 +20,16 @@ class TestSmoke(TestCase):
 
     def setUp(self):
         self.factory = RequestFactory()
-        tile = TileTable()
+        tile = ConfirmedCaptchaTiles()
         tile.x_coord = 0
         tile.y_coord = 0
         tile.year = 2010
         tile.save()
 
-        stored_tile = TileTable.objects.filter(x_coord=0, y_coord=0,
+        stored_tile = ConfirmedCaptchaTiles.objects.filter(x_coord=0, y_coord=0,
                                                year=2010)
 
-        chars = CharacteristicsTable()
+        chars = ConfirmedCaptchaChars()
         chars.tiles_id = stored_tile[0]
         chars.water_prediction = 100
         chars.land_prediction = 0

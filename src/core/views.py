@@ -1,23 +1,24 @@
 """Views module"""
 # pylint: disable=[line-too-long,import-error, unused-argument, no-name-in-module,wildcard-import, fixme]
 
-import random
 import json
+import random
+from datetime import datetime, timedelta
 
-from django.shortcuts import render
+import pytz
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
-
+from django.shortcuts import render
+from django.views.decorators.clickjacking import xframe_options_exempt
 from pyproj import Transformer
 
-from core.models import Captcha_Tiles as CaptchaTable
-from core.models import Dataset as DatasetTable
-from core.models import Tiles as TileTable
-from core.models import Characteristics as CharacteristicsTable
-from core.models import Objects as ObjectsTable
-from core.models import AI_Tiles as AITilesTable
-from core.filter_ai_tiles import get_tiles_with_label
 from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles, check_characteristics, \
     check_objects
+from core.detection import detect
+from core.models import AI_Tiles as AITilesTable, AI_Characteristics, AI_Objects
+from core.models import Captcha_Tiles as CaptchaTable
+from core.models import Confirmed_Captcha_Characteristics as ConfirmedCaptchaChars
+from core.models import Confirmed_Captcha_Tiles as ConfirmedCaptchaTiles
+from core.models import Dataset as DatasetTable
 
 
 def home(request):
@@ -34,6 +35,20 @@ def tiles_overview(request):
     """render tiles_overview.html page"""
 
     return render(request, 'tiles-overview/tiles_overview.html')
+
+
+@xframe_options_exempt
+def captcha_embed(request):
+    """render captcha_embed.html page"""
+
+    return render(request, 'captcha/captcha_embed.html')
+
+
+@xframe_options_exempt
+def embed_example(request):
+    """render embed_example.html page"""
+
+    return render(request, 'captcha/embed_example.html')
 
 
 def get_statistics(request):
@@ -60,7 +75,7 @@ def get_markers(request):
     data = {}
     data['labels'] = []
     data['points'] = []
-    for obj in ObjectsTable.objects.all():
+    for obj in AI_Objects.objects.all():
         data['labels'].append({"Label": "Label", "Name": obj.type, "Other": "-"})
 
         # Linear regression magic (can be a few meters off, might improve with more data later)
@@ -93,18 +108,41 @@ def get_labels(request, tile):
 
 def get_all_labels(request, requested_map):
     """Return json array of tiles with a specific label"""
+    transformer = Transformer.from_crs("EPSG:28992", "EPSG:4326")
     query = json.loads(requested_map)
     tiles = AITilesTable.objects.filter(year=query.get("year"))
     if len(tiles) == 0:
         return HttpResponseBadRequest("No tiles")
-    tile_list = get_tiles_with_label(query.get("label"), tiles)
-    if len(tile_list) == 0:
-        return HttpResponseBadRequest("No tiles")
     result = []
-    for tile in tile_list:
-        found = tile.tiles_id
-        result.append({"x_coord": found.x_coord, "y_coord": found.y_coord})
-        print(result)
+    label = str(query.get("label"))
+    if label not in ("building", "water", "land", "church"):
+        return HttpResponseBadRequest("Wrong Label")
+
+    if label not in ["church"]:
+        # query database for land use labels
+        if label == "building":
+            label += "s"
+        label += "_prediction"
+        kwargs = {label: 1}
+        ids = AI_Characteristics.objects.filter(pk__in=tiles.all().values_list('id', flat=True), **kwargs)
+        if len(ids) == 0:
+            return HttpResponseBadRequest("No tiles")
+        for tile in tiles.filter(pk__in=ids.all()):
+            x_28992 = tile.x_coord * 406.55828 - 30527385.66843
+            y_28992 = tile.y_coord * -406.41038 + 31113121.21698
+            espg_4326 = transformer.transform(x_28992, y_28992)
+            result.append({"x_coord": espg_4326[1], "y_coord": espg_4326[0]})
+    else:
+        # query database for churches
+        ids = AI_Objects.objects.filter(tiles_id__in=tiles.all().values_list('id', flat=True))
+        if len(ids) == 0:
+            return HttpResponseBadRequest("No tiles")
+        for tile in tiles.filter(pk__in=ids.values_list('tiles_id', flat=True)):
+            x_28992 = tile.x_coord * 406.55828 - 30527385.66843
+            y_28992 = tile.y_coord * -406.41038 + 31113121.21698
+            espg_4326 = transformer.transform(x_28992, y_28992)
+            result.append({"x_coord": espg_4326[1], "y_coord": espg_4326[0]})
+
     return JsonResponse(result, safe=False)
 
 
@@ -121,7 +159,7 @@ def get_tile(request):
         return HttpResponse()
 
     # Pick a known tile
-    tile = random.choice(TileTable.objects.all())
+    tile = random.choice(ConfirmedCaptchaTiles.objects.all())
 
     year_known = tile.year
     x_known = tile.x_coord
@@ -136,9 +174,7 @@ def get_tile(request):
 
 def submit_captcha(request):
     """Verify captcha challenge"""
-    # NOTE: Terrible code ahead. I'll try to make it prettier later on. -Georgi
     submission = json.loads(request.body)
-    print(submission)
 
     # Find which tile is the control
     control = find_tiles(submission)
@@ -149,13 +185,55 @@ def submit_captcha(request):
     control_sub = control[1]
     unid_sub = control[2]
 
-    char_query = CharacteristicsTable.objects.filter(tiles_id=control_tile.id)
+    char_query = ConfirmedCaptchaChars.objects.filter(tiles_id=control_tile.id)
     if len(char_query) == 0:
         return HttpResponseBadRequest("No characteristics")
     control_char = char_query[0]
 
     # Check the characteristics
     if check_characteristics(control_sub, control_char):
-        if check_objects(control_sub, unid_sub, control_tile):
-            return HttpResponse()
+        result = check_objects(control_sub, unid_sub, control_tile)
+        if result is not None:
+            return HttpResponse(result)
     return HttpResponseBadRequest("Wrong answer")
+
+
+def get_accuracy(request):
+    """Get last accuracy of CNN"""
+    with open('static/history.txt') as file:
+        read_data = {'accuracy': file.read()[1:-1]}
+        print(read_data)
+        file.close()
+        return JsonResponse(read_data, safe=False)
+
+
+def train(request):
+    """Return timestamp of the most recently classified tile"""
+    latest_forecast = AI_Characteristics.objects.latest('timestamp')
+
+    timestamp = "{t.year}/{t.month:02d}/{t.day:02d} - {t.hour:02d}:{t.minute:02d}:{t.second:02d}".format(
+        t=latest_forecast.timestamp + timedelta(hours=2))
+    print(datetime.now(tz=pytz.utc))
+    return render(
+        request,
+        'train/train.html',
+        {'accuracy': None,
+         'update_time': timestamp})
+
+
+def machine_learning(request):
+    """Train CNN and update timestamp"""
+
+    # !!!!!!! LEFT MINUTES TO TEST
+    a_week_ago = datetime.now(tz=pytz.utc) - timedelta(minutes=0)
+    # UNCOMMENT TO BE ABLE TO RUN THE ML BY PRESSING THE BUTTON (AT /train) ONCE EVERY 7 DAYS
+    # a_week_ago = datetime.now(tz=pytz.utc) - timedelta(days=7)
+    latest_forecast = AI_Characteristics.objects.latest('timestamp')
+    if latest_forecast is None or (latest_forecast.timestamp < a_week_ago):
+        detect.run()
+        latest_forecast = AI_Characteristics.objects.latest('timestamp')
+        timestamp = "{t.year}/{t.month:02d}/{t.day:02d} - {t.hour:02d}:{t.minute:02d}:{t.second:02d}".format(
+            t=latest_forecast.timestamp + timedelta(hours=2))
+        print('FORECAST UPDATED', timestamp)
+        return JsonResponse(timestamp, safe=False)
+    return HttpResponseBadRequest("Too little time passed")

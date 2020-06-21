@@ -1,4 +1,10 @@
+.esri-ui {
+    bottom: 0 !important;
+    height: 95%;
+}
+
 html, body, #map {
+    position: fixed;
     height: 100%;
     width: 100%;
     margin: 0;
@@ -6,23 +12,32 @@ html, body, #map {
     overflow: hidden;
 }
 
-.esri-popup__footer, .esri-popup__button--dock {
+.esri-popup__footer, .esri-popup__button--dock, .esri-layer-list__child-toggle {
     visibility: hidden;
 }
 
 .esri-ui-top-left {
-    margin-left: 97.7%;
-    margin-top: 3%;
+    margin-top: 30%;
 }
 
-.menu {
-    margin-top: 20%;
+.esri-view-root {
+    margin: 0 !important;
 }
+
+.esri-ui-list, .esri-editor, .esri-ui-top-left {
+    margin-left: 97.7%;
+}
+
+.esri-layer-list__list, .esri-zoom, .esri-editor, #coordsWidget {
+    opacity: 95%;
+}
+
 
 #current {
     font-size: 30px;
     color: var(--main-white);
 }
+
 
 /* The navigation links inside the overlay */
 .overlay a {
@@ -34,50 +49,26 @@ html, body, #map {
     transition: 0.3s; /* Transition effects on hover (color) */
 }
 
-.captcha, .overview, .water, .buildings, .land {
+.button {
     background-color: rgba(157, 179, 191, 0.46);
-    border-radius: 28px;
+    border-radius: 20px;
     border: 2px solid rgba(240, 240, 240, 0.7);
     display: inline-block;
     cursor: pointer;
     color: #d7ecf6;
     font-size: 19px;
-    margin-left: 60%;
+    height: 30px;
+    margin-right: 20px;
     text-shadow: 0px 1px 0px #2f6627;
 }
-
-#captcha {
-    position: absolute;
-    margin-top: -31px;
-    margin-left: 1117px;
-}
-
-#overview {
-    margin-top: -31px;
-    margin-left: 1216px;
-    position: absolute;
-}
-
-#land {
-    position: absolute;
-    margin-top: -31px;
-    margin-left: 1000px;
-}
-
-#water {
-    position: absolute;
-    margin-top: -31px;
-    margin-left: 868px;
-}
-
-#buildings {
-    position: absolute;
-    margin-top: -31px;
-    margin-left: 700px;
-}
-
 
 .buttons:hover {
     background-color: rgba(42, 170, 191, 0.34);
 }
 
+.buttons {
+    margin-top: -32px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
