@@ -41,15 +41,15 @@ e2e_test:
     - npm install cypress --save-dev
     - python3 src/manage.py runserver & $(npm bin)/cypress run
 
-deploy_staging:
-  stage: Deploy
-  script:
-  - apt-get update -qy
-  - apt-get install -y ruby-dev
-  - gem install dpl
-  - dpl --provider=heroku --app=timetravelmaps --api-key=8e8a1068-2e7b-4937-9f65-e684fe93d6e7
-  only:
-  - master
-  - dev
-  - heroku
-  - captcha_embed
+# deploy_staging:
+#   stage: Deploy
+#   script:
+#   - apt-get update -qy
+#   - apt-get install -y ruby-dev
+#   - gem install dpl
+#   - dpl --provider=heroku --app=timetravelmaps --api-key=8e8a1068-2e7b-4937-9f65-e684fe93d6e7
+#   only:
+#   - master
+#   - dev
+#   - heroku
+#   - captcha_embed
