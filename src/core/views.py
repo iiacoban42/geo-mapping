@@ -13,7 +13,7 @@ from pyproj import Transformer
 
 from core.captcha import pick_unsolved_captcha, pick_random_captcha, find_tiles, check_characteristics, \
     check_objects
-from core.detection import detect
+#from core.detection import detect
 from core.models import AI_Tiles as AITilesTable, AI_Characteristics, AI_Objects
 from core.models import Captcha_Tiles as CaptchaTable
 from core.models import Confirmed_Captcha_Characteristics as ConfirmedCaptchaChars
