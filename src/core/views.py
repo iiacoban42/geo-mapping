@@ -79,12 +79,14 @@ def get_markers(request):
     data = {}
     data['labels'] = []
     data['points'] = []
+
     for obj in AI_Objects.objects.all():
         data['labels'].append({"Label": "Label", "Name": obj.type, "Other": "-"})
+        tile = obj.tiles_id
 
         # Linear regression magic (can be a few meters off, might improve with more data later)
-        x_28992 = obj.x_coord * X_WIDTH + X_OFFSET
-        y_28992 = obj.y_coord * Y_HEIGHT + Y_OFFSET
+        x_28992 = tile.x_coord * X_WIDTH + X_OFFSET
+        y_28992 = tile.y_coord * Y_HEIGHT + Y_OFFSET
 
         # Center
         x_28992 += X_WIDTH / 2
