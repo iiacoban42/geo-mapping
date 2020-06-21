@@ -105,7 +105,7 @@ async function submitChallenge() {
                 document.getElementById("checkmark").classList.add("checkmark_success")
                 
                 // If the CAPTCHA is embeded this will signal the website that it's completed.
-                window.postMessage(text, "*");
+                parent.postMessage(text, "*");
             })
             
         } else {
