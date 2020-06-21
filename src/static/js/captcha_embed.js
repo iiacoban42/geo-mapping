@@ -15,7 +15,7 @@ window.onload = function() {
     var iframe = document.createElement("iframe")
 
     console.log(window.location.pathname)
-    if(window.location.pathname === "/captcha/") // We are on our own server
+    if(window.location.pathname === "/captcha/" || window.location.pathname === "/") // We are on our own server
     {
         iframe.setAttribute("src", "/captcha_embed/");
     } else  // We are embedding on another domain
@@ -43,6 +43,7 @@ window.addEventListener('message', function(e) {
     if(e.data.startsWith("resize:")){ // IFrame resize message
         resizeIframe(parseInt(e.data.substr(7)))
     } else { // Captcha completed message
+        console.log(e.data)
         uuid_input = document.getElementById("uuid_input");
         uuid_input.value = e.data
     }
