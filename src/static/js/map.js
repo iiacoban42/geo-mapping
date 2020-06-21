@@ -25,31 +25,7 @@ require(["esri/Map", "esri/views/MapView", "esri/widgets/Legend/LegendViewModel"
         // Create the feature layer, used for the overlay
         setupFeatureLayer(FeatureLayer);
         map.add(featureLayer)
-
-        // Create the feature layer for objects
-        var objectRenderer = {
-            type: "simple",
-            label: "Church",
-            symbol: {
-                type: "picture-marker",
-                url: "/static/img/church.png",
-                height: 18,
-                width: 18
-            }
-          }
-
-        objectLayer = new FeatureLayer({
-            source: [],
-            geometryType: "polygon",
-            renderer: objectRenderer,
-            objectIdField: "objectid",
-            fields: [
-                {
-                    name: "objectid",
-                    type: "oid"
-                }
-            ]
-        });
+        setupObjectLayer(FeatureLayer);
         map.add(objectLayer)
 
         // map is added to the view
@@ -215,7 +191,7 @@ require(["esri/Map", "esri/views/MapView", "esri/widgets/Legend/LegendViewModel"
 
 
         const legend = new Legend({
-            view: view,
+            // view: view,
             showLegend: true,
             showSubLayers: true,
             showOpacitySlider: true,
@@ -288,7 +264,9 @@ require(["esri/Map", "esri/views/MapView", "esri/widgets/Legend/LegendViewModel"
                         map.removeAll();
                         map.add(yearLayer);
                         setupFeatureLayer(FeatureLayer);
+                        setupObjectLayer(FeatureLayer);
                         map.add(featureLayer);
+                        map.add(objectLayer);
                         document.getElementById('current').innerHTML = event.target.id;
                         closeNav();
                     }
@@ -297,6 +275,33 @@ require(["esri/Map", "esri/views/MapView", "esri/widgets/Legend/LegendViewModel"
         );
     }
 );
+
+function setupObjectLayer(FeatureLayer) {
+            // Create the feature layer for objects
+        var objectRenderer = {
+            type: "simple",
+            label: "Church",
+            symbol: {
+                type: "picture-marker",
+                url: "/static/img/church.png",
+                height: 18,
+                width: 18
+            }
+          }
+
+        objectLayer = new FeatureLayer({
+            source: [],
+            geometryType: "polygon",
+            renderer: objectRenderer,
+            objectIdField: "objectid",
+            fields: [
+                {
+                    name: "objectid",
+                    type: "oid"
+                }
+            ]
+        });
+}
 
 function setupFeatureLayer(FeatureLayer) {
     // template for points on map
