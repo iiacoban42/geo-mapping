@@ -83,7 +83,7 @@ async function submitChallenge() {
                 'oiltank': oiltank2
             }]
     if (verifyCheckbox1() === false || verifyCheckbox2() === false) {
-        window.alert("A tile must have at least one land use label");
+        result.innerHTML = "Please select at least one label";
         document.getElementById("not_a_robot_checkbox").classList.remove("disable");
         document.getElementById("not_a_robot_checkbox").classList.add("enable");
         document.getElementById("loading").classList.toggle("loader");
@@ -101,21 +101,18 @@ async function submitChallenge() {
             clearCheckbox();
 
             response.text().then(function (text) {
-                window.alert("Correct CAPTCHA. Tile registered.")
+                result.innerHTML = "Correct CAPTCHA. Tile registered."
                 document.getElementById("checkmark").classList.add("checkmark_success")
                 
                 // If the CAPTCHA is embeded this will signal the website that it's completed.
-                // var myEvent = new CustomEvent('captcha_uuid', { detail: {uuid: text}})       
-                // window.parent.dispatchEvent(myEvent)
-
                 window.postMessage(text, "*");
             })
             
         } else {
-            console.log(response)
-            //result.innerHTML = "Incorrect " + response.statusText;
+            response.text().then(function (text) {
+                result.innerHTML = text + ". Please try again.";
+            })
             clearCheckbox();
-            window.alert("Incorrect CAPTCHA")
         }
     })
     document.getElementById("not_a_robot_checkbox").classList.remove("disable")

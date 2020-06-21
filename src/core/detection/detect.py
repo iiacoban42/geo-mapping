@@ -20,6 +20,7 @@ from skimage import io
 
 from core.models import AI_Characteristics as PredictionsTable
 from core.models import AI_Tiles as AITilesTable
+from core.models import Confirmed_Captcha_Characteristics as ConfirmedCaptchaChars
 from core.models import Dataset as DatasetTable
 from core.models import UsableTiles as PredictUsableTiles
 
@@ -32,9 +33,7 @@ splits = ['train', 'validation']
 # saves ai classification in the database
 def save_labels(tile_x, tile_y, tile_year, building, land, water):
     tile = AITilesTable.objects.filter(x_coord=tile_x, y_coord=tile_y, year=tile_year).first()
-    if tile is not None:
-        print('Already existing in the database', tile)
-    else:
+    if tile is None:
         tile = AITilesTable(x_coord=tile_x, y_coord=tile_y, year=tile_year)
 
     tile.save()
@@ -52,14 +51,19 @@ def remove_images(directory):
 
 # saves images from the db in folders based on their label
 # see @labels
-def get_images_train(table):
+def get_images_train():
     print('This will take a while..')
-    dataset = table.objects.all().order_by('?')
+    get_images_captcha()
+    get_images_dataset()
+
+
+def get_images_dataset():
+    dataset = DatasetTable.objects.all().order_by('?')
     number = {'building': 0, 'land': 0, 'water': 0}
-    max = min(DatasetTable.objects.filter(building=1, land=0, water=0).count(),
-              DatasetTable.objects.filter(building=0, land=1, water=0).count(),
-              DatasetTable.objects.filter(building=0, land=0, water=1).count())
-    print('Maximum', max, "images for each label")
+    max_img = min(DatasetTable.objects.filter(building=1, land=0, water=0).count(),
+                  DatasetTable.objects.filter(building=0, land=1, water=0).count(),
+                  DatasetTable.objects.filter(building=0, land=0, water=1).count())
+    print('Maximum', max_img, "images for each dataset label")
     for row in dataset:
         x = str(row.x_coord)
         y = str(row.y_coord)
@@ -79,12 +83,52 @@ def get_images_train(table):
             try:
                 # avoid being biased towards a label which has more images than the rest...
                 # e.g.: lots of water, few buildings
-                if number[label] < max + (max * 0.25):
+                if number[label] < max_img + (max_img * 0.3):
                     urllib.request.urlretrieve(res, label + '/' + y + '_' + x + '.png')
             except:
                 'not found'
                 print('Tile from', year, 'having x=', x, 'and y=', y, 'is not on the website. Delete it.\n')
-    print('\ndatabase hacked\n')
+
+
+def get_images_captcha():
+    dataset = ConfirmedCaptchaChars.objects.select_related('tiles_id').all().order_by('?')
+    number = {'building': 0, 'land': 0, 'water': 0}
+
+    low_bound = 20
+    high_bound = 80
+
+    max_img = min(
+        ConfirmedCaptchaChars.objects.filter(buildings_prediction__gte=high_bound, land_prediction__lte=low_bound,
+                                             water_prediction__lte=low_bound).count(),
+        ConfirmedCaptchaChars.objects.filter(buildings_prediction__lte=low_bound, land_prediction__gte=high_bound,
+                                             water_prediction__lte=low_bound).count(),
+        ConfirmedCaptchaChars.objects.filter(buildings_prediction__lte=low_bound, land_prediction__lte=low_bound,
+                                             water_prediction__gte=high_bound).count())
+    print('Maximum', max_img, "images for each captcha label")
+    for row in dataset:
+        x = str(row.tiles_id.x_coord)
+        y = str(row.tiles_id.y_coord)
+        year = str(row.tiles_id.year)
+        res = 'https://tiles.arcgis.com/tiles/nSZVuSZjHpEZZbRo/arcgis/rest/services/Historische_tijdreis_' + year + '/MapServer/tile/11/' + y + '/' + x
+        label = ''
+        if row.buildings_prediction >= high_bound:
+            label += 'building'
+        if row.land_prediction >= high_bound:
+            label += 'land'
+        if row.water_prediction >= high_bound:
+            label += 'water'
+        if labels.__contains__(label):
+            number[label] += 1
+            if not os.path.exists(label):
+                os.makedirs(label)
+            try:
+                # avoid being biased towards a label which has more images than the rest...
+                # e.g.: lots of water, few buildings
+                if number[label] < max_img + (max_img * 0.3):
+                    urllib.request.urlretrieve(res, label + '/' + y + '_' + x + '.png')
+            except:
+                'not found'
+                print('Tile from', year, 'having x=', x, 'and y=', y, 'is not on the website. Delete it.\n')
 
 
 # split the images in two sets: train and validation
@@ -136,7 +180,7 @@ def train_validation_split():
 #################################           B E W A R E            ####################################################
 #################################    CONVOLUTIAL NEURAL NETWORK    ####################################################
 class CNN:
-    def __init__(self, image_size=256, number_channels=3, number_epochs=20, batch_size=16):
+    def __init__(self, image_size=256, number_channels=3, number_epochs=5, batch_size=9):
         self.image_size = image_size
         self.number_channels = number_channels
         self.number_epochs = number_epochs
@@ -155,27 +199,20 @@ class CNN:
         self.model.add(MaxPooling2D(pool_size=(2, 2),
                                     strides=2))
         self.model.add(Conv2D(filters=64,
-                              kernel_size=(2, 2),
-                              strides=(1, 1),
-                              padding='same',
-                              input_shape=(self.image_size, self.image_size, self.number_channels),
-                              data_format='channels_last'))
-        self.model.add(Activation('relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2),
-                                    strides=2))
-        self.model.add(Conv2D(filters=128,
-                              kernel_size=(2, 2),
+                              kernel_size=(4, 4),
                               strides=(1, 1),
                               padding='valid'))
         self.model.add(Activation('relu'))
+        self.model.add(Dropout(0.2))
         self.model.add(MaxPooling2D(pool_size=(2, 2),
                                     strides=2))
         self.model.add(Flatten())
-        self.model.add(Dense(128))
+        self.model.add(Dense(64))
         self.model.add(Activation('relu'))
-        self.model.add(Dropout(0.3))
+        self.model.add(Dropout(0.2))
         self.model.add(Dense(len(labels)))
-        self.model.add(Activation('softmax'))
+        # using sigmoid to get the probability for each label
+        self.model.add(Activation('sigmoid'))
 
         # load previously stored weights
         try:
@@ -185,13 +222,17 @@ class CNN:
             'error'
             print('Initialising weights')
 
-        self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=["categorical_accuracy",
+                                                                                  "binary_accuracy",
+                                                                                  'accuracy',
+                                                                                  'binary_crossentropy',
+                                                                                  'mean_squared_error'])
         self.model.summary()
 
     def train(self):
         # split and get number of images for train and validation
         number_train, number_validation = train_validation_split()
-        train_datagen = ImageDataGenerator(rescale=1. / 255, zoom_range=0.2)
+        train_datagen = ImageDataGenerator(rescale=1. / 255, zoom_range=0.2, rotation_range=90)
 
         validation_datagen = ImageDataGenerator(rescale=1. / 255)
 
@@ -213,7 +254,8 @@ class CNN:
             steps_per_epoch=number_train // self.batch_size,
             epochs=self.number_epochs,
             validation_data=validation_generator,
-            validation_steps=number_validation // self.batch_size)
+            validation_steps=number_validation // self.batch_size,
+            verbose=1)
         end = time.time()
 
         self.model.save_weights('core/detection/cnn_baseline.h5')
@@ -221,8 +263,8 @@ class CNN:
         # print(self.model.metrics_names)
         try:
             file = open("static/history.txt", "w")
-            print(history.history["val_acc"])
-            file.write(history.history["val_acc"][:-1].__str__())
+            print(history.history["acc"])
+            file.write(history.history["acc"].__str__())
             file.close()
         except:
             print('no history??')
@@ -267,19 +309,18 @@ class CNN:
                 img = image.img_to_array(img) / 255
                 img = np.expand_dims(img, axis=0)
 
-                # add 0.1 in case there might be 2 labels (softmax gives the sum of the labels = 1),
-                # therefore the chance of having a tile with 2 labels classified as 0.5, 0.5, 0 is quite rare
-                # BEWARE: predicting 3 times
-                building = round(self.model.predict(img)[0][0] + 0.1)
-                land = round(self.model.predict(img)[0][1] + 0.1)
-                water = round(self.model.predict(img)[0][2] + 0.1)
-                save_labels(x, y, year, building, land, water)
+                # BEWARE, predicting three times
+                predictions = []
+                for k in range(0, len(labels)):
+                    predictions.append(np.round(self.model.predict(img)[0][k]))
+                # if i % 20 == 0:
+                # print('building', predictiwons[0], 'land', predictions[1], 'water', predictions[2], URL, '\n')
+                save_labels(x, y, year, predictions[0], predictions[1], predictions[2])
 
 
 def run():
-    get_images_train(DatasetTable)
+    get_images_train()
     cnn = CNN()
     cnn.train()
     cnn.predict(True, PredictUsableTiles)
     print('############################## U DID IT ############################################################')
-

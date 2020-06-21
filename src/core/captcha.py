@@ -7,8 +7,6 @@ from django.db.models import Avg, Count, Q
 from django.utils import timezone
 
 from core.models import UsableTiles as UsableTilesTable
-from core.models import Tiles as TileTable
-from core.models import Objects as ObjectsTable
 from core.models import Captcha_Tiles as CaptchaTilesTable
 from core.models import Captcha_Characteristics as CaptchaCharsTable
 from core.models import Captcha_Objects as CaptchaObjectsTable
@@ -19,9 +17,9 @@ from core.models import Confimed_Captcha_Objects as ConfirmedCaptchaObj
 
 def find_tiles(submission):
     """Find which tile is in control"""
-    tile1_query = TileTable.objects.filter(x_coord=submission[0]['x'], y_coord=submission[0]['y'],
-                                           year=submission[0]['year'])
-    tile2_query = TileTable.objects.filter(x_coord=submission[1]['x'], y_coord=submission[1]['y'],
+    tile1_query = ConfirmedCaptchaTiles.objects.filter(x_coord=submission[0]['x'], y_coord=submission[0]['y'], \
+                                            year=submission[0]['year'])
+    tile2_query = ConfirmedCaptchaTiles.objects.filter(x_coord=submission[1]['x'], y_coord=submission[1]['y'], \
                                            year=submission[1]['year'])
     if len(tile1_query) > 0:
         # Tile #1 is control, verify it's data
@@ -52,7 +50,7 @@ def check_characteristics(sub, db_tile):
 
 def check_objects(control_sub, unid_sub, control_tile):
     """Check if objects match"""
-    obj_query = ObjectsTable.objects.filter(tiles_id=control_tile.id)
+    obj_query = ConfirmedCaptchaObj.objects.filter(tiles_id=control_tile.id)
     if len(obj_query) == 0:
         if not control_sub['church'] and not control_sub['oiltank']:  # In case there are no objects
             return correct_captcha(unid_sub)

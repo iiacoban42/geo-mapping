@@ -4,11 +4,9 @@ from django.contrib.auth.models import AnonymousUser
 import sys
 import os
 
-from core.models import Tiles as TileTable
-from core.models import Objects as ObjectsTable
-from core.models import Dataset as DatasetTable
 from core.models import AI_Tiles as AITilesTable
 from core.models import AI_Characteristics as AICharsTable
+from core.models import AI_Objects as AIObjTable
 
 sys.path.append(os.path.join(os.path.dirname("src"), '..'))
 # pylint: disable=all
@@ -33,25 +31,19 @@ class TestRequests(TestCase):
         tile_ds.year = 2014
         tile_ds.save()
 
-        tile = TileTable()
-        tile.x_coord = 2
-        tile.y_coord = 2
-        tile.year = 2014
-        tile.save()
-
-        obj = ObjectsTable()
-        obj.tiles_id = tile
-        obj.x_coord = 0
-        obj.y_coord = 0
-        obj.prediction = 100
-        obj.type = 'oiltank'
-        obj.save()
-
         tile_ai = AITilesTable()
         tile_ai.x_coord = 2
         tile_ai.y_coord = 2
         tile_ai.year = 2010
         tile_ai.save()
+
+        tile_obj = AIObjTable()
+        tile_obj.tiles_id = tile_ai
+        tile_obj.x_coord = 0
+        tile_obj.y_coord = 0
+        tile_obj.prediction = 100
+        tile_obj.type = 'oiltank'
+        tile_obj.save()
 
         tile_chars = AICharsTable()
         tile_chars.tiles_id = tile_ai
