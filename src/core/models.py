@@ -8,47 +8,50 @@ from django.db import models
 # Mapping to the database tables
 
 # CAPTCHA tables ################################################
-class CaptchaSubmissions(models.Model):
-    """Submitted CAPTCHAs"""
+
+class Tiles(models.Model):
+    """Classified Tiles Table used to verify CAPTCHA user input"""
 
     class Meta:
-        """Meta CaptchaSubmissions"""
+        """Meta Tiles"""
         app_label = 'core'
 
     id = models.AutoField(primary_key=True)
-
-    # We cannot just reference a tile as it's not yet identified, so it doesn't exist in the DB
     x_coord = models.IntegerField(blank=False)
     y_coord = models.IntegerField(blank=False)
     year = models.IntegerField(blank=False)
-
-    water = models.BooleanField()
-    land = models.BooleanField()
-    building = models.BooleanField()
-
-    church = models.BooleanField()
-    oiltank = models.BooleanField()
     objects = models.Manager()
 
-class ConfirmedCaptchas(models.Model):
-    """Confirmed CAPTCHAs"""
+
+class Objects(models.Model):
+    """Classified Objects Table used to verify CAPTCHA user input"""
 
     class Meta:
-        """Meta ConfirmedCaptchas"""
+        """Meta Object"""
         app_label = 'core'
 
     id = models.AutoField(primary_key=True)
+    tiles_id = models.ForeignKey(Tiles, on_delete=models.CASCADE)
+    type = models.CharField(max_length=30)
+    prediction = models.IntegerField()
+    objects = models.Manager()
 
-    x_coord = models.IntegerField(blank=False)
-    y_coord = models.IntegerField(blank=False)
-    year = models.IntegerField(blank=False)
 
+class Characteristics(models.Model):
+    """Classified Characteristics Table used to verify CAPTCHA user input"""
+
+    class Meta:
+        """Meta Characteristics"""
+        app_label = 'core'
+
+    tiles_id = models.OneToOneField(
+        Tiles,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
     water_prediction = models.IntegerField()
     land_prediction = models.IntegerField()
     buildings_prediction = models.IntegerField()
-
-    church_prediction = models.IntegerField()
-    oiltank_prediction = models.IntegerField()
     objects = models.Manager()
 
 
