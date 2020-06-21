@@ -29,6 +29,7 @@ require(["esri/Map", "esri/views/MapView", "esri/widgets/Legend/LegendViewModel"
         // Create the feature layer for objects
         var objectRenderer = {
             type: "simple",
+            label: "Church",
             symbol: {
                 type: "picture-marker",
                 url: "/static/img/church.png",
@@ -466,23 +467,36 @@ function toggle_graphics(id) {
     }
 }
 
-var btn_captcha = document.getElementById('captcha');
-btn_captcha.onclick = function () {
-    console.log('captcha')
-    location.assign('/captcha/');
-}
+window.addEventListener("load", function() {
+    var btn_captcha = document.getElementById('go_captcha');
+    btn_captcha.onclick = function () {
+        console.log('captcha')
+        location.assign('/captcha/');
+    }
 
-var btn_overview = document.getElementById('overview');
-btn_overview.onclick = function () {
-    console.log('tiles_overview')
-    location.assign('/tiles_overview/');
-}
+    var btn_overview = document.getElementById('overview');
+    btn_overview.onclick = function () {
+        console.log('tiles_overview')
+        location.assign('/tiles_overview/');
+    }
 
-var btn_train = document.getElementById('train');
-btn_train.onclick = function () {
-    console.log('train')
-    location.assign('/train/');
-}
+    var btn_train = document.getElementById('train');
+    btn_train.onclick = function () {
+        console.log('train')
+        location.assign('/train/');
+    }
+
+    var captcha_form = document.getElementById('captcha_form');
+    captcha_form.addEventListener('submit', function(){
+        var uuid_input = document.getElementById('uuid_input');
+
+        if(uuid_input.value != "")
+            document.getElementById('captcha_block').style.display = "none";
+
+        event.preventDefault();
+    });
+
+}, false);
 //
 // if (labels.includes(label)) {
 //                view.whenLayerView(featureLayer).then(function (layerView) {

@@ -9,7 +9,7 @@ from PIL import Image
 sys.path.append(os.path.join(os.path.dirname("src"), '..'))
 from src.scripts.improved_tile_retriever import check_full_white
 from src.scripts.improved_tile_retriever import check_transparent
-from src.scripts.improved_tile_retriever import save_tile
+from src.scripts.improved_tile_retriever import run
 from src.scripts.improved_tile_retriever import save_all_tiles
 from src.scripts.improved_tile_retriever import check_request
 from src.scripts.improved_tile_retriever import finish_request
@@ -75,3 +75,15 @@ class TestImprovedTileRetriever(unittest.TestCase):
         check_request("1", 1, 1, 1)
 
         real.urlopen.assert_called_once_with("1")
+
+    def test_run_inexistent_year_int(self):
+        self.assertEqual(run(1800), False)
+
+    def test_run_invalid_year_string(self):
+        self.assertEqual(run("a"), False)
+
+    def test_run_invalid_type(self):
+        self.assertEqual(run(1800.0), False)
+
+    def test_run_valid(self):
+        self.assertEqual(run(0), True)

@@ -134,6 +134,7 @@ year_coordinates = {
     "1973": [range(75043, 75816), range(74978, 76568)],
     "2016": [range(75077, 75825), range(74956, 75879)],
     "1963": [range(75044, 75815), range(74977, 76568)],
+    "0": [range(0, 10), range(0, 10)] # added for testing
 }
 
 
@@ -220,7 +221,11 @@ def run(year):
     elif not isinstance(year, str):
         print("Please provide the year as either an int or a string")
         print("What you provided was a " + str(type(year)))
-        return
+        return False
+    # check if the given string is a number
+    if not year.isnumeric():
+        print("Given year is not a number")
+        return False
     # check if the given year is in the dictionary
     # if it is not, present a list of possible years
     if not year_coordinates.__contains__(year):
@@ -230,10 +235,10 @@ def run(year):
         for key, value in year_coordinates.items():
             years += key + " "
         print(years)
-        return
+        return False
     # if the given year is in the dictionary, continue with saving its tiles
     else:
         range_x = year_coordinates.get(year)[0]
         range_y = year_coordinates.get(year)[1]
         save_all_tiles(year, range_x, range_y)
-
+        return True
