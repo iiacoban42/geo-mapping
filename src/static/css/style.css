@@ -16,6 +16,10 @@ html, body, #map {
     visibility: hidden;
 }
 
+.esri-layer-list__item:first-child{
+    display: none;
+}
+
 .esri-ui-top-left {
     margin-top: 30%;
 }

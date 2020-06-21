@@ -29,6 +29,7 @@ require(["esri/Map", "esri/views/MapView", "esri/widgets/Legend/LegendViewModel"
         // Create the feature layer for objects
         var objectRenderer = {
             type: "simple",
+            label: "Church",
             symbol: {
                 type: "picture-marker",
                 url: "/static/img/church.png",
