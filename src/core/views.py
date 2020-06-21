@@ -20,10 +20,10 @@ from core.models import Confirmed_Captcha_Characteristics as ConfirmedCaptchaCha
 from core.models import Confirmed_Captcha_Tiles as ConfirmedCaptchaTiles
 from core.models import Dataset as DatasetTable
 
-x_width = 406.29705
-x_offset = -30507572.70109
-y_height = -406.89159
-y_offset = 31149422.11094
+X_WIDTH = 406.29705
+X_OFFSET = -30507572.70109
+Y_HEIGHT = -406.89159
+Y_OFFSET = 31149422.11094
 
 def home(request):
     """render index.html page"""
@@ -83,12 +83,12 @@ def get_markers(request):
         data['labels'].append({"Label": "Label", "Name": obj.type, "Other": "-"})
 
         # Linear regression magic (can be a few meters off, might improve with more data later)
-        x_28992 = tile.x_coord * x_width + x_offset
-        y_28992 = tile.y_coord * y_height + y_offset
+        x_28992 = obj.x_coord * X_WIDTH + X_OFFSET
+        y_28992 = obj.y_coord * Y_HEIGHT + Y_OFFSET
 
         # Center
-        x_28992 += x_width / 2
-        y_28992 -= y_height / 2
+        x_28992 += X_WIDTH / 2
+        y_28992 -= Y_HEIGHT / 2
 
         # Transform to 'world' coordinates
         transformer = Transformer.from_crs("EPSG:28992", "EPSG:4326")
@@ -132,12 +132,12 @@ def get_all_labels(request, requested_map):
             return HttpResponseBadRequest("No tiles")
         for tile in tiles.filter(pk__in=ids.all()):
             # Linear regression magic (can be a few meters off, might improve with more data later)
-            x_28992 = tile.x_coord * x_width + x_offset
-            y_28992 = tile.y_coord * y_height + y_offset
+            x_28992 = tile.x_coord * X_WIDTH + X_OFFSET
+            y_28992 = tile.y_coord * Y_HEIGHT + Y_OFFSET
 
             # Center
-            x_28992 += x_width / 2
-            y_28992 -= y_height / 2
+            x_28992 += X_WIDTH / 2
+            y_28992 -= Y_HEIGHT / 2
 
             espg_4326 = transformer.transform(x_28992, y_28992)
             result.append({"x_coord": espg_4326[1], "y_coord": espg_4326[0]})
@@ -147,12 +147,12 @@ def get_all_labels(request, requested_map):
             return HttpResponseBadRequest("No tiles")
         for tile in tiles.filter(pk__in=ids.values_list('tiles_id', flat=True)):
             # Linear regression magic (can be a few meters off, might improve with more data later)
-            x_28992 = tile.x_coord * x_width + x_offset
-            y_28992 = tile.y_coord * y_height + y_offset
+            x_28992 = tile.x_coord * X_WIDTH + X_OFFSET
+            y_28992 = tile.y_coord * Y_HEIGHT + Y_OFFSET
 
             # Center
-            x_28992 += x_width / 2
-            y_28992 -= y_height / 2
+            x_28992 += X_WIDTH / 2
+            y_28992 -= Y_HEIGHT / 2
             espg_4326 = transformer.transform(x_28992, y_28992)
             result.append({"x_coord": espg_4326[1], "y_coord": espg_4326[0]})
 
