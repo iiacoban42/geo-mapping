@@ -58,12 +58,3 @@ class TestViews(TestCase):
         request.user = AnonymousUser()
         response = train(request)
         self.assertEqual(response.status_code, 200)
-
-    def test_machine_learning_bad_request(self):
-        # Create an instance of a GET request.
-        request = self.factory.get('machine_learning')
-
-        # an AnonymousUser instance.
-        request.user = AnonymousUser()
-        response = machine_learning(request)
-        self.assertEqual(response.status_code, 400)
