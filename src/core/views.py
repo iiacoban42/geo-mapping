@@ -120,6 +120,7 @@ def get_all_labels(request, requested_map):
         return HttpResponseBadRequest("Wrong Label")
 
     if label not in ["church"]:
+        # query database for land use labels
         if label == "building":
             label += "s"
         label += "_prediction"
@@ -133,6 +134,7 @@ def get_all_labels(request, requested_map):
             espg_4326 = transformer.transform(x_28992, y_28992)
             result.append({"x_coord": espg_4326[1], "y_coord": espg_4326[0]})
     else:
+        # query database for churches
         ids = AI_Objects.objects.filter(tiles_id__in=tiles.all().values_list('id', flat=True))
         if len(ids) == 0:
             return HttpResponseBadRequest("No tiles")
