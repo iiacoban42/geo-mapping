@@ -1,7 +1,7 @@
 .idea
 .vscode
 node_modules
-htmlcov/
+/coverage_report
 venv/pyvenv.cfg
 venv/Scripts/pythonw.exe
 venv/Scripts/python.exe
