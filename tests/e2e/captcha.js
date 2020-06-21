@@ -9,7 +9,6 @@ describe('Captcha', function () {
 
         cy.get('#water2').click();
         cy.get('#building2').click();
-        cy.get('#submit').click();
     });
 
     it('has working info with legend', () => {
