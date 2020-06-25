@@ -1,4 +1,3 @@
-
 var map;
 var view;
 var featureLayer;
@@ -49,6 +48,11 @@ require(["esri/Map", "esri/views/MapView", "esri/widgets/Legend/LegendViewModel"
 
         $(predictions).click(async function load_labels(event) {
             let label = event.target.id
+            
+            var buttons = ['land', 'water', 'building', 'church']
+            if(!buttons.includes(label)){
+                return;
+            }
             // if user changes year, exit function
             let abortController = new AbortController();
             document.getElementById(label).innerHTML = "loading..."
