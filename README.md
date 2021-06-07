@@ -1,4 +1,4 @@
-# Time Travel Trough Maps
+# Geomapping - map annotation tool  
 The main driving aspect of this project is the fact that the maps of the Netherlands could be used to provide insights into human development, leading to a better understanding of urban planning for the future. Despite already being available online, they are merely images of maps and as such cannot provide too much meaningful information, much less be used for actual research. Had they been digitized though, the story would be completely different.  
 
 This leads us to what we are trying to accomplish. We are setting the basis for a system that gathers data from its users and then uses that data (along with some simple predictions based on colours) to train a deep learning algorithm that can recognize elements on a map. From the shapes of rivers and cities, to more specific symbols such as churches and oil tanks, the time travelling algorithm will eventually be able to tell them all apart.
