@@ -31,6 +31,7 @@ Since a website was required, it was clear that the trio of HTML, CSS and JavaSc
 
 **Map Viewer**  
 <img src="demo-img/mapview.PNG" width="600">   
+
 **CAPTCHA**  
 <img src="demo-img/captcha.PNG" width="300">  
 
