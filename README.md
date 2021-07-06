@@ -9,13 +9,13 @@ Computer
 Interest in maps  
 
 ## Launching
-1) Open the directory in command prompt (or bash if using Linux).
-2) Type in `pip install -r src/requirements.txt` to install the necessary packages. (First time only)
+1) Open the directory in command prompt (or bash if using Linux).  
+2) Type in `pip install -r src/requirements.txt` to install the necessary packages. (First time only)  
 
->**NOTE:** Do not use the requirements.txt file in the root folder as that is only for our hosting and will not allow you to run everything.
+>**NOTE:** Do not use the requirements.txt file in the root folder as that is only for our hosting and will not allow you to run everything.  
 
-3) Type in `python src/manage.py runserver` to run the server.
-4) Open a browser and access `localhost:8000`
+3) Type in `python src/manage.py runserver` to run the server.  
+4) Open a browser and access `localhost:8000`  
 
 ## Built With
 Python with Django - Back-end API, testing   
